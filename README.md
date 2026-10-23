@@ -1,20 +1,18 @@
-# Coroinhas — Next.js 4.0
+# Coroinhas — Next.js
 
-## Publicar via GitHub/Vercel
-1. Remova do repositório antigo os arquivos da versão HTML (`index.html`, `config.js`, `supabase-client.js`) e qualquer SQL antigo público.
-2. Envie TODO o conteúdo desta pasta **para a raiz do repositório** (incluindo `app/`, `components/`, `lib/`, `package.json`, `tsconfig.json`, `next.config.ts`). NÃO envie o ZIP como arquivo único.
-3. Em Vercel > projeto > Settings > General: Framework Preset `Next.js`; Root Directory `./`. Deixe Build Command padrão.
-4. Em Settings > Environment Variables adicione:
-   NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (valores copiados de `.env.example`).
-5. Redeploy em Deployments > Redeploy com cache desmarcado (se necessário).
-6. Antes de cadastrar coordenador, cadastre usuário no site; depois execute o UPDATE abaixo no SQL Editor do Supabase:
+Projeto mobile para coroinhas e coordenação. Next.js + React + TypeScript + Supabase.
 
-```sql
-UPDATE public.profiles SET role='coordenadora',approved=true
-WHERE email='santanalucas220210@gmail.com';
-```
+## Publicação
 
-Este pacote usa a estrutura do banco Coroinhas V2 existente; não criar outro Supabase nem refazer tabelas.
+1. No repositório GitHub `Coroinhas---Escalas`, exclua os arquivos antigos `index.html`, `config.js` e `supabase-client.js`. Coloque **todos os arquivos e pastas deste ZIP** na raiz do repositório (não faça upload da pasta que contém os arquivos como uma subpasta).
+2. Na Vercel, em Project Settings > Build and Deployment, o framework deve ser **Next.js**, diretório-raiz `./`. Se estiver como Other, altere para Next.js e faça Redeploy.
+3. A conexão com o Supabase já usa o URL e a chave pública existentes como padrão. Para mudar, defina `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` nas variáveis de ambiente da Vercel.
+4. No Supabase, mantenha o SQL da V2 que você já executou. Se ainda não rodou, execute o SQL de atualização integral enviado diretamente na conversa (não tente executar o ZIP no SQL Editor).
+5. Cadastre o usuário no site e depois altere `role` e `approved` no SQL Editor, conforme os comandos enviados.
 
-## Nota
-A impressão do navegador é o mecanismo atual de PDF; push quando fechado requer implementação futura. Cadastro pode requerer confirmação de e-mail. Não foi possível rodar npm install/build neste ambiente por indisponibilidade do registro de pacotes, então valide o resultado em Deployments / Build Logs da Vercel.
+## Limites do protótipo funcional
+
+- Notificações ficam dentro do site; push no telefone fechado exige implantação posterior.
+- PDF usa Imprimir / Salvar como PDF do navegador.
+- Escala automática preenche vagas existentes quando regras e missa coincidem; a coordenadora pode revisar.
+- Ainda requer testes integrados no Supabase e na Vercel; não considerar homologado para produção.
