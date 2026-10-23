@@ -40,3 +40,6 @@ html,body{background:#ede6e3;font-family:system-ui,-apple-system,"Segoe UI",sans
 .auth-box h2{font-family:Georgia,serif;font-size:26px}
 .chip{font-weight:600}
 @media(min-width:750px){.app{border-radius:28px}}
+
+/* Layout corrections for mobile and support */
+.welcome-banner{flex-wrap:nowrap;align-items:center}.welcome-banner>div:last-child{min-width:0;flex:1}.welcome-banner strong,.welcome-banner small{display:block;overflow-wrap:anywhere}.welcome-banner strong{line-height:1.25}.welcome-banner small{line-height:1.45}.content>.title{line-height:1.16;overflow-wrap:anywhere}.drawer-role,.profile-role{color:#a35b67;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:12px;margin:5px 0 14px}.support-card p{line-height:1.55}.support-link{display:flex;flex-wrap:wrap;align-items:center;gap:9px;padding:16px;border:1px solid #e9d5d5;border-radius:15px;margin:12px 0;color:#711323;font-weight:700;text-decoration:none;background:#fcf5f3}.support-link small{display:block;flex-basis:100%;font-weight:400;color:#79676a;padding-left:29px;overflow-wrap:anywhere}@media(max-width:420px){.welcome-banner{padding:12px}.welcome-banner strong{font-size:16px}.welcome-banner small{font-size:11px}}
