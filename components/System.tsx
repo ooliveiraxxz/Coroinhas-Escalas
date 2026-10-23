@@ -38,7 +38,7 @@ export default function System(){
  const byId=(id:string)=>profiles.find(p=>p.id===id)?.name||'Coroinha';
  const prefs=profile?.notification_preferences||{enabled:true,free_slots:true,withdrawals:true,new_schedules:true};
  const changePreference=async(key:string,checked:boolean)=>{const next={...prefs,[key]:checked};setProfile({...profile,notification_preferences:next});const {error}=await db!.from('profiles').update({notification_preferences:next}).eq('id',user.id);if(error){setError(error.message);await refresh()}};
- const visibleNotices=notices.filter(n=>prefs.enabled!==false&&(!(/vaga|substitui/i.test(n.title)||prefs.free_slots!==false)&&(!(/desmarc|desist/i.test(n.title)||prefs.withdrawals!==false)&&(!(/escala cadastrada|nova escala|você está escalado|escala atualizada/i.test(n.title)||prefs.new_schedules!==false)));
+ const visibleNotices=notices.filter(n => prefs.enabled !== false && (!/vaga|substitui/i.test(n.title) || prefs.free_slots !== false) && (!/desmarc|desist/i.test(n.title) || prefs.withdrawals !== false) && (!/escala cadastrada|nova escala|você está escalado|escala atualizada/i.test(n.title) || prefs.new_schedules !== false));
  const setAssignment=async(id:string,patch:AnyRow)=>{if(!coord)return;await execute(()=>db!.from('assignments').update(patch).eq('id',id));};
  const liveMasses=masses.filter(m=>m.published);
  const cardMass=(m:AnyRow)=><div className="item" key={m.id} onClick={()=>chooseMass(m)}><div className="line"><div><b>{m.title}</b><div className="muted">{fmt(m.starts_at)} · {m.location}</div><div className="muted">{assignments.filter(a=>a.mass_id===m.id).length} funções</div></div><span className="chip">Ver →</span></div></div>;
