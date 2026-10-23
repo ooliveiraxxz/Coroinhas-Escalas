@@ -1,0 +1,51 @@
+
+name: Instalar site pelo ZIP
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  instalar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+
+      - name: Extrair arquivos do ZIP
+        run: |
+          mkdir -p extraido
+          unzip -o "Coroinhas_NEXTJS_COMPLETO.zip" -d extraido
+
+      - name: Instalar arquivos
+        run: |
+          shopt -s dotglob nullglob
+
+          if [ -f extraido/package.json ]; then
+            ORIGEM="extraido"
+          else
+            ORIGEM=$(find extraido -name package.json -not -path "*/node_modules/*" -printf '%h\n' | head -n 1)
+          fi
+
+          if [ -z "$ORIGEM" ]; then
+            echo "Erro: package.json nao encontrado."
+            exit 1
+          fi
+
+          cp -a "$ORIGEM"/. ./
+
+          rm -rf extraido
+          rm -f Coroinhas_NEXTJS_COMPLETO.zip
+
+      - name: Salvar no GitHub
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Instalar site Coroinhas"
+            git push
+          fi
