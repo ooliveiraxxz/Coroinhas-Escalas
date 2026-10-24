@@ -86,3 +86,5 @@ html,body{background:#ede6e3;font-family:system-ui,-apple-system,"Segoe UI",sans
 .view-close-bar{display:flex;justify-content:flex-end;margin:0 0 10px}.view-close-button{display:inline-flex;align-items:center;gap:6px;border:1px solid #e8cdd4;border-radius:12px;background:#fff;color:#7a1b34;padding:8px 12px;font-size:13px;font-weight:700;min-height:38px}.view-close-button:active{background:#fff0f3}
 
 .developer-report-action{margin-top:22px;margin-bottom:5px;display:flex;justify-content:flex-start}.developer-report-action .btn{flex:none}
+
+.monthly-export-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:16px 0 24px}.monthly-export-actions .btn{flex:0 1 auto;max-width:100%}
