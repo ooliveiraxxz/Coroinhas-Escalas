@@ -71,3 +71,5 @@ html,body{background:#ede6e3;font-family:system-ui,-apple-system,"Segoe UI",sans
 .auth-box h2{font-size:23px}
 .developer-metrics strong{font-size:19px}
 @media(max-width:390px){.brand{font-size:21px}.content .title{font-size:23px}.btn{font-size:13px}}
+
+.site-credit{border-top:1px solid #e9d5db;padding:22px 8px 12px;margin-top:30px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;color:#7d5661;font-size:12px;text-align:center}.site-credit strong{color:#751e33}.site-credit span+span::before{content:"•";margin-right:8px;color:#a18d92}.update-card{line-height:1.55}.update-card .line{align-items:flex-start;gap:8px}.update-card .chip{white-space:nowrap}.update-card p{font-size:14px}
