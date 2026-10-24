@@ -73,3 +73,12 @@ html,body{background:#ede6e3;font-family:system-ui,-apple-system,"Segoe UI",sans
 @media(max-width:390px){.brand{font-size:21px}.content .title{font-size:23px}.btn{font-size:13px}}
 
 .site-credit{border-top:1px solid #e9d5db;padding:22px 8px 12px;margin-top:30px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;color:#7d5661;font-size:12px;text-align:center}.site-credit strong{color:#751e33}.site-credit span+span::before{content:"•";margin-right:8px;color:#a18d92}.update-card{line-height:1.55}.update-card .line{align-items:flex-start;gap:8px}.update-card .chip{white-space:nowrap}.update-card p{font-size:14px}
+
+/* Ajustes de alinhamento nas listas de missas e nos seletores nativos do iPhone */
+.content{min-width:0;overflow-x:clip}
+.content>.field{width:100%;max-width:100%;min-width:0}
+.content>.field input[type="month"],.content>.field input[type="date"],.content>.field input[type="time"]{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;min-height:46px;padding:9px 12px;font-size:16px;-webkit-appearance:none;appearance:none}
+.content>.field input[type="month"]::-webkit-date-and-time-value{text-align:left;min-width:0}
+.content>.field input[type="month"]::-webkit-datetime-edit{padding:0}
+.content>.field+.btn{display:table;width:auto;max-width:100%;margin:16px 0 22px}
+.content>.field+.btn+.card{margin-top:8px}
