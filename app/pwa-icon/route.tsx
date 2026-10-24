@@ -1,0 +1,3 @@
+import {ImageResponse} from 'next/og';
+export const runtime='edge';
+export async function GET(){return new ImageResponse(<div style={{height:'100%',width:'100%',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'linear-gradient(140deg,#8d0c22,#43020f)',color:'#fff'}}><svg width="60%" height="60%" viewBox="0 0 120 120"><path d="M60 4v26M48 17h24M17 64l43-37 43 37v46H17z" stroke="white" strokeWidth="8" strokeLinejoin="round" fill="none"/><path d="M45 110V75a15 15 0 0 1 30 0v35" fill="#ffe4e7"/></svg><div style={{fontSize:53,fontWeight:800}}>São Bento</div></div>,{width:512,height:512})}
