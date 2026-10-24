@@ -82,3 +82,5 @@ html,body{background:#ede6e3;font-family:system-ui,-apple-system,"Segoe UI",sans
 .content>.field input[type="month"]::-webkit-datetime-edit{padding:0}
 .content>.field+.btn{display:table;width:auto;max-width:100%;margin:16px 0 22px}
 .content>.field+.btn+.card{margin-top:8px}
+
+.view-close-bar{display:flex;justify-content:flex-end;margin:0 0 10px}.view-close-button{display:inline-flex;align-items:center;gap:6px;border:1px solid #e8cdd4;border-radius:12px;background:#fff;color:#7a1b34;padding:8px 12px;font-size:13px;font-weight:700;min-height:38px}.view-close-button:active{background:#fff0f3}
