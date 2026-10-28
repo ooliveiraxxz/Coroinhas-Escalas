@@ -40,8 +40,7 @@ export default function System(){
  function selectMassTemplate(index:number){
   const template=massTemplates[index];if(!template)return;
   // Respeita o mês selecionado e avança depois da última ocorrência deste modelo.
-  const [year,monthNumber]=chosenMonth.split('-').map(Number);
-  const yearMonth=/^\\d{4}-\\d{2}$/.test(chosenMonth)?chosenMonth:nowday().slice(0,7);
+  const yearMonth=/^[0-9]{4}-[0-9]{2}$/.test(chosenMonth)?chosenMonth:nowday().slice(0,7);
   const [yy,mm]=yearMonth.split('-').map(Number);
   const registered=masses.filter(m=>{
    const date=new Date(m.starts_at);
