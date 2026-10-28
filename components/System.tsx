@@ -29,8 +29,10 @@ export default function System(){
   try{
    const permission=await Notification.requestPermission();
    if(permission!=='granted')throw new Error('Notificações não autorizadas. Habilite nas configurações do celular.');
-   const worker=await navigator.serviceWorker.register('/push-sw.js');
-   const subscription=await worker.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:'BDov9q_DBJrHGsmcCsMSIgkXnrWFYWioUSaD77Cajavor6dQxNINg2wXjMC8EmHjg79rPZByvl_1ynRPZk2EBGI'});
+   const worker=await navigator.serviceWorker.register('/push-sw.js',{scope:'/'});
+   const activeWorker=worker.active?worker:await navigator.serviceWorker.ready;
+   if(!activeWorker.active){await new Promise<void>((resolve,reject)=>{const installing=worker.installing||worker.waiting;if(!installing)return reject(new Error('O serviço de notificações ainda não está pronto. Feche e abra o aplicativo.'));const onState=()=>{if(installing.state==='activated'){installing.removeEventListener('statechange',onState);resolve()}else if(installing.state==='redundant'){installing.removeEventListener('statechange',onState);reject(new Error('Falha na ativação. Abra o aplicativo novamente.'))}};installing.addEventListener('statechange',onState);onState()})}
+   const subscription=await activeWorker.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:'BDov9q_DBJrHGsmcCsMSIgkXnrWFYWioUSaD77Cajavor6dQxNINg2wXjMC8EmHjg79rPZByvl_1ynRPZk2EBGI'});
    const json=subscription.toJSON();
    const {error:dbError}=await db.from('push_subscriptions').upsert({user_id:user.id,endpoint:json.endpoint,p256dh:json.keys?.p256dh,auth:json.keys?.auth},{onConflict:'endpoint'});
    if(dbError)throw dbError;
