@@ -9,7 +9,7 @@ export async function POST(req:NextRequest){
  if(typeof notification_id!=='string'||!/^[0-9a-f-]{36}$/i.test(notification_id))return NextResponse.json({error:'Invalid ID'},{status:400});
  const vapidKey=process.env.VAPID_PRIVATE_KEY;
  if(!vapidKey)return NextResponse.json({error:'Push not configured'},{status:503});
- const client=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'https://dsglwwwwdtjynipauvrp.supabase.co',process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||'',{auth:{persistSession:false}});
+ const client=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||'https://dsglwwwwdtjynipauvrp.supabase.co',process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||'sb_publishable_2VsV-MDL1N78X0unw3VM1Q_1Pk0h86a',{auth:{persistSession:false}});
  const {data,error}=await client.rpc('get_push_targets',{p_secret:secret,p_notification_id:notification_id});
  if(error)return NextResponse.json({error:'Cannot get recipients'},{status:500});
  webpush.setVapidDetails('mailto:lsantana.contato@hotmail.com','BDov9q_DBJrHGsmcCsMSIgkXnrWFYWioUSaD77Cajavor6dQxNINg2wXjMC8EmHjg79rPZByvl_1ynRPZk2EBGI',vapidKey);
