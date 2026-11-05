@@ -107,3 +107,7 @@ html,body{background:#ede6e3;font-family:system-ui,-apple-system,"Segoe UI",sans
 
 /* Confirmação de escala ocupa toda a base, com ações secundárias lado a lado */
 .assignment-actions .assignment-confirm{grid-column:1/-1;font-size:14px;min-height:46px;background:var(--wine);color:#fff}
+
+/* Espaçamento consistente entre cabeçalho e botões dos cartões de missa. */
+.mass-list-card > .btnrow{margin-top:15px}
+.mass-list-card > .muted + .btnrow{margin-top:9px}
