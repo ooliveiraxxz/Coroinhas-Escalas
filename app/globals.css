@@ -87,4 +87,4 @@ html,body{background:#ede6e3;font-family:system-ui,-apple-system,"Segoe UI",sans
 
 .developer-report-action{margin-top:22px;margin-bottom:5px;display:flex;justify-content:flex-start}.developer-report-action .btn{flex:none}
 
-.monthly-export-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:16px 0 24px}.monthly-export-actions .btn{flex:0 1 auto;max-width:100%}
+.monthly-export-actions{display:flex;flex-wrap:nowrap;gap:10px;align-items:stretch;margin:16px 0 24px}.monthly-export-actions .btn{flex:1 1 0;min-width:0;max-width:none;white-space:normal;text-align:center;line-height:1.25;padding:12px 8px;font-size:clamp(11px,3vw,14px)}
