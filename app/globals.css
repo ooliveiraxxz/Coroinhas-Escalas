@@ -104,3 +104,6 @@ html,body{background:#ede6e3;font-family:system-ui,-apple-system,"Segoe UI",sans
 .assignment-actions .btn{width:100%;min-width:0;padding:10px 8px;min-height:42px;font-size:12px;line-height:1.25;white-space:normal;text-align:center}
 .assignment-actions .btn:only-child{grid-column:1/-1}
 @media(max-width:350px){.assignment-actions{gap:6px}.assignment-actions .btn{font-size:11px;padding:9px 5px}}
+
+/* Confirmação de escala ocupa toda a base, com ações secundárias lado a lado */
+.assignment-actions .assignment-confirm{grid-column:1/-1;font-size:14px;min-height:46px;background:var(--wine);color:#fff}
