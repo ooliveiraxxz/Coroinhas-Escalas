@@ -98,3 +98,9 @@ html,body{background:#ede6e3;font-family:system-ui,-apple-system,"Segoe UI",sans
 .screen-popup-check{display:flex;align-items:center;gap:9px;font-size:14px;margin:8px 0 18px;cursor:pointer}
 .screen-popup-check input{width:18px;height:18px;accent-color:#8a203d}
 .screen-popup-card .btn{margin-top:6px}
+
+/* Ações da escala no celular: distribuição uniforme e sem quebra irregular */
+.assignment-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.assignment-actions .btn{width:100%;min-width:0;padding:10px 8px;min-height:42px;font-size:12px;line-height:1.25;white-space:normal;text-align:center}
+.assignment-actions .btn:only-child{grid-column:1/-1}
+@media(max-width:350px){.assignment-actions{gap:6px}.assignment-actions .btn{font-size:11px;padding:9px 5px}}
