@@ -122,3 +122,15 @@ html,body{background:#ede6e3;font-family:system-ui,-apple-system,"Segoe UI",sans
 .pdf-actions .btn{min-width:0;white-space:normal;min-height:48px}
 .pdf-panel>.muted{text-align:center;margin:0;font-size:12px}
 @media(max-width:400px){.pdf-actions{grid-template-columns:1fr}}
+
+
+/* PDF em tela cheia e independente do layout principal, inclusive no iOS/PWA. */
+body:has(.pdf-overlay){overflow:hidden}
+body>.pdf-overlay{position:fixed!important;inset:0!important;z-index:2147483000!important;width:100vw!important;height:100dvh!important;min-height:100vh!important;margin:0!important;padding:0!important;display:flex!important;align-items:stretch!important;justify-content:center!important;background:#fffaf7!important}
+body>.pdf-overlay .pdf-panel{box-sizing:border-box;width:100%;max-width:760px;height:100%;min-height:0;display:flex;flex-direction:column;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px calc(env(safe-area-inset-bottom,0px) + 12px);overflow:hidden}
+.pdf-panel-top{flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;gap:12px;min-height:44px}
+.pdf-back{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border:1px solid #e8cdd4;border-radius:13px;background:#fff4f5;color:#751e33;font-size:26px;font-weight:bold}
+body>.pdf-overlay .pdf-preview{display:block;flex:1 1 auto;min-height:0;height:0;width:100%;border:1px solid #e7d6d8;border-radius:10px;background:#fff}
+body>.pdf-overlay .pdf-actions{flex:0 0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-size:13px;white-space:normal}
+@media(max-width:350px){body>.pdf-overlay .pdf-actions .btn{font-size:12px;padding:9px 6px}}
