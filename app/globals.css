@@ -111,3 +111,14 @@ html,body{background:#ede6e3;font-family:system-ui,-apple-system,"Segoe UI",sans
 /* Espaçamento consistente entre cabeçalho e botões dos cartões de missa. */
 .mass-list-card > .btnrow{margin-top:15px}
 .mass-list-card > .muted + .btnrow{margin-top:9px}
+
+/* Visualizador de PDF no próprio aplicativo instalado. */
+.pdf-overlay{position:fixed;inset:0;z-index:1100;background:#f8f3f3;display:flex;justify-content:center;align-items:stretch}
+.pdf-panel{width:100%;max-width:760px;display:flex;flex-direction:column;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 12px) 13px calc(env(safe-area-inset-bottom, 0px) + 12px);min-height:0}
+.pdf-panel-top{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--wine);font-size:14px}
+.pdf-panel-top .btn{flex-shrink:0}
+.pdf-preview{flex:1;width:100%;min-height:180px;border:1px solid #e7d6d8;border-radius:12px;background:#fff}
+.pdf-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pdf-actions .btn{min-width:0;white-space:normal;min-height:48px}
+.pdf-panel>.muted{text-align:center;margin:0;font-size:12px}
+@media(max-width:400px){.pdf-actions{grid-template-columns:1fr}}
