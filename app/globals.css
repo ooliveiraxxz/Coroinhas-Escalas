@@ -135,8 +135,8 @@ body>.pdf-overlay .pdf-actions{flex:0 0 auto;display:grid;grid-template-columns:
 body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-size:13px;white-space:normal}
 @media(max-width:350px){body>.pdf-overlay .pdf-actions .btn{font-size:12px;padding:9px 6px}}
 
-/* Mostrar/ocultar senha sem alterar o tamanho do formulário. */
-.password-field{position:relative;width:100%;min-width:0;margin-top:6px}
-.field .password-field input{display:block;width:100%;margin-top:0;padding-right:54px}
-.password-toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:44px;height:44px;display:flex;justify-content:center;align-items:center;border:0;background:transparent;color:#751e33;border-radius:12px;box-shadow:none}
-.password-toggle:focus-visible{outline:2px solid #751e33;outline-offset:1px}
+/* Ícone de exibir senha sempre dentro do input, à direita (iOS/PWA). */
+.field .password-field{position:relative;display:block;width:100%;min-width:0;margin-top:6px}
+.field .password-field input{display:block;box-sizing:border-box;width:100%;min-height:48px;margin:0;padding-right:58px}
+.field .password-field .password-toggle{position:absolute;z-index:2;top:50%;right:7px;bottom:auto;left:auto;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:40px;height:40px;min-width:40px;min-height:40px;margin:0;padding:0;border:0;border-radius:10px;background:transparent;box-shadow:none;color:#751e33;line-height:1;appearance:none;-webkit-appearance:none}
+.field .password-field .password-toggle:focus-visible{outline:2px solid #751e33;outline-offset:1px}
