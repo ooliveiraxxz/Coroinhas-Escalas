@@ -3,6 +3,10 @@ NEXT_PUBLIC_DATA_BACKEND=neon-migration
 NEON_MIGRATION_ENABLED=true
 # Preencher privadamente, sem publicar valores:
 NEON_MIGRATION_DATABASE_URL=
+# URL do Neon Auth da branch de homologação; nunca use URL da produção.
+NEON_AUTH_BASE_URL=
+# Segredo aleatório privado, com alta entropia, exclusivo da homologação.
+NEON_AUTH_COOKIE_SECRET=
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 # Somente para execução manual da sincronização:
