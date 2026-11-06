@@ -6,6 +6,7 @@ for (const c of schema[0].inventory.columns) {
  set.add(c.column_name); columns.set(c.table_name, set);
 }
 const rpcs: Record<string, Record<string, string>> = {
+ developer_manage_user:{p_user:'uuid',p_action:'text',p_role:'text'},
  approve_service_request:{p_request_id:'uuid',p_assignment_id:'uuid'},
  delete_notification:{p_group:'uuid'}, developer_usage_summary:{},
  edit_notification:{p_group:'uuid',p_title:'text',p_body:'text'},
@@ -45,7 +46,7 @@ export function compileQuery(path:string[],method:string,params:URLSearchParams,
   else return fail();
  }
  const where=filters.length?' WHERE '+filters.join(' AND '):'';
- const relation=`public."${table}"`;
+ const relation=`public."${method==='GET'&&table==='profiles'?'profile_directory':table}"`;
  const returning=prefer.split(',').some(x=>x.trim()==='return=representation');
  let text:string;
  if(method==='GET')text=`SELECT ${selected} FROM ${relation}${where}${order}${limit||' LIMIT 1000'}`;
