@@ -1,0 +1,152 @@
+[
+  {
+    "schema": "auth",
+    "table_name": "users",
+    "name": "create_profile",
+    "definition": "CREATE TRIGGER create_profile AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION on_signup()"
+  },
+  {
+    "schema": "public",
+    "table_name": "assignments",
+    "name": "audit_change",
+    "definition": "CREATE TRIGGER audit_change AFTER INSERT OR DELETE OR UPDATE ON public.assignments FOR EACH ROW EXECUTE FUNCTION audit_record_change()"
+  },
+  {
+    "schema": "public",
+    "table_name": "banned_emails",
+    "name": "audit_change",
+    "definition": "CREATE TRIGGER audit_change AFTER INSERT OR DELETE OR UPDATE ON public.banned_emails FOR EACH ROW EXECUTE FUNCTION audit_record_change()"
+  },
+  {
+    "schema": "public",
+    "table_name": "fixed_rules",
+    "name": "audit_change",
+    "definition": "CREATE TRIGGER audit_change AFTER INSERT OR DELETE OR UPDATE ON public.fixed_rules FOR EACH ROW EXECUTE FUNCTION audit_record_change()"
+  },
+  {
+    "schema": "public",
+    "table_name": "guides",
+    "name": "audit_change",
+    "definition": "CREATE TRIGGER audit_change AFTER INSERT OR DELETE OR UPDATE ON public.guides FOR EACH ROW EXECUTE FUNCTION audit_record_change()"
+  },
+  {
+    "schema": "public",
+    "table_name": "masses",
+    "name": "audit_change",
+    "definition": "CREATE TRIGGER audit_change AFTER INSERT OR DELETE OR UPDATE ON public.masses FOR EACH ROW EXECUTE FUNCTION audit_record_change()"
+  },
+  {
+    "schema": "public",
+    "table_name": "messages",
+    "name": "audit_change",
+    "definition": "CREATE TRIGGER audit_change AFTER INSERT OR DELETE OR UPDATE ON public.messages FOR EACH ROW EXECUTE FUNCTION audit_record_change()"
+  },
+  {
+    "schema": "public",
+    "table_name": "messages",
+    "name": "coroinhas_message_notify",
+    "definition": "CREATE TRIGGER coroinhas_message_notify AFTER INSERT ON public.messages FOR EACH ROW EXECUTE FUNCTION notify_coordinator_message()"
+  },
+  {
+    "schema": "public",
+    "table_name": "notifications",
+    "name": "audit_change",
+    "definition": "CREATE TRIGGER audit_change AFTER INSERT OR DELETE OR UPDATE ON public.notifications FOR EACH ROW EXECUTE FUNCTION audit_record_change()"
+  },
+  {
+    "schema": "public",
+    "table_name": "notifications",
+    "name": "guard_notification_edit_trigger",
+    "definition": "CREATE TRIGGER guard_notification_edit_trigger BEFORE UPDATE ON public.notifications FOR EACH ROW EXECUTE FUNCTION guard_notification_edit()"
+  },
+  {
+    "schema": "public",
+    "table_name": "notifications",
+    "name": "push_notice_insert",
+    "definition": "CREATE TRIGGER push_notice_insert AFTER INSERT ON public.notifications FOR EACH ROW EXECUTE FUNCTION private.dispatch_push_notice()"
+  },
+  {
+    "schema": "public",
+    "table_name": "profiles",
+    "name": "audit_change",
+    "definition": "CREATE TRIGGER audit_change AFTER INSERT OR DELETE OR UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION audit_record_change()"
+  },
+  {
+    "schema": "public",
+    "table_name": "profiles",
+    "name": "guard_profile",
+    "definition": "CREATE TRIGGER guard_profile BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION protect_profile()"
+  },
+  {
+    "schema": "public",
+    "table_name": "profiles",
+    "name": "notify_pending_profile_approval",
+    "definition": "CREATE TRIGGER notify_pending_profile_approval AFTER INSERT ON public.profiles FOR EACH ROW EXECUTE FUNCTION notify_pending_approval()"
+  },
+  {
+    "schema": "public",
+    "table_name": "profiles",
+    "name": "validate_notification_preferences_trigger",
+    "definition": "CREATE TRIGGER validate_notification_preferences_trigger BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION validate_notification_preferences()"
+  },
+  {
+    "schema": "public",
+    "table_name": "requests",
+    "name": "audit_change",
+    "definition": "CREATE TRIGGER audit_change AFTER INSERT OR DELETE OR UPDATE ON public.requests FOR EACH ROW EXECUTE FUNCTION audit_record_change()"
+  },
+  {
+    "schema": "public",
+    "table_name": "requests",
+    "name": "coroinhas_request_notify",
+    "definition": "CREATE TRIGGER coroinhas_request_notify AFTER INSERT ON public.requests FOR EACH ROW EXECUTE FUNCTION notify_coordinator_request()"
+  },
+  {
+    "schema": "public",
+    "table_name": "site_updates",
+    "name": "audit_change",
+    "definition": "CREATE TRIGGER audit_change AFTER INSERT OR DELETE OR UPDATE ON public.site_updates FOR EACH ROW EXECUTE FUNCTION audit_record_change()"
+  },
+  {
+    "schema": "storage",
+    "table_name": "buckets",
+    "name": "enforce_bucket_name_length_trigger",
+    "definition": "CREATE TRIGGER enforce_bucket_name_length_trigger BEFORE INSERT OR UPDATE OF name ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.enforce_bucket_name_length()"
+  },
+  {
+    "schema": "storage",
+    "table_name": "buckets",
+    "name": "protect_bucket_control_insert",
+    "definition": "CREATE TRIGGER protect_bucket_control_insert BEFORE INSERT ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.protect_bucket_control_columns('service_role')"
+  },
+  {
+    "schema": "storage",
+    "table_name": "buckets",
+    "name": "protect_bucket_control_update",
+    "definition": "CREATE TRIGGER protect_bucket_control_update BEFORE UPDATE OF lifecycle_configuration, lifecycle_configuration_generation ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.protect_bucket_control_columns()"
+  },
+  {
+    "schema": "storage",
+    "table_name": "buckets",
+    "name": "protect_bucket_control_update_role",
+    "definition": "CREATE TRIGGER protect_bucket_control_update_role AFTER UPDATE OF lifecycle_configuration, lifecycle_configuration_generation ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.enforce_bucket_lifecycle_service_role('service_role')"
+  },
+  {
+    "schema": "storage",
+    "table_name": "buckets",
+    "name": "protect_buckets_delete",
+    "definition": "CREATE TRIGGER protect_buckets_delete BEFORE DELETE ON storage.buckets FOR EACH STATEMENT EXECUTE FUNCTION storage.protect_delete()"
+  },
+  {
+    "schema": "storage",
+    "table_name": "objects",
+    "name": "protect_objects_delete",
+    "definition": "CREATE TRIGGER protect_objects_delete BEFORE DELETE ON storage.objects FOR EACH STATEMENT EXECUTE FUNCTION storage.protect_delete()"
+  },
+  {
+    "schema": "storage",
+    "table_name": "objects",
+    "name": "update_objects_updated_at",
+    "definition": "CREATE TRIGGER update_objects_updated_at BEFORE UPDATE ON storage.objects FOR EACH ROW EXECUTE FUNCTION storage.update_updated_at_column()"
+  }
+]

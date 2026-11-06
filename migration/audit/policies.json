@@ -1,0 +1,332 @@
+[
+  {
+    "schemaname": "public",
+    "tablename": "assignments",
+    "policyname": "assignment_manage",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "ALL",
+    "qual": "is_coordinator()",
+    "with_check": "is_coordinator()"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "assignments",
+    "policyname": "assignment_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(is_coordinator() OR (is_approved() AND (EXISTS ( SELECT 1\n   FROM masses\n  WHERE ((masses.id = assignments.mass_id) AND masses.published)))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "audit_log",
+    "policyname": "audit_developer_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "is_developer()",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "fixed_rules",
+    "policyname": "fixed_manage",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "ALL",
+    "qual": "is_coordinator()",
+    "with_check": "is_coordinator()"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "fixed_rules",
+    "policyname": "fixed_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(is_coordinator() OR (server_id = auth.uid()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "guides",
+    "policyname": "guides_manage",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "ALL",
+    "qual": "is_coordinator()",
+    "with_check": "is_coordinator()"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "guides",
+    "policyname": "guides_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "is_approved()",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "masses",
+    "policyname": "mass_manage",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "ALL",
+    "qual": "is_coordinator()",
+    "with_check": "is_coordinator()"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "masses",
+    "policyname": "mass_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(is_coordinator() OR (is_approved() AND published))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "messages",
+    "policyname": "messages_insert",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(is_approved() AND (user_id = auth.uid()))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "messages",
+    "policyname": "messages_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(is_coordinator() OR (user_id = auth.uid()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "policyname": "notes_insert",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "is_coordinator()"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "policyname": "notes_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "((user_id = auth.uid()) OR is_coordinator())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "policyname": "notes_update",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "UPDATE",
+    "qual": "(user_id = auth.uid())",
+    "with_check": "(user_id = auth.uid())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "profiles",
+    "policyname": "profile_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "((id = auth.uid()) OR is_coordinator() OR (is_approved() AND approved))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "profiles",
+    "policyname": "profile_self",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "UPDATE",
+    "qual": "((id = auth.uid()) OR is_coordinator())",
+    "with_check": "((id = auth.uid()) OR is_coordinator())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "push_subscriptions",
+    "policyname": "push_delete_own",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "DELETE",
+    "qual": "(user_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "push_subscriptions",
+    "policyname": "push_insert_own",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(user_id = auth.uid())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "push_subscriptions",
+    "policyname": "push_select_own",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(user_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "push_subscriptions",
+    "policyname": "push_update_own",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "UPDATE",
+    "qual": "(user_id = auth.uid())",
+    "with_check": "(user_id = auth.uid())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "requests",
+    "policyname": "requests_insert",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(is_approved() AND (user_id = auth.uid()) AND (status = 'pendente'::text))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "requests",
+    "policyname": "requests_manage",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "UPDATE",
+    "qual": "is_coordinator()",
+    "with_check": "is_coordinator()"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "requests",
+    "policyname": "requests_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(is_coordinator() OR (user_id = auth.uid()))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "screen_announcement_dismissals",
+    "policyname": "screen_dismissals_insert",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "((user_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM screen_announcements a\n  WHERE ((a.id = screen_announcement_dismissals.announcement_id) AND a.active))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "screen_announcement_dismissals",
+    "policyname": "screen_dismissals_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(user_id = ( SELECT auth.uid() AS uid))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "screen_announcement_dismissals",
+    "policyname": "screen_dismissals_update",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "UPDATE",
+    "qual": "(user_id = ( SELECT auth.uid() AS uid))",
+    "with_check": "((user_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM screen_announcements a\n  WHERE ((a.id = screen_announcement_dismissals.announcement_id) AND a.active))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "screen_announcements",
+    "policyname": "screen_announcement_insert",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "((created_by = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM profiles me\n  WHERE ((me.id = ( SELECT auth.uid() AS uid)) AND (me.role = 'desenvolvedor'::text) AND me.approved))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "screen_announcements",
+    "policyname": "screen_announcement_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM profiles me\n  WHERE ((me.id = ( SELECT auth.uid() AS uid)) AND me.approved AND ((me.role = 'desenvolvedor'::text) OR (screen_announcements.active AND ((screen_announcements.target_role = 'all'::text) OR ((screen_announcements.target_role = 'individual'::text) AND (screen_announcements.target_user_id = me.id)) OR (screen_announcements.target_role = me.role)))))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "screen_announcements",
+    "policyname": "screen_announcement_update",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "UPDATE",
+    "qual": "(EXISTS ( SELECT 1\n   FROM profiles me\n  WHERE ((me.id = ( SELECT auth.uid() AS uid)) AND (me.role = 'desenvolvedor'::text) AND me.approved)))",
+    "with_check": "(EXISTS ( SELECT 1\n   FROM profiles me\n  WHERE ((me.id = ( SELECT auth.uid() AS uid)) AND (me.role = 'desenvolvedor'::text) AND me.approved)))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "site_updates",
+    "policyname": "site_updates_add",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "is_developer()"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "site_updates",
+    "policyname": "site_updates_delete",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "DELETE",
+    "qual": "is_developer()",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "site_updates",
+    "policyname": "site_updates_edit",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "UPDATE",
+    "qual": "is_developer()",
+    "with_check": "is_developer()"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "site_updates",
+    "policyname": "site_updates_read",
+    "permissive": "PERMISSIVE",
+    "roles": "{authenticated}",
+    "cmd": "SELECT",
+    "qual": "is_approved()",
+    "with_check": null
+  }
+]

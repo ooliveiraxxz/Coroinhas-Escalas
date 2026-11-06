@@ -1,0 +1,24 @@
+[
+  {
+    "users": 4,
+    "identities": 4,
+    "providers": [
+      {
+        "count": 4,
+        "provider": "email"
+      }
+    ],
+    "roles": [
+      {
+        "role": "desenvolvedor",
+        "count": 1,
+        "approved": true
+      },
+      {
+        "role": "coordenadora",
+        "count": 3,
+        "approved": true
+      }
+    ]
+  }
+]

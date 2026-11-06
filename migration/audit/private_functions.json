@@ -1,0 +1,8 @@
+[
+  {
+    "schema": "private",
+    "name": "dispatch_push_notice",
+    "definition": "CREATE OR REPLACE FUNCTION private.dispatch_push_notice()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'pg_temp'\nAS $function$\ndeclare cfg record;\nbegin\n select secret,webhook_url into cfg from private.push_config where id=1;\n perform net.http_post(url:=cfg.webhook_url,body:=jsonb_build_object('notification_id',new.id),headers:=jsonb_build_object('Content-Type','application/json','x-push-secret',cfg.secret),timeout_milliseconds:=8000);\n return new;\nend $function$\n",
+    "acl": null
+  }
+]

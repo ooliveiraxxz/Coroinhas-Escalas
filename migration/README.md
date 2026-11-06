@@ -1,0 +1,86 @@
+# Coroinhas: migração isolada para Neon
+
+Status em 06/11/2026: **NÃO APTO PARA TROCA DE PRODUÇÃO**. Lançamento previsto: 14/11/2026.
+
+## Ambiente preservado
+
+- Origem: Supabase `dsglwwwwdtjynipauvrp`. Apenas consultas de leitura nesta sessão.
+- Destino original: Neon `noisy-hill-07078359`, banco `coroinhas`, branch `br-rapid-firefly-bcrdnvhq`. Não alterado.
+- Homologação: `migration-coroinhas-20261106`, ID `br-rough-hill-bcj6lzt1`.
+- Código base: `9187c6a17c3decd09dbeeb1569bb48cc89268495`.
+- Código experimental: branch `migration/neon-20261106`; deploy automático desta branch desativado no vercel.json. Não fazer merge nem deploy sem autorização.
+- Nenhuma senha, hash de senha, token de sessão ou chave privada exportada para os arquivos.
+
+## Entregue e verificado
+
+1. Inventário de 24 funções em public + 1 função privada, 33 políticas, 17 gatilhos de aplicação em public + criação de perfil em auth.users. Mais 7 gatilhos internos de Storage e 7 event triggers inventariados. Não copiar funções de plataforma indiscriminadamente.
+2. Storage sem buckets/objetos, nenhuma Edge Function e nenhuma tabela publicada via Realtime no momento da consulta. Aplicativo usa refresh explícito, sem assinatura de canal encontrada.
+3. As 33 políticas foram recriadas para `coroinhas_app`, papel NOLOGIN/NOBYPASSRLS. Não recebeu TRUNCATE, TRIGGER nem acesso ao schema privado. 20 funções públicas e 17 gatilhos públicos instalados; `auth.uid()` lê contexto transacional definido exclusivamente pelo backend.
+4. Identidades preservadas por `migration_private.identity_map`, inicialmente Supabase UUID → profiles.id. Os 4 perfis atuais (1 desenvolvedor, 3 coordenadoras) continuam com seus IDs, papéis e aprovação. Isso NÃO significa contas de login importadas para Neon Auth.
+5. Gateway experimental Next.js para o subconjunto PostgREST usado no app. Parâmetros de valor vinculados; tabelas/colunas/RPCs em lista permitida; getUser valida a identidade no Supabase; papel restrito e contexto por transação. Endpoint desativado por padrão e sempre bloqueado em VERCEL_ENV=production. Credencial do banco permanece no servidor. Ainda usa credencial do proprietário no servidor e SET LOCAL ROLE: antes de produção, provisionar login de serviço com privilégios mínimos e testar isolamento do pool.
+6. Cadastro, recuperação e atualização de senha via cliente de homologação bloqueados para não modificar usuários da origem. Gestão de usuários (banir/excluir/mudar papel por RPC) deliberadamente indisponível nesta fase.
+7. Push substituído por outbox com estado `suppressed`. Webhook antigo bloqueado no modo de migração. Nenhum envio real disparado. A inscrição push existente foi copiada diretamente entre bancos, sem gravar seu conteúdo em arquivo ou relatório.
+8. Verificação final: 15 tabelas, **250 registros**, checksums iguais tabela a tabela. A cópia inicial tinha 249 e faltava 1 push_subscription. Sem registros de teste persistidos. Sequências de auditoria/login alinhadas; testes com rollback podem consumir números, sem perda de registros.
+9. 11 testes automatizados TypeScript passaram; testes SQL transacionais passaram (anônimo, pendente, papéis, acesso a rascunho, notificações de terceiros, escalada de papel, confirmar/desmarcar, leitura, auditoria, outbox). Build Next.js e checagem TypeScript passaram. NÃO são testes completos E2E, concorrência nem recuperação de desastre.
+
+## Diferenças de segurança e pontos de atenção
+
+- Origem permite coordenadora alterar role por UPDATE de profiles via policy + protect_profile. Na homologação, role só pode mudar com desenvolvedor; coordenadora não altera aprovação de perfis especiais. Identidade/email imutáveis nesta fase.
+- RLS original permite perfis aprovados ler outros perfis aprovados, incluindo campos como email/notes em SELECT *. Ainda preservado para compatibilidade; revisar projeção de dados pessoais antes de exposição da API.
+- Avisos individuais: política de dismiss exige aviso ativo mas não valida destinatário. Revisar esta autorização antes de cutover; não considerar o inventário como aprovação automática de todas as regras originais.
+- `respond_assignment` atual permite confirmar antes do dia da missa e só desmarcar antes do início. Comportamento preservado; diverge de requisitos históricos. Validar regra desejada antes de modificá-la.
+- Funções SECURITY DEFINER exigem manutenção cuidadosa dos checks e grants. get_push_targets, on_signup, developer_manage_user, rls_auto_enable e webhook pg_net não foram transportados literalmente.
+- Advisories da origem: 2 tabelas com RLS sem policy (banned_emails/login_events, usadas por funções); get_push_targets e notify_pending_approval sinalizadas por execução anon; proteção de senhas vazadas desativada. Nenhuma correção aplicada à produção.
+
+## Plano de autenticação
+
+A documentação atual de Managed Better Auth informa incompatibilidade de importação de senhas Supabase e `updateUser({password})` não suportado no adaptador. Não renomear a biblioteca e assumir preservação de login.
+
+Fonte: https://neon.com/docs/auth/migrate/from-supabase (consultada em 06/11/2026).
+
+Caminho de menor risco para a data de lançamento: manter o site atual no Supabase enquanto a homologação continua. A API experimental usa Supabase Auth como ponte temporária apenas; não é independência completa do Supabase.
+
+Para a substituição definitiva:
+
+1. Habilitar Neon Auth somente em ambiente isolado e implementar cadastro, login, sair, restauração de sessão, verificação de email e recuperação de senha próprios.
+2. Manter profiles.id e todas as FKs. Mapear o subject Neon para o UUID existente em identity_map; não usar emails fornecidos pelo navegador para conceder acesso.
+3. Para cada conta existente, exigir prova de controle via sessão Supabase válida + autenticação Neon verificada, ou fluxo administrativo de identidade equivalente. Um email coincidente sozinho nunca vincula conta nem transfere papel.
+4. O papel vem exclusivamente de profiles, nunca de metadata editável. Cadastro novo começa pendente; somente coroinha/pai podem ser solicitados pelo próprio usuário.
+5. Testar reset, email duplicado, sessões vencidas, banimento e exclusão sem cascatas destrutivas antes de habilitar gestão de usuários. Não apagar auth.users da origem.
+6. Só definir ativação final após comprovar as quatro contas preservadas e os fluxos com fixtures de todos os papéis. Não enviar convites ou resets reais nesta etapa.
+
+## Notificações
+
+- Notificações internas por mensagens, solicitações e desistências funcionam por triggers/funções transportados.
+- Outbox preserva intenção de envio sem chamar produção.
+- Falta worker idempotente, retentativas, expiração de inscrições, preferências e teste autorizado com destinatário de homologação.
+- Preservar VAPID privado em segredo quando autorizado configurar, sem mudar o domínio de origem das inscrições arbitrariamente. Testar no iPhone/PWA; uma inscrição copiada não garante entrega em outro domínio.
+
+## Sincronização e rollback
+
+`node migration/sync.mjs` exige variáveis privadas SOURCE_READONLY_DATABASE_URL, NEON_MIGRATION_DATABASE_URL e MIGRATION_SOURCE_PROJECT=dsglwwwwdtjynipauvrp. Script preparado, **ainda não executado de ponta a ponta com duas conexões diretas**. A sincronização desta sessão usou os conectores para copiar apenas o registro faltante e comparar checksums.
+
+O script lê uma transação REPEATABLE READ READ ONLY da origem, exige marcador da branch isolada, recusa divergências por exclusão e usa upsert por PK. Desabilita somente triggers USER no destino dentro da transação para não duplicar notificações/auditoria; mantém constraints. Compara checksums antes de commit. Não copia auth.users, segredos privados nem tabelas internas. Novos/excluídos usuários exigem reconciliação de identidade à parte.
+
+Antes de uma eventual troca autorizada: nova cópia consistente, inventário de arquivos/auth, reconciliar exclusões sem apagar automaticamente, pausar escrita por janela combinada, última sincronização, testes e aprovação. Após aceitar escritas no Neon, retornar ao Supabase exige reconciliação reversa; mudar URL sozinho pode perder alterações. Nenhum rollback destrutivo automatizado foi criado.
+
+## Pendências que impedem produção
+
+- Substituição de Auth e gestão de usuários.
+- Testes reais de browser/mobile/PWA: login, cadastro, aprovações, escalas, edição/exclusão, presença, servir/substituir, PDFs, avisos, suporte, perfis e logout.
+- Testes de concorrência/IDOR de todas as RPCs, sessão/revogação, contexto no pool e política de avisos individuais.
+- Worker push, email transacional e entrega autorizada em ambiente separado.
+- Executar/validar o script de sincronização completo; preparar reconciliação pós-cutover.
+- Provisionar credencial de backend mínima; revisar limites/paginação para crescimento além de 1000 registros.
+
+Recomendação de prazo (não é agendamento): revisão de viabilidade em 11/11 e congelamento de mudanças arriscadas em 12/11. Se qualquer bloqueio persistir, lançar em 14/11 com o site atual estável e continuar a migração depois.
+
+## Executar verificações
+
+```sh
+node --import tsx --test tests/*.test.ts
+npx tsc --noEmit
+npm run build
+```
+
+`migration/sql/001-isolated-security.sql` é uma migração de execução única, somente na branch indicada. Não reaplicar na mesma branch. `security-tests.sql` usa BEGIN/ROLLBACK e fixtures; não usar em produção. O inventário em audit/ contém definições, metadados e checksums, sem conteúdo de usuários ou credenciais.

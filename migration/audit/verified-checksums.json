@@ -1,0 +1,83 @@
+{
+  "verified_at": "2026-11-06",
+  "source_project": "dsglwwwwdtjynipauvrp",
+  "target_branch": "br-rough-hill-bcj6lzt1",
+  "total": 250,
+  "tables": [
+    {
+      "table_name": "assignments",
+      "rows": 9,
+      "checksum": "2a1019b97724a1ecd71fdbfffd58264b"
+    },
+    {
+      "table_name": "audit_log",
+      "rows": 163,
+      "checksum": "62b54669afbff0f673f87cd979c62767"
+    },
+    {
+      "table_name": "banned_emails",
+      "rows": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table_name": "fixed_rules",
+      "rows": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table_name": "guides",
+      "rows": 5,
+      "checksum": "0f76c8f8669b5cf47e20e9230033ebb8"
+    },
+    {
+      "table_name": "login_events",
+      "rows": 37,
+      "checksum": "afd41858c0f0ebfd83c96dec1e3e00ba"
+    },
+    {
+      "table_name": "masses",
+      "rows": 3,
+      "checksum": "b629582fa0704424923b0cd43854d3a8"
+    },
+    {
+      "table_name": "messages",
+      "rows": 0,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    {
+      "table_name": "notifications",
+      "rows": 14,
+      "checksum": "5f6fb9a7c7c83cf39fed7266bd92f134"
+    },
+    {
+      "table_name": "profiles",
+      "rows": 4,
+      "checksum": "626dfec9914be34d9cb956162b7ba535"
+    },
+    {
+      "table_name": "push_subscriptions",
+      "rows": 1,
+      "checksum": "18a5aa1026915fdb559f02236688b631"
+    },
+    {
+      "table_name": "requests",
+      "rows": 3,
+      "checksum": "41b37a7c0bb213b2d262c6d5a041f271"
+    },
+    {
+      "table_name": "screen_announcement_dismissals",
+      "rows": 2,
+      "checksum": "8e7dbfedb07689e9f331788dcb857981"
+    },
+    {
+      "table_name": "screen_announcements",
+      "rows": 2,
+      "checksum": "56d31484db2fa54c0959e9b95ea9e185"
+    },
+    {
+      "table_name": "site_updates",
+      "rows": 7,
+      "checksum": "3bc68f27eb1ba52f12d8150c4687dfe6"
+    }
+  ]
+}

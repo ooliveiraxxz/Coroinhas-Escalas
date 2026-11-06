@@ -1,0 +1,1603 @@
+[
+  {
+    "inventory": {
+      "events": [
+        {
+          "evtname": "issue_graphql_placeholder",
+          "evtevent": "sql_drop",
+          "function": "set_graphql_placeholder"
+        },
+        {
+          "evtname": "pgrst_ddl_watch",
+          "evtevent": "ddl_command_end",
+          "function": "pgrst_ddl_watch"
+        },
+        {
+          "evtname": "pgrst_drop_watch",
+          "evtevent": "sql_drop",
+          "function": "pgrst_drop_watch"
+        },
+        {
+          "evtname": "issue_pg_cron_access",
+          "evtevent": "ddl_command_end",
+          "function": "grant_pg_cron_access"
+        },
+        {
+          "evtname": "issue_pg_net_access",
+          "evtevent": "ddl_command_end",
+          "function": "grant_pg_net_access"
+        },
+        {
+          "evtname": "issue_pg_graphql_access",
+          "evtevent": "ddl_command_end",
+          "function": "grant_pg_graphql_access"
+        },
+        {
+          "evtname": "ensure_rls",
+          "evtevent": "ddl_command_end",
+          "function": "rls_auto_enable"
+        }
+      ],
+      "grants": [
+        {
+          "grantee": "anon",
+          "table_name": "profiles",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "profiles",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "profiles",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "profiles",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "profiles",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "profiles",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "profiles",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "profiles",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "profiles",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "profiles",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "notifications",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "notifications",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "notifications",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "notifications",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "notifications",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "notifications",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "notifications",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "notifications",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "notifications",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "masses",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "masses",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "masses",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "masses",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "masses",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "masses",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "masses",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "masses",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "masses",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "masses",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "assignments",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "assignments",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "assignments",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "assignments",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "assignments",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "assignments",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "assignments",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "assignments",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "assignments",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "assignments",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "requests",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "requests",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "requests",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "requests",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "requests",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "requests",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "requests",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "requests",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "requests",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "requests",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "fixed_rules",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "fixed_rules",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "fixed_rules",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "fixed_rules",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "fixed_rules",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "fixed_rules",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "fixed_rules",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "fixed_rules",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "fixed_rules",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "fixed_rules",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "messages",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "messages",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "messages",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "messages",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "messages",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "messages",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "messages",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "messages",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "messages",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "messages",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "audit_log",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "guides",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "guides",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "guides",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "guides",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "guides",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "guides",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "guides",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "guides",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "guides",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "guides",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "site_updates",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "site_updates",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "site_updates",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "site_updates",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "site_updates",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "site_updates",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "site_updates",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "push_subscriptions",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "push_subscriptions",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "push_subscriptions",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "push_subscriptions",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "push_subscriptions",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "push_subscriptions",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "push_subscriptions",
+          "privilege_type": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "push_subscriptions",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "push_subscriptions",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "push_subscriptions",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "screen_announcements",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "screen_announcements",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "screen_announcements",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "screen_announcements",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "screen_announcements",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "screen_announcements",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "screen_announcements",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "screen_announcements",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "screen_announcements",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "screen_announcement_dismissals",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "screen_announcement_dismissals",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "table_name": "screen_announcement_dismissals",
+          "privilege_type": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "screen_announcement_dismissals",
+          "privilege_type": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "screen_announcement_dismissals",
+          "privilege_type": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "screen_announcement_dismissals",
+          "privilege_type": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "screen_announcement_dismissals",
+          "privilege_type": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "screen_announcement_dismissals",
+          "privilege_type": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "screen_announcement_dismissals",
+          "privilege_type": "TRIGGER"
+        }
+      ],
+      "columns": [
+        {
+          "data_type": "uuid",
+          "table_name": "assignments",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "assignments",
+          "column_name": "mass_id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "assignments",
+          "column_name": "function_name",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "assignments",
+          "column_name": "server_id",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "assignments",
+          "column_name": "status",
+          "is_nullable": "NO",
+          "column_default": "'escalado'::text"
+        },
+        {
+          "data_type": "text",
+          "table_name": "assignments",
+          "column_name": "reason",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "assignments",
+          "column_name": "created_at",
+          "is_nullable": "YES",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "bigint",
+          "table_name": "audit_log",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "audit_log",
+          "column_name": "happened_at",
+          "is_nullable": "NO",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "audit_log",
+          "column_name": "actor_id",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "audit_log",
+          "column_name": "actor_email",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "audit_log",
+          "column_name": "table_name",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "audit_log",
+          "column_name": "action",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "audit_log",
+          "column_name": "record_id",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "jsonb",
+          "table_name": "audit_log",
+          "column_name": "before_data",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "jsonb",
+          "table_name": "audit_log",
+          "column_name": "after_data",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "banned_emails",
+          "column_name": "email",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "banned_emails",
+          "column_name": "created_at",
+          "is_nullable": "YES",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "banned_emails",
+          "column_name": "banned_by",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "fixed_rules",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "fixed_rules",
+          "column_name": "server_id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "integer",
+          "table_name": "fixed_rules",
+          "column_name": "weekday",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "integer",
+          "table_name": "fixed_rules",
+          "column_name": "hour",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "integer",
+          "table_name": "fixed_rules",
+          "column_name": "minute",
+          "is_nullable": "NO",
+          "column_default": "0"
+        },
+        {
+          "data_type": "text",
+          "table_name": "fixed_rules",
+          "column_name": "function_name",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "fixed_rules",
+          "column_name": "location",
+          "is_nullable": "YES",
+          "column_default": "''::text"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "guides",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "data_type": "text",
+          "table_name": "guides",
+          "column_name": "function_name",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "guides",
+          "column_name": "instructions",
+          "is_nullable": "NO",
+          "column_default": "''::text"
+        },
+        {
+          "data_type": "text",
+          "table_name": "guides",
+          "column_name": "notes",
+          "is_nullable": "YES",
+          "column_default": "''::text"
+        },
+        {
+          "data_type": "bigint",
+          "table_name": "login_events",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "login_events",
+          "column_name": "user_id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "login_events",
+          "column_name": "created_at",
+          "is_nullable": "NO",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "masses",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "data_type": "text",
+          "table_name": "masses",
+          "column_name": "title",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "masses",
+          "column_name": "starts_at",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "masses",
+          "column_name": "location",
+          "is_nullable": "NO",
+          "column_default": "'Igreja Matriz'::text"
+        },
+        {
+          "data_type": "text",
+          "table_name": "masses",
+          "column_name": "celebrant",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "masses",
+          "column_name": "notes",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "boolean",
+          "table_name": "masses",
+          "column_name": "published",
+          "is_nullable": "YES",
+          "column_default": "true"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "masses",
+          "column_name": "created_by",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "masses",
+          "column_name": "created_at",
+          "is_nullable": "YES",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "messages",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "messages",
+          "column_name": "user_id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "messages",
+          "column_name": "type",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "messages",
+          "column_name": "body",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "messages",
+          "column_name": "created_at",
+          "is_nullable": "YES",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "boolean",
+          "table_name": "messages",
+          "column_name": "seen",
+          "is_nullable": "NO",
+          "column_default": "false"
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "messages",
+          "column_name": "read_at",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "notifications",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "notifications",
+          "column_name": "user_id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "notifications",
+          "column_name": "title",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "notifications",
+          "column_name": "body",
+          "is_nullable": "NO",
+          "column_default": "''::text"
+        },
+        {
+          "data_type": "boolean",
+          "table_name": "notifications",
+          "column_name": "seen",
+          "is_nullable": "NO",
+          "column_default": "false"
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "notifications",
+          "column_name": "created_at",
+          "is_nullable": "YES",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "notifications",
+          "column_name": "group_id",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "notifications",
+          "column_name": "read_at",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "profiles",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "profiles",
+          "column_name": "name",
+          "is_nullable": "NO",
+          "column_default": "''::text"
+        },
+        {
+          "data_type": "text",
+          "table_name": "profiles",
+          "column_name": "email",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "profiles",
+          "column_name": "role",
+          "is_nullable": "NO",
+          "column_default": "'coroinha'::text"
+        },
+        {
+          "data_type": "boolean",
+          "table_name": "profiles",
+          "column_name": "approved",
+          "is_nullable": "NO",
+          "column_default": "false"
+        },
+        {
+          "data_type": "text",
+          "table_name": "profiles",
+          "column_name": "photo_url",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "profiles",
+          "column_name": "notes",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "profiles",
+          "column_name": "created_at",
+          "is_nullable": "YES",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "jsonb",
+          "table_name": "profiles",
+          "column_name": "notification_preferences",
+          "is_nullable": "NO",
+          "column_default": "'{\"enabled\": true, \"free_slots\": true, \"withdrawals\": true, \"new_schedules\": true}'::jsonb"
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "profiles",
+          "column_name": "last_seen_at",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "push_subscriptions",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "push_subscriptions",
+          "column_name": "user_id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "push_subscriptions",
+          "column_name": "endpoint",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "push_subscriptions",
+          "column_name": "p256dh",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "push_subscriptions",
+          "column_name": "auth",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "push_subscriptions",
+          "column_name": "created_at",
+          "is_nullable": "NO",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "requests",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "requests",
+          "column_name": "mass_id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "requests",
+          "column_name": "assignment_id",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "requests",
+          "column_name": "user_id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "requests",
+          "column_name": "type",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "requests",
+          "column_name": "status",
+          "is_nullable": "NO",
+          "column_default": "'pendente'::text"
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "requests",
+          "column_name": "created_at",
+          "is_nullable": "YES",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "screen_announcement_dismissals",
+          "column_name": "announcement_id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "screen_announcement_dismissals",
+          "column_name": "user_id",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "screen_announcement_dismissals",
+          "column_name": "dismissed_at",
+          "is_nullable": "NO",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "screen_announcements",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "data_type": "text",
+          "table_name": "screen_announcements",
+          "column_name": "title",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "screen_announcements",
+          "column_name": "body",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "screen_announcements",
+          "column_name": "target_role",
+          "is_nullable": "NO",
+          "column_default": "'all'::text"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "screen_announcements",
+          "column_name": "target_user_id",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "screen_announcements",
+          "column_name": "display_mode",
+          "is_nullable": "NO",
+          "column_default": "'optional'::text"
+        },
+        {
+          "data_type": "boolean",
+          "table_name": "screen_announcements",
+          "column_name": "active",
+          "is_nullable": "NO",
+          "column_default": "true"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "screen_announcements",
+          "column_name": "created_by",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "screen_announcements",
+          "column_name": "created_at",
+          "is_nullable": "NO",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "uuid",
+          "table_name": "site_updates",
+          "column_name": "id",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "data_type": "text",
+          "table_name": "site_updates",
+          "column_name": "version",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "site_updates",
+          "column_name": "title",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "data_type": "text",
+          "table_name": "site_updates",
+          "column_name": "description",
+          "is_nullable": "NO",
+          "column_default": "''::text"
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "site_updates",
+          "column_name": "published_at",
+          "is_nullable": "NO",
+          "column_default": "now()"
+        },
+        {
+          "data_type": "timestamp with time zone",
+          "table_name": "site_updates",
+          "column_name": "created_at",
+          "is_nullable": "NO",
+          "column_default": "now()"
+        }
+      ],
+      "storage": {
+        "buckets": 0,
+        "objects": 0
+      },
+      "constraints": [
+        {
+          "conname": "masses_created_by_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (created_by) REFERENCES profiles(id)",
+          "table_name": "masses"
+        },
+        {
+          "conname": "push_subscriptions_user_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+          "table_name": "push_subscriptions"
+        },
+        {
+          "conname": "profiles_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "profiles"
+        },
+        {
+          "conname": "profiles_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE",
+          "table_name": "profiles"
+        },
+        {
+          "conname": "masses_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "masses"
+        },
+        {
+          "conname": "assignments_status_check",
+          "contype": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['escalado'::text, 'confirmado'::text, 'desmarcado'::text, 'presente'::text, 'faltou'::text])))",
+          "table_name": "assignments"
+        },
+        {
+          "conname": "assignments_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "assignments"
+        },
+        {
+          "conname": "assignments_mass_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (mass_id) REFERENCES masses(id) ON DELETE CASCADE",
+          "table_name": "assignments"
+        },
+        {
+          "conname": "assignments_server_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (server_id) REFERENCES profiles(id)",
+          "table_name": "assignments"
+        },
+        {
+          "conname": "requests_type_check",
+          "contype": "c",
+          "definition": "CHECK ((type = ANY (ARRAY['servir'::text, 'substituir'::text])))",
+          "table_name": "requests"
+        },
+        {
+          "conname": "requests_status_check",
+          "contype": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['pendente'::text, 'aprovado'::text, 'recusado'::text])))",
+          "table_name": "requests"
+        },
+        {
+          "conname": "requests_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "requests"
+        },
+        {
+          "conname": "requests_assignment_id_user_id_type_key",
+          "contype": "u",
+          "definition": "UNIQUE (assignment_id, user_id, type)",
+          "table_name": "requests"
+        },
+        {
+          "conname": "requests_mass_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (mass_id) REFERENCES masses(id) ON DELETE CASCADE",
+          "table_name": "requests"
+        },
+        {
+          "conname": "requests_assignment_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE CASCADE",
+          "table_name": "requests"
+        },
+        {
+          "conname": "requests_user_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE",
+          "table_name": "requests"
+        },
+        {
+          "conname": "notifications_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "notifications"
+        },
+        {
+          "conname": "notifications_user_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE",
+          "table_name": "notifications"
+        },
+        {
+          "conname": "messages_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "messages"
+        },
+        {
+          "conname": "messages_user_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id)",
+          "table_name": "messages"
+        },
+        {
+          "conname": "guides_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "guides"
+        },
+        {
+          "conname": "guides_function_name_key",
+          "contype": "u",
+          "definition": "UNIQUE (function_name)",
+          "table_name": "guides"
+        },
+        {
+          "conname": "fixed_rules_weekday_check",
+          "contype": "c",
+          "definition": "CHECK (((weekday >= 0) AND (weekday <= 6)))",
+          "table_name": "fixed_rules"
+        },
+        {
+          "conname": "fixed_rules_hour_check",
+          "contype": "c",
+          "definition": "CHECK (((hour >= 0) AND (hour <= 23)))",
+          "table_name": "fixed_rules"
+        },
+        {
+          "conname": "fixed_rules_minute_check",
+          "contype": "c",
+          "definition": "CHECK (((minute >= 0) AND (minute <= 59)))",
+          "table_name": "fixed_rules"
+        },
+        {
+          "conname": "fixed_rules_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "fixed_rules"
+        },
+        {
+          "conname": "fixed_rules_server_id_weekday_hour_minute_function_name_loc_key",
+          "contype": "u",
+          "definition": "UNIQUE (server_id, weekday, hour, minute, function_name, location)",
+          "table_name": "fixed_rules"
+        },
+        {
+          "conname": "fixed_rules_server_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (server_id) REFERENCES profiles(id) ON DELETE CASCADE",
+          "table_name": "fixed_rules"
+        },
+        {
+          "conname": "profiles_role_check",
+          "contype": "c",
+          "definition": "CHECK ((role = ANY (ARRAY['coroinha'::text, 'pai'::text, 'coordenadora'::text, 'desenvolvedor'::text])))",
+          "table_name": "profiles"
+        },
+        {
+          "conname": "login_events_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "login_events"
+        },
+        {
+          "conname": "login_events_user_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE",
+          "table_name": "login_events"
+        },
+        {
+          "conname": "site_updates_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "site_updates"
+        },
+        {
+          "conname": "audit_log_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "audit_log"
+        },
+        {
+          "conname": "banned_emails_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (email)",
+          "table_name": "banned_emails"
+        },
+        {
+          "conname": "messages_type_check",
+          "contype": "c",
+          "definition": "CHECK ((type = ANY (ARRAY['reclamacao'::text, 'sugestao'::text, 'dica'::text])))",
+          "table_name": "messages"
+        },
+        {
+          "conname": "push_subscriptions_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "push_subscriptions"
+        },
+        {
+          "conname": "push_subscriptions_endpoint_key",
+          "contype": "u",
+          "definition": "UNIQUE (endpoint)",
+          "table_name": "push_subscriptions"
+        },
+        {
+          "conname": "screen_announcements_title_check",
+          "contype": "c",
+          "definition": "CHECK (((length(TRIM(BOTH FROM title)) >= 1) AND (length(TRIM(BOTH FROM title)) <= 160)))",
+          "table_name": "screen_announcements"
+        },
+        {
+          "conname": "screen_announcements_body_check",
+          "contype": "c",
+          "definition": "CHECK (((length(TRIM(BOTH FROM body)) >= 1) AND (length(TRIM(BOTH FROM body)) <= 4000)))",
+          "table_name": "screen_announcements"
+        },
+        {
+          "conname": "screen_announcements_target_role_check",
+          "contype": "c",
+          "definition": "CHECK ((target_role = ANY (ARRAY['all'::text, 'coroinha'::text, 'pai'::text, 'coordenadora'::text, 'desenvolvedor'::text, 'individual'::text])))",
+          "table_name": "screen_announcements"
+        },
+        {
+          "conname": "screen_announcements_display_mode_check",
+          "contype": "c",
+          "definition": "CHECK ((display_mode = ANY (ARRAY['optional'::text, 'once'::text, 'always'::text])))",
+          "table_name": "screen_announcements"
+        },
+        {
+          "conname": "screen_target_consistency",
+          "contype": "c",
+          "definition": "CHECK ((((target_role = 'individual'::text) AND (target_user_id IS NOT NULL)) OR ((target_role <> 'individual'::text) AND (target_user_id IS NULL))))",
+          "table_name": "screen_announcements"
+        },
+        {
+          "conname": "screen_announcements_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (id)",
+          "table_name": "screen_announcements"
+        },
+        {
+          "conname": "screen_announcements_target_user_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (target_user_id) REFERENCES profiles(id) ON DELETE CASCADE",
+          "table_name": "screen_announcements"
+        },
+        {
+          "conname": "screen_announcements_created_by_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (created_by) REFERENCES profiles(id)",
+          "table_name": "screen_announcements"
+        },
+        {
+          "conname": "screen_announcement_dismissals_pkey",
+          "contype": "p",
+          "definition": "PRIMARY KEY (announcement_id, user_id)",
+          "table_name": "screen_announcement_dismissals"
+        },
+        {
+          "conname": "screen_announcement_dismissals_announcement_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (announcement_id) REFERENCES screen_announcements(id) ON DELETE CASCADE",
+          "table_name": "screen_announcement_dismissals"
+        },
+        {
+          "conname": "screen_announcement_dismissals_user_id_fkey",
+          "contype": "f",
+          "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE",
+          "table_name": "screen_announcement_dismissals"
+        }
+      ],
+      "publications": null
+    }
+  }
+]

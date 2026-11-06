@@ -3,6 +3,7 @@ import webpush from 'web-push';
 import {createClient} from '@supabase/supabase-js';
 export const runtime='nodejs';
 export async function POST(req:NextRequest){
+ if(process.env.NEXT_PUBLIC_DATA_BACKEND==='neon-migration')return NextResponse.json({error:'Push suppressed in migration environment'},{status:503});
  const secret=process.env.PUSH_WEBHOOK_SECRET;
  if(!secret||req.headers.get('x-push-secret')!==secret)return NextResponse.json({error:'Unauthorized'},{status:401});
  const {notification_id}=await req.json();
