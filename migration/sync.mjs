@@ -6,11 +6,13 @@ const tables=['profiles','masses','assignments','requests','notifications','mess
 const apply=process.argv.includes('--apply');
 const confirmed=process.argv.includes('--confirm-isolated-neon');
 const sourceUrl=process.env.SOURCE_READONLY_DATABASE_URL;
-const targetUrl=apply?process.env.NEON_MIGRATION_ADMIN_DATABASE_URL:process.env.NEON_MIGRATION_DATABASE_URL;
+// This offline maintenance tool needs full table visibility for accurate checksums.
+// Never reuse the privileged admin URL in the Vercel application's gateway.
+const targetUrl=process.env.NEON_MIGRATION_ADMIN_DATABASE_URL;
 if(apply&&!confirmed)throw new Error('Refusing sync without --confirm-isolated-neon.');
 if(!sourceUrl||!targetUrl)throw new Error('Supply private source and target connection URLs for this mode.');
 if(sourceUrl===targetUrl)throw new Error('Source and destination must differ.');
-if(apply&&decodeURIComponent(new URL(targetUrl).username)!=='coroinhas_owner')
+if(decodeURIComponent(new URL(targetUrl).username)!=='coroinhas_owner')
  throw new Error('Explicit --apply requires isolated branch owner connection.');
 const source=new pg.Client({connectionString:sourceUrl}),target=new pg.Client({connectionString:targetUrl});
 const id=s=>'"'+s.replaceAll('"','""')+'"';
