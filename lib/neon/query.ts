@@ -1,6 +1,17 @@
 // Only the app's audited PostgREST subset; all values are parameterized.
 import schema from '../../migration/audit/schema.json';
 const columns = new Map<string, Set<string>>();
+const conflictTargets = new Map<string, Set<string>>();
+// Conflict columns must represent a real PK/UNIQUE constraint, never an arbitrary field.
+for(const c of schema[0].inventory.constraints){
+ if(c.contype!=='p' && c.contype!=='u')continue;
+ const match=c.definition.match(/\(([^)]+)\)/);
+ if(!match)continue;
+ const names=match[1].split(',').map(x=>x.trim().replaceAll('"',''));
+ const set=conflictTargets.get(c.table_name)||new Set<string>();
+ set.add([...names].sort().join(','));
+ conflictTargets.set(c.table_name,set);
+}
 for (const c of schema[0].inventory.columns) {
  const set = columns.get(c.table_name) || new Set<string>();
  set.add(c.column_name); columns.set(c.table_name, set);
@@ -18,11 +29,15 @@ const rpcs: Record<string, Record<string, string>> = {
 export class QueryError extends Error {}
 const fail = (): never => {throw new QueryError('Operação não suportada no ambiente de migração.');};
 export function compileQuery(path:string[],method:string,params:URLSearchParams,body:unknown,prefer='') {
+ // Never silently reinterpret duplicate or unsupported PostgREST query parameters.
+ const seen=new Set<string>();
+ for(const [key] of params){if(seen.has(key))return fail();seen.add(key)}
+ if(params.has('columns'))return fail();
  const values: unknown[]=[];
  const value=(v:unknown)=>{values.push(v);return '$'+values.length};
  if(path.length===2&&path[0]==='rpc') {
   const name=path[1],signature=rpcs[name];
-  if(!Object.hasOwn(rpcs,name)||method!=='POST'||!body||Array.isArray(body)||typeof body!=='object')return fail();
+  if(!Object.hasOwn(rpcs,name)||method!=='POST'||params.size!==0||!body||Array.isArray(body)||typeof body!=='object')return fail();
   const args=Object.entries(body);
   if(args.some(([k])=>!Object.hasOwn(signature,k)))return fail();
   const text=`SELECT public."${name}"(${args.map(([k,v])=>`"${k}" => ${value(v)}::${signature[k]}`).join(',')}) AS result`;
@@ -30,12 +45,13 @@ export function compileQuery(path:string[],method:string,params:URLSearchParams,
  }
  if(path.length!==1||!columns.has(path[0]))return fail();
  const table=path[0],allowed=columns.get(table)!;
+ if(params.has('on_conflict') && (method!=='POST' || !prefer.includes('resolution=merge-duplicates')))return fail();
  const col=(c:string)=>{if(!allowed.has(c))return fail();return '"'+c+'"'};
  const selection=params.get('select')||'*';
  const selected=selection==='*'?'*':selection.split(',').map(col).join(',');
  let order='',limit='';const filters:string[]=[];
  for(const [key,raw] of params){
-  if(['select','on_conflict','columns'].includes(key))continue;
+  if(['select','on_conflict'].includes(key))continue;
   if(key==='order'){
    order=' ORDER BY '+raw.split(',').map(item=>{const [c,dir,...rest]=item.split('.');if(rest.length||!['asc','desc'].includes(dir))return fail();return `${col(c)} ${dir.toUpperCase()}`}).join(',');continue;
   }
@@ -67,6 +83,7 @@ export function compileQuery(path:string[],method:string,params:URLSearchParams,
   if(prefer.includes('resolution=merge-duplicates')){
    const conflict=params.get('on_conflict');if(!conflict)return fail();
    const target=conflict.split(',');target.forEach(col);
+   if(new Set(target).size!==target.length || !conflictTargets.get(table)?.has([...target].sort().join(',')))return fail();
    const updates=keys.filter(k=>!target.includes(k));
    text+=` ON CONFLICT (${target.map(col).join(',')}) `+(updates.length?'DO UPDATE SET '+updates.map(k=>`${col(k)}=EXCLUDED.${col(k)}`).join(','):'DO NOTHING');
   }else if(params.has('on_conflict'))return fail();
