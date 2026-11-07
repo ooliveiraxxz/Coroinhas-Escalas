@@ -26,7 +26,7 @@ SELECT
  a.mapped_users, a.unmapped_users, a.verified_users,
  a.orphan_mappings, a.inconsistent_emails, s.active_sessions,
  (a.mapped_users=p.profiles AND a.unmapped_users=0
-  AND a.verified_users=a.auth_users AND a.orphan_mappings=0
+  AND a.orphan_mappings=0
   AND a.inconsistent_emails=0) AS identity_inventory_ready,
- 'ATENCAO: inventario nao comprova login, recuperacao de senha, autorizacao nem seguranca da sessao'::text AS warning
+ 'ATENCAO: email nao verificado e permitido nesta homologacao. Inventario nao comprova login, recuperacao de senha, autorizacao nem seguranca da sessao'::text AS warning
 FROM auth_state a CROSS JOIN profiles_state p CROSS JOIN session_state s;
