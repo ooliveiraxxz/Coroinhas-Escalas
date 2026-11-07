@@ -23,15 +23,17 @@ export async function dispatchPushBatch(db:PushDatabase,deliver:Delivery,limit=1
    await finish(db,claim,false,410);
    counts.skipped++;continue;
   }
-  try{
-   await deliver(claim);
+  let failure:unknown;
+  try{await deliver(claim)}catch(e){failure=e}
+  if(failure===undefined){
+   // If acknowledging a successful send fails, keep the original lease.
+   // Do not rewrite an already-delivered item as a failed push.
    await finish(db,claim,true,0);
    counts.sent++;
-  }catch(e){
-   const raw=(typeof e==='object'&&e!==null&&'statusCode'in e)?Number(e.statusCode):0;
+  }else{
+   const raw=(typeof failure==='object'&&failure!==null&&'statusCode'in failure)?
+    Number(failure.statusCode):0;
    const status=Number.isInteger(raw)&&raw>=100&&raw<=599?raw:0;
-   // A failed database finish is not counted as delivered; the existing claim
-   // remains leased for recovery and may be retried (at-least-once semantics).
    await finish(db,claim,false,status);
    counts.failed++;
   }
