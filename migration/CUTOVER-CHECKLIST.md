@@ -64,3 +64,16 @@
 - `migration/README.md`: histórico de verificações, diferenças e bloqueios.
 
 **Decisão atual:** NÃO APTO PARA SUBSTITUIÇÃO FINAL.
+
+## Atualização de engenharia — 07/11/2026
+
+- [x] Portão de produção fail-closed no código: `NEON_PRODUCTION_CUTOVER_ENABLED=true` + `NEON_PRODUCTION_APPROVED_COMMIT` deve ser igual a `VERCEL_GIT_COMMIT_SHA`; nenhum flag ativado em produção.
+- [x] Implementação do worker push Neon, endpoint protegido por CRON_SECRET, SQL 020 instalado, testes SQL 021/022 aprovados com rollback e testes automatizados de código aprovados.
+- [x] Preview atualizado e CI aprovado em `9502c1f2`. Auditoria incremental de 15 tabelas e conteúdo em `migration/DELTA-AUDIT-20261107.md`.
+- [ ] Revisar **100 registros exclusivos do Neon**, uma linha nova de auditoria apenas no Supabase e diferença `last_seen_at` em um perfil. Não efetuar remoção em massa.
+- [ ] Habilitar credencial de login dedicada `coroinhas_push_worker` e configurar agendador e VAPID *somente após corte aprovado*. O worker permanece NOLOGIN e runtime `enabled=false` até então.
+- [ ] Testar envio opt-in em dispositivo real e repovoar assinatura após ativação; inscrições antigas copiadas ficam intencionalmente fora do envio.
+- [ ] Validar os quatro logins originais (0/4 senhas no Neon no último inventário).
+- [ ] Repetir CI no SHA exato da implantação final, executar E2E e ensaio real de sync + backup/restauração antes do cutover.
+
+**Status permanece NÃO APTO para trocar produção sem concluir as pendências acima e receber autorização expressa.**
