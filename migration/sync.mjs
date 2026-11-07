@@ -26,7 +26,7 @@ try {
  const expected=process.env.MIGRATION_SOURCE_PROJECT;
  if(expected!=='dsglwwwwdtjynipauvrp')throw new Error('Set the expected source project explicitly.');
  const u=new URL(sourceUrl);
- const sourceHostOK=u.hostname===expected+'.supabase.co'||
+ const sourceHostOK=u.hostname==='db.'+expected+'.supabase.co'||u.hostname===expected+'.supabase.co'||
   (u.hostname.endsWith('.pooler.supabase.com')&&decodeURIComponent(u.username).split('.').includes(expected));
  if(!sourceHostOK)throw new Error('Source project mismatch.');
  const target=new URL(targetUrl);
