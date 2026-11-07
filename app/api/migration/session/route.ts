@@ -12,5 +12,5 @@ export async function POST(req:NextRequest){
   const role=body.requestedRole==='pai'?'pai':'coroinha';
   const result=await getPool().query('SELECT migration_private.resolve_neon_identity($1::uuid,$2::uuid,$3::text) AS profile_id',[data.user.id,data.session.id,role]);
   return NextResponse.json({profileId:result.rows[0].profile_id},{headers:{'Cache-Control':'no-store'}});
- }catch{return NextResponse.json({message:'Verifique o e-mail ou conclua a ativação da sua conta.'},{status:403})}
+ }catch{return NextResponse.json({message:'Não foi possível vincular esta conta. Se você já possuía cadastro, solicite a vinculação segura ao responsável. Nenhum código de confirmação é necessário.'},{status:403,headers:{'Cache-Control':'no-store'}})}
 }
