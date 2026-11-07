@@ -38,3 +38,14 @@
 6. Aprovação expressa para corte de produção e revalidação do SHA exato.
 
 **Estado técnico: avanço confirmado, mas NÃO 100% e NÃO apto para substituir produção.**
+
+## Consolidação adicional — grants mínimos e release
+
+- `migration/sql/029-minimum-client-table-grants.sql` aplicado nos dois ambientes isolados. A API `coroinhas_app` perdeu privilégios desnecessários: INSERT/DELETE direto de `profiles`, DELETE de `notifications`, UPDATE/DELETE de `messages`, DELETE de `requests`. INSERT de mensagens e solicitações legítimas continua permitido. Todos os privilégios foram verificados via `has_table_privilege`.
+- `migration/sql/030-original-accounts-readiness.sql` acrescentado ao repositório e consultado: dos **quatro perfis originais** (3 coordenadoras + 1 desenvolvedor), **4/4 mapeados para Neon Auth e e-mails coincidentes; 0/4 senhas; 0/4 e-mails verificados**. Não executar reset automático nem vincular conta só por e-mail.
+- `migration_private.site_update_conflict_archive` verificado na cópia isolada: 1 atualização preservada, decisão `pending_review`; a linha pública não foi apagada. O Supabase registra sua exclusão e não contém mais o registro.
+- Comparação recente do Supabase com a cópia limpa: **14/15 checksums iguais**, apenas `site_updates` diferente, 251 linhas na origem vs 252 na cópia. A exclusão física **não foi autorizada**.
+- CI na revisão `a3f695254875eb56a5ff51ff4309917f76e84173`: **50/50 testes aprovados**, TypeScript e build aprovados, GitHub Actions run `42427031884`. Preview READY `https://coroinhas-escalas-nijnoog2i-ooliveiraxxz.vercel.app`; endereço adicionado às origens autorizadas do Neon Auth.
+- Alias de preview estável `https://coroinhas-escalas-git-migration-neon-20261106-ooliveiraxxz.vercel.app` também consta na lista de origens confiáveis do Neon Auth.
+
+**Restam os mesmos portões humanos/operacionais: ativação das quatro contas reais, E2E, push real consentido, sincronização direta com duas conexões, backup integral restaurável do Supabase e autorização expressa antes do cutover.**
