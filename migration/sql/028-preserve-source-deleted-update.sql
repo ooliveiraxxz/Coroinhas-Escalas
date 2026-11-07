@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS migration_private.site_update_conflict_archive (
    CHECK (decision IN ('pending_review','retain','remove_after_authorization'))
 );
 REVOKE ALL ON migration_private.site_update_conflict_archive
- FROM PUBLIC,coroinhas_app,coroinhas_gateway,coroinhas_push_worker;
+ FROM PUBLIC,coroinhas_app,coroinhas_gateway;
 
 INSERT INTO migration_private.site_update_conflict_archive(id,snapshot,source_delete_audit_id)
 SELECT s.id,to_jsonb(s),168 FROM public.site_updates s
