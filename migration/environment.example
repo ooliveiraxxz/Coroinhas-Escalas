@@ -17,3 +17,19 @@ NEON_MIGRATION_ADMIN_DATABASE_URL=
 # Somente para execução manual da sincronização:
 SOURCE_READONLY_DATABASE_URL=
 MIGRATION_SOURCE_PROJECT=dsglwwwwdtjynipauvrp
+
+# Alvo isolado escolhido para auditoria e ENSAIO. Nunca mudar diretamente a produção.
+MIGRATION_TARGET_BRANCH_ID=br-odd-bread-bc1jxzsh
+
+# Valores ABAIXO são somente um checklist para futuro cutover AUTORIZADO.
+# Não definir em produção antes do backup validado, login real e autorização.
+# NEON_PRODUCTION_CUTOVER_ENABLED=false
+# NEON_PRODUCTION_APPROVED_COMMIT=
+# NEON_PUSH_DISPATCH_ENABLED=false
+# NEON_PUSH_DATABASE_URL=
+# CRON_SECRET=
+# NEXT_PUBLIC_VAPID_PUBLIC_KEY=
+# VAPID_PRIVATE_KEY=
+# VAPID_SUBJECT=
+# A conta coroinhas_push_worker permanece NOLOGIN até ativação aprovada.
+# O agendamento da chamada GET /api/push/neon-dispatch também fica desativado.
