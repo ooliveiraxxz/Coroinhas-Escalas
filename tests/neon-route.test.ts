@@ -12,12 +12,12 @@ test('migration endpoint defaults to disabled and cannot be enabled in productio
  delete process.env.VERCEL_ENV;delete process.env.NEON_MIGRATION_ENABLED;
 });
 test('missing environment and missing token fail before any database connection',async()=>{
- process.env.NEON_MIGRATION_ENABLED='true';
+ process.env.NEON_MIGRATION_ENABLED='true';process.env.NEXT_PUBLIC_DATA_BACKEND='neon-migration';
  assert.equal((await GET(req(),context)).status,503);
  process.env.NEON_MIGRATION_DATABASE_URL='postgres://invalid.example/test';
  process.env.NEON_AUTH_BASE_URL='https://example.invalid';
  process.env.NEON_AUTH_COOKIE_SECRET='test-secret-at-least-32-characters-long';
  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY='test';
  assert.equal((await GET(req(),context)).status,401);
- for(const k of ['NEON_MIGRATION_ENABLED','NEON_MIGRATION_DATABASE_URL','NEON_AUTH_BASE_URL','NEON_AUTH_COOKIE_SECRET','NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'])delete process.env[k];
+ for(const k of ['NEON_MIGRATION_ENABLED','NEON_MIGRATION_DATABASE_URL','NEON_AUTH_BASE_URL','NEON_AUTH_COOKIE_SECRET','NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY','NEXT_PUBLIC_DATA_BACKEND'])delete process.env[k];
 });
