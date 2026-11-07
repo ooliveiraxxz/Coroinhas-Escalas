@@ -3,10 +3,15 @@ import fs from 'node:fs';
 import pg from 'pg';
 const inventory=JSON.parse(fs.readFileSync(new URL('./audit/schema.json',import.meta.url)))[0].inventory;
 const tables=['profiles','masses','assignments','requests','notifications','messages','guides','fixed_rules','site_updates','audit_log','banned_emails','login_events','push_subscriptions','screen_announcements','screen_announcement_dismissals'];
+const apply=process.argv.includes('--apply');
+const confirmed=process.argv.includes('--confirm-isolated-neon');
 const sourceUrl=process.env.SOURCE_READONLY_DATABASE_URL;
-const targetUrl=process.env.NEON_MIGRATION_DATABASE_URL;
-if(!sourceUrl||!targetUrl)throw new Error('Supply SOURCE_READONLY_DATABASE_URL and NEON_MIGRATION_DATABASE_URL privately.');
+const targetUrl=apply?process.env.NEON_MIGRATION_ADMIN_DATABASE_URL:process.env.NEON_MIGRATION_DATABASE_URL;
+if(apply&&!confirmed)throw new Error('Refusing sync without --confirm-isolated-neon.');
+if(!sourceUrl||!targetUrl)throw new Error('Supply private source and target connection URLs for this mode.');
 if(sourceUrl===targetUrl)throw new Error('Source and destination must differ.');
+if(apply&&decodeURIComponent(new URL(targetUrl).username)!=='coroinhas_owner')
+ throw new Error('Explicit --apply requires isolated branch owner connection.');
 const source=new pg.Client({connectionString:sourceUrl}),target=new pg.Client({connectionString:targetUrl});
 const id=s=>'"'+s.replaceAll('"','""')+'"';
 try {
@@ -33,6 +38,18 @@ try {
   if(extra.rows[0].count)throw new Error('Deletion/conflict review required for '+table);
   snapshots.push({table,keys,cols,payload,count:data.rowCount});
  }
+ if(!apply){
+  // Default read-only audit: no user records, tokens or credentials are logged.
+  const differences=[];
+  for(const {table,count} of snapshots){
+   const q=`SELECT count(*)::int count,md5(coalesce(string_agg(to_jsonb(t)::text,E'\\\\n' ORDER BY to_jsonb(t)::text),'')) checksum FROM public.${id(table)} t`;
+   const a=await source.query(q),b=await target.query(q);
+   if(a.rows[0].checksum!==b.rows[0].checksum || a.rows[0].count!==b.rows[0].count)
+    differences.push({table,sourceCount:count,targetCount:b.rows[0].count});
+  }
+  await target.query('ROLLBACK');await source.query('ROLLBACK');
+  console.log(JSON.stringify({mode:'read-only',tablesCompared:tables.length,differences,readyForApply:differences.length===0},null,2));
+ }else{
  // Prevent imported rows from generating fresh audit/notification events.
  // Foreign-key constraint triggers remain active.
  for(const {table} of snapshots)await target.query(`ALTER TABLE public.${id(table)} DISABLE TRIGGER USER`);
@@ -53,6 +70,7 @@ try {
  }
  await target.query('COMMIT');await source.query('ROLLBACK');
  console.log(JSON.stringify({synced:true,tables:checks},null,2));
+ }
 } catch(e) {
  await target.query('ROLLBACK').catch(()=>{});await source.query('ROLLBACK').catch(()=>{});
  // Do not log driver errors, query details, row content or credentials.
