@@ -26,7 +26,15 @@ try {
  const expected=process.env.MIGRATION_SOURCE_PROJECT;
  if(expected!=='dsglwwwwdtjynipauvrp')throw new Error('Set the expected source project explicitly.');
  const u=new URL(sourceUrl);
- if(!u.hostname.includes(expected)&&!decodeURIComponent(u.username).includes(expected))throw new Error('Source project mismatch.');
+ const sourceHostOK=u.hostname===expected+'.supabase.co'||
+  (u.hostname.endsWith('.pooler.supabase.com')&&decodeURIComponent(u.username).split('.').includes(expected));
+ if(!sourceHostOK)throw new Error('Source project mismatch.');
+ const target=new URL(targetUrl);
+ if(!['postgres:','postgresql:'].includes(target.protocol)||
+    !target.hostname.endsWith('.neon.tech')||
+    target.pathname!=='/coroinhas'||
+    decodeURIComponent(target.username)!=='coroinhas_owner')throw new Error('Target must be the isolated Neon project owner database.');
+
  const snapshots=[];
  for(const table of tables){
   const pk=inventory.constraints.find(c=>c.table_name===table&&c.contype==='p');
