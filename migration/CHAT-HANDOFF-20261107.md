@@ -48,3 +48,17 @@ Origem oficial: Supabase `dsglwwwwdtjynipauvrp`.
 7. Atualização da branch principal e publicação de produção **somente** mediante autorização explícita do responsável.
 
 **Decisão:** trabalho SQL/código/auditoria realizável diretamente no Chat entregue; **Neon NÃO APTO para substituição oficial até os testes acima**. Não publicar nem realizar cutover automaticamente.
+
+## Continuação direta pelo Chat em 07/11/2026 (após Work)
+
+Esta seção atualiza a fotografia histórica acima; não interprete contagens antigas como situação atual.
+
+- O endpoint `app/api/migration/session/route.ts` foi reforçado: verifica `Origin`, `Content-Type: application/json`, limite de 1 KiB, formato do JSON, campos permitidos e apenas os papéis `pai` / `coroinha`. Nenhum papel privilegiado é solicitado via cliente. Erros são enviados com `Cache-Control: no-store`.
+- `tests/neon-route.test.ts` recebeu testes de CSRF, corpo inesperado, papéis privilegiados e limite de tamanho.
+- CI da revisão `58e50cbb710a41ef53616de624db8bcac09161bb`: **aprovado**, run [42422410409](https://github.com/ooliveiraxxz/Coroinhas-Escalas/actions/runs/42422410409), incluindo testes, TypeScript e build. O número de testes deve ser obtido nos logs para evitar estimativas.
+- Preview criado manualmente na Vercel apenas para a branch isolada: deployment `dpl_GPRC1QM9RcwYQUmsin7u3xaMFA3q`, URL `https://coroinhas-escalas-qspm7melg-ooliveiraxxz.vercel.app`, estado READY ao consultar.
+- `migration/sql/019-readonly-auth-cutover-gates.sql`: inventário read-only, criado e sua consulta SQL efetivamente executada no Neon de homologação. Estado: 8 perfis (4 originais e 4 de teste), 10 identidades Auth, 5 sessões ativas, **0/4 senhas dos titulares originais ativas**, 0 divergências entre e-mails e mapeamentos originais, 0 assinaturas push órfãs, 0 tentativas de envio, 15 tabelas RLS, 33 políticas. `existing_accounts_ready=false`.
+- Comparação read-only com a origem: Supabase 251 registros públicos; Neon 350 registros públicos, diferença de +99 em homologação. Esses adicionais não foram apagados e exigem reconciliação com plano aprovado.
+- Os quatro titulares originais precisam ativar suas próprias senhas pelo método seguro; não atribuir senhas artificiais. Nenhuma alteração foi aplicada ao Supabase, `main` ou Vercel produção.
+
+**Próxima responsabilidade do Work:** testes funcionais autenticados em navegador/dispositivos, comprovação de backup/restauração e cutover final somente após autorização. As demais correções técnicas podem continuar na branch isolada. Não declarar 100% antes das evidências obrigatórias.
