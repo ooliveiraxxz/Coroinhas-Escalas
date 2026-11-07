@@ -11,6 +11,9 @@ NEON_AUTH_BASE_URL=
 NEON_AUTH_COOKIE_SECRET=
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+# Somente para auditoria offline e sincronização, nunca usar no site ou na Vercel:
+# Credencial de coroinhas_owner EXCLUSIVA da branch de homologação.
+NEON_MIGRATION_ADMIN_DATABASE_URL=
 # Somente para execução manual da sincronização:
 SOURCE_READONLY_DATABASE_URL=
 MIGRATION_SOURCE_PROJECT=dsglwwwwdtjynipauvrp
