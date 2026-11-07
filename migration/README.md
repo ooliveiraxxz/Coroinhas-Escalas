@@ -111,3 +111,38 @@ npm run build
 - Auditoria Vercel somente leitura: existe um deployment de homologação READY na branch experimental, porém baseado no commit `6355e2d`, **anterior** às correções recentes. Nenhum deploy novo foi efetuado; os testes de interface desse deployment não validam o HEAD atual.
 
 **Antes de autorizar produção:** executar `npm ci && npm test && npx tsc --noEmit && npm run build` na branch atualizada, validar variáveis da homologação (gateway restrito), produzir novo preview somente com autorização, testar cadastro/login/resets/4 perfis, revisar a quinta identidade, push, E2E e sincronização final. Não executar cutover automaticamente.
+
+
+## Auditoria adicional e correções — 07/11/2026
+
+### Comparação renovada (consulta direta nos bancos)
+- **15/15 tabelas públicas**, **98/98 colunas das tabelas**, **32/32 índices**, **33/33 políticas RLS**, **17/17 gatilhos** (um adaptado para fila push). 
+- Checksum dos registros: **14 de 15 tabelas idênticas**; a única divergência detectada é `profiles.last_seen_at`, campo volátil de último acesso. A comparação é pontual, não substitui a sincronização final.
+- 24 funções públicas na origem e 21 no Neon: `get_push_targets`, `on_signup` e `rls_auto_enable` não foram transportadas literalmente porque dependem do Supabase. Adaptadores para cadastro e push precisam ser homologados funcionalmente.
+- Dois relacionamentos antes apontavam para `auth.users` (Supabase). O ID do perfil continua preservado por `migration_private.identity_map`; **não** apontar esses IDs diretamente para sujeitos Neon Auth.
+- `push_subscriptions.user_id` agora tem FK validada para `public.profiles(id)` (RESTRICT, sem exclusão implícita). Script aplicado e versionado em `migration/sql/008-push-subscription-profile-fk.sql`. Zero inscrições órfãs.
+- Nenhum bucket/objeto de Storage nem Edge Function encontrados na origem no momento da auditoria.
+- Neon Auth continua com 5 contas, 4 vinculadas, 1 não vinculada, sem sessões ativas. A identidade adicional está **preservada, não aprovada e não excluída**. Os 4 vínculos existentes não apresentam conflito de e-mail.
+
+### Testes e segurança
+- Suíte SQL de segurança `migration/sql/security-tests.sql` **executada novamente** em transação isolada: **31 instruções de teste passaram**, com rollback integral. Consulta posterior mostrou **zero perfis fictícios** restantes.
+- Rejeição de sessão inválida pela função de identidade testada em dois cenários: usuário vinculado e não vinculado. Ambos negados; nenhum novo perfil gerado.
+- `coroinhas_app` e `coroinhas_gateway` não têm CREATE no schema público; gateway não tem bypass RLS nem superuser. Todos os 15 tables têm RLS e as funções SECURTY DEFINER conferidas possuem search_path fixo.
+- `migration/sql/009-readonly-cutover-readiness.sql` executado: `static_checks_ok=true`, mas **não** equivale a aprovação de produção, não cobre login, build, push nem E2E.
+- Variáveis de homologação `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `NEON_MIGRATION_DATABASE_URL`, `NEON_MIGRATION_ENABLED`, `NEXT_PUBLIC_DATA_BACKEND` existem **somente no preview da branch experimental** na Vercel, além das variáveis de produção do sistema atual. Valores sensíveis não foram inspecionados nem expostos.
+- Texto de erro em `app/api/migration/session/route.ts` corrigido para não exigir OTP de verificação que está desativado.
+
+### Segurança operacional e preparação
+- `migration/sync.mjs` agora executa auditoria com **transação somente leitura por padrão**. A sincronização que escreve precisa de `--apply --confirm-isolated-neon` e variável privada `NEON_MIGRATION_ADMIN_DATABASE_URL` com conta `coroinhas_owner`. A execução de escrita **não foi realizada**. Ensaio em duas conexões também ainda não foi executado aqui.
+- `.github/workflows/neon-migration-validation.yml` criado para checar sintaxe do sincronizador, instalar via `npm ci`, executar testes, TypeScript e build **sem segredos e sem deploy**. A execução/conclusão desse CI **ainda não foi confirmada** via ferramenta de status.
+- `migration/CUTOVER-CHECKLIST.md` contém portões de segurança, janela de manutenção e condições de abortar/reverter. Documento somente; nenhuma troca ocorreu.
+
+### Bloqueios para a substituição
+1. Compilação e testes de aplicação no HEAD recente ainda sem resultado confirmado.
+2. Ativação/autenticação real dos quatro perfis, teste de cadastro pendente, bloqueio, logout, recuperação e da quinta conta.
+3. Novo preview correspondente ao HEAD, testes funcionais e E2E por papel, inclusive mobile, PDFs, presenças e mensagens.
+4. Worker de push real e nova inscrição de dispositivo consentida; outbox segue `suppressed` e nenhuma entrega foi habilitada.
+5. Script de sincronização deve ser ensaiado com URLs e credenciais privadas e revisão de diferenças antes de executar a escrita.
+6. Backup, janela de congelamento, reconciliação final, autorização expressa e plano de reversão revisado.
+
+**Decisão:** NÃO APTO PARA MIGRAÇÃO FINAL; Supabase permanece oficial.
