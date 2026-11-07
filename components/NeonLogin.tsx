@@ -12,8 +12,11 @@ export default function NeonLogin(){
    let result;
    if(mode==='signup'){
     result=await neonAuth.signUp.email({email,password,name});if(result.error)throw new Error(result.error.message);
-    const signed=await neonAuth.signIn.email({email,password});
-    if(signed.error){setMode('login');setNotice('Conta criada. Entre com sua senha para solicitar aprovação.');return;}
+    const current=await neonAuth.getSession();
+    if(!current.data?.user?.id||current.data.user.id!==result.data?.user?.id){
+     const signed=await neonAuth.signIn.email({email,password});
+     if(signed.error){setMode('login');setNotice('Conta criada. Entre com sua senha para solicitar aprovação.');return;}
+    }
     await refreshNeonSession(role);return;
    }
    if(mode==='reset'){
