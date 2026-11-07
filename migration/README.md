@@ -154,3 +154,36 @@ npm run build
 - Teste SQL com coroinha e pai fictícios: coordenadoras receberam os avisos, pai não recebeu e os dados foram revertidos; zero fixtures persistidas.
 - O método `emailOtp.resetPassword` e a verificação por OTP na recuperação de senha foram conferidos na documentação atual do Neon. **Não houve envio de código real nem teste de entrega.** Neon recomenda provedor dedicado de SMTP para produção, enquanto o projeto ainda está configurado com provedor compartilhado de desenvolvimento.
 - Vercel auditada novamente em modo leitura: a última homologação publicada permanece no commit antigo `6355e2d`; os commits recentes não estão implantados. A implantação de produção continua na branch `main`/Supabase.
+
+
+## Execução complementar solicitada pelo usuário — 07/11/2026
+
+### Código e autenticação
+- `public.approve_service_request` corrigida no Neon isolado para rejeitar solicitações de usuários não aprovados/sem papel coroinha, missas já iniciadas e substituições de vagas que deixaram de estar desmarcadas. Script versionado em `migration/sql/010-service-request-guards.sql`.
+- Três cenários testados via transação e SAVEPOINT: pedido antigo negado, usuário pendente negado, solicitação válida aprovada. Zero fixtures persistidas.
+- Máscara de `public.profile_directory` testada usando papel fictício de coroinha: dados privados de outros usuários não foram expostos; a própria conta conseguiu consultar seus dados. Os perfis especiais continuam com visão administrativa autorizada.
+- Teste de banimento via `developer_manage_user` com perfil fictício comprovou `approved=false` e inserção de e-mail bloqueado, integralmente revertido após o teste. **Não substitui teste E2E com sessão real do Neon Auth.**
+- `migrationEnabled()` em `lib/auth/server.ts` passou a exigir simultaneamente `NEON_MIGRATION_ENABLED=true`, `NEXT_PUBLIC_DATA_BACKEND=neon-migration` e ambiente Vercel diferente de produção. O endpoint de dados reutiliza esta única guarda; teste automatizado da rota atualizado.
+- Arquivo `migration/sql/011-critical-regression-tests.sql` criado para repetir, sempre com ROLLBACK, casos de aprovação e privacidade; sua lógica foi testada separadamente na homologação.
+
+### Funções, gatilhos e notificações
+- Inventário estático inspecionou 21 funções públicas. Funções sensíveis expostas pelo papel de aplicação possuem checagem de papel/identidade; funções de gatilho que não fazem essa verificação diretamente não têm autorização EXECUTE pública. **Análise estática não prova a ausência de vulnerabilidades em todas as funções.**
+- Gatilho de mensagens testado: sugestão de coroinha fictício gerou notificação para coordenadora e registro da operação na auditoria. Transação revertida.
+- Gatilho de push testado: notificação inserida foi registrada na outbox com `state=suppressed`, sem envio externo; teste revertido.
+- `migration/push-readiness.mjs` criado: utilitário offline de contagens read-only de inscrições/filas e integridade. Nunca realiza envio. Acrescentada verificação de sintaxe ao CI. **Não há ainda worker de entrega push pronto para produção.**
+
+### Sincronização e diagnóstico
+- `migration/sync.mjs` reforçado: o modo padrão é auditoria `BEGIN READ ONLY`; gravação exige flags explícitas. Como o papel restrito do aplicativo não pode ler todas as linhas, a auditoria offline agora exige uma conexão administrativa separada da branch de homologação, jamais incluída nas variáveis da Vercel. Host, usuário, projeto de origem e banco de destino são validados. Variável privada documentada em `migration/environment.example`.
+- O modo offline de sincronização **não foi executado de ponta a ponta**, pois precisa das duas credenciais de banco privadas. A comparação direta por conectores confirmou 15/15 tabelas com mesmo número de linhas e 14/15 com checksum idêntico (diferença no último acesso de perfis).
+- Na verificação final: 15 tabelas, 33 RLS, 32 índices, 17 gatilhos, 4 perfis, 4 vínculos Neon de perfis, 5 identidades Neon Auth, zero inscrições push órfãs, zero push fora do estado suprimido e zero fixtures persistidas.
+- Suíte SQL `migration/sql/security-tests.sql` executada novamente após as mudanças: **31 instruções aprovadas**, com rollback completo.
+- Projeto Vercel e branch `main` não foram publicados ou modificados. Nenhum banco oficial foi alterado.
+
+### Ainda bloqueado
+- CI/build TypeScript/Next mais recente: pipeline configurado, conclusão não verificada.
+- Login/cadastro/recuperação/logout reais e sessões revogadas no Neon Auth; a quinta conta de teste não foi excluída.
+- Workflow push real, entrega de e-mail de recuperação e testes de dispositivos.
+- E2E de escalas, presenças, solicitações, PDFs, mensagens, relatórios e interface.
+- Preview atualizado e seu teste no navegador, sincronização final, backup/restauração e autorização explícita de cutover.
+
+**Avaliação após esta execução: NÃO APTO para migração final.**
