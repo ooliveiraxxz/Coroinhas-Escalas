@@ -2,6 +2,8 @@
 NEXT_PUBLIC_DATA_BACKEND=neon-migration
 NEON_MIGRATION_ENABLED=true
 # Preencher privadamente, sem publicar valores:
+# O usuario da URL do banco DEVE ser coroinhas_gateway; nunca coroinhas_owner.
+# Use somente a branch Neon migration-coroinhas-20261106.
 NEON_MIGRATION_DATABASE_URL=
 # URL do Neon Auth da branch de homologação; nunca use URL da produção.
 NEON_AUTH_BASE_URL=
