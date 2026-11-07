@@ -1,7 +1,7 @@
 import {NextRequest,NextResponse} from 'next/server';
 import {getNeonAuth,migrationEnabled} from '@/lib/auth/server';
 import {getPool} from '@/lib/neon/database';
-import {compileQuery,QueryError} from '@/lib/neon/query';
+import {compileQuery} from '@/lib/neon/query';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 
@@ -10,7 +10,7 @@ function error(message:string,status:number,code='MIGRATION_ERROR'){
 }
 async function handle(req:NextRequest,context:{params:Promise<{path:string[]}>}) {
  // Deliberately impossible to turn on in a production Vercel deployment.
- if(process.env.NEON_MIGRATION_ENABLED!=='true'||process.env.VERCEL_ENV==='production')return error('Ambiente de migração desativado.',404);
+ if(!migrationEnabled())return error('Ambiente de migração desativado.',404);
  if(!process.env.NEON_MIGRATION_DATABASE_URL||!process.env.NEON_AUTH_BASE_URL||!process.env.NEON_AUTH_COOKIE_SECRET)return error('Ambiente de migração incompleto.',503);
  if(req.method!=='GET'&&req.headers.get('origin')!==req.nextUrl.origin)return error('Origem inválida.',403);
  if(!req.headers.get('cookie'))return error('Não autenticado.',401);
