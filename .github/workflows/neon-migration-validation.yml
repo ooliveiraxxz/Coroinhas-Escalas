@@ -26,6 +26,10 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci
+      - name: Identify npm security advisories (non-blocking diagnostic)
+        run: |
+          npm audit --json --omit=dev > npm-security-audit.json || true
+          node -e 'const a=require("./npm-security-audit.json"); for(const [name,v] of Object.entries(a.vulnerabilities||{})){console.log(JSON.stringify({package:name,severity:v.severity,range:v.range,via:v.via,fixAvailable:v.fixAvailable}))}'
       - name: Validate migration script syntax (read-only)
         run: node --check migration/sync.mjs
       - name: Validate push readiness script syntax
