@@ -36,7 +36,7 @@ export default function System(){
    if(!activeWorker.active){await new Promise<void>((resolve,reject)=>{const installing=worker.installing||worker.waiting;if(!installing)return reject(new Error('O serviço de notificações ainda não está pronto. Feche e abra o aplicativo.'));const onState=()=>{if(installing.state==='activated'){installing.removeEventListener('statechange',onState);resolve()}else if(installing.state==='redundant'){installing.removeEventListener('statechange',onState);reject(new Error('Falha na ativação. Abra o aplicativo novamente.'))}};installing.addEventListener('statechange',onState);onState()})}
    const subscription=await activeWorker.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY||'BDov9q_DBJrHGsmcCsMSIgkXnrWFYWioUSaD77Cajavor6dQxNINg2wXjMC8EmHjg79rPZByvl_1ynRPZk2EBGI'});
    const json=subscription.toJSON();
-   const {error:dbError}=await db.from('push_subscriptions').upsert({user_id:user.id,endpoint:json.endpoint,p256dh:json.keys?.p256dh,auth:json.keys?.auth},{onConflict:'endpoint'});
+   const {error:dbError}=await db.from('push_subscriptions').upsert({user_id:user.id,endpoint:json.endpoint,p256dh:json.keys?.p256dh,auth:json.keys?.auth,created_at:new Date().toISOString()},{onConflict:'endpoint'});
    if(dbError)throw dbError;
    setPushEnabled(true);alert('Notificações ativadas neste aparelho!');
   }catch(e:any){setError(e?.message||'Não foi possível ativar as notificações.')}finally{setPushBusy(false);}
