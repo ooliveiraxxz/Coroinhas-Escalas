@@ -43,6 +43,18 @@ test('sync refuses destination-only rows before any write',async()=>{
  assert.ok(r.calls.some(c=>c.side==='target'&&c.sql==='ROLLBACK'));
 });
 
+test('sync read-only reports destination-only fixtures without hiding the reconciliation plan',async()=>{
+ const r=await runSync(false,true);assert.equal(r.proc.exitCode,0);
+ const plan=JSON.parse(r.output[0]);
+ assert.equal(plan.tablesCompared,15);
+ assert.equal(plan.requiresConflictReview,true);
+ assert.equal(plan.dataChecksMatch,false);
+ assert.equal(plan.conflicts.length,15);
+ assert.deepEqual(plan.conflicts[0],{table:'profiles',targetOnlyCount:1});
+ assert.ok(r.calls.every(c=>/^(BEGIN|SELECT|ROLLBACK)/.test(c.sql)));
+ assert.ok(!r.output[0].includes('fixture@'));
+});
+
 test('sync aborts a stale reviewed plan before any data mutation',async()=>{
  const r=await runSync(true,false,true);assert.equal(r.proc.exitCode,1);
  assert.ok(!r.calls.some(c=>/^(INSERT|ALTER|UPDATE|DELETE)/.test(c.sql)));

@@ -48,7 +48,7 @@ try {
  }
  if(apply&&(reviewed?.sourceProject!==expected||reviewed?.targetBranch!=='br-rough-hill-bcj6lzt1'||JSON.stringify(reviewed?.fingerprints)!==JSON.stringify(fingerprints)))
   throw new Error('Reviewed plan missing, stale or conflicting; no data written.');
- const snapshots=[];
+ const snapshots=[],conflicts=[];
  for(const table of tables){
   const pk=inventory.constraints.find(c=>c.table_name===table&&c.contype==='p');
   if(!pk)throw new Error('Missing primary key: '+table);
@@ -58,14 +58,17 @@ try {
   const payload=JSON.stringify(data.rows.map(r=>r.row));
   // Fail on source deletions; never silently retain or remove divergent rows.
   const extra=await target.query(`SELECT count(*)::int count FROM public.${id(table)} t WHERE NOT EXISTS(SELECT 1 FROM jsonb_populate_recordset(NULL::public.${id(table)},$1::jsonb) s WHERE ${keys.map(k=>`s.${id(k)}=t.${id(k)}`).join(' AND ')})`,[payload]);
-  if(extra.rows[0].count)throw new Error('Deletion/conflict review required for '+table);
+  if(extra.rows[0].count){
+   conflicts.push({table,targetOnlyCount:extra.rows[0].count});
+   if(apply)throw new Error('Deletion/conflict review required for '+table);
+  }
   snapshots.push({table,keys,cols,payload,count:data.rowCount});
  }
  if(!apply){
   // Default read-only audit: no user records, tokens or credentials are logged.
   const differences=fingerprints.filter(r=>r.sourceCount!==r.targetCount||r.sourceChecksum!==r.targetChecksum);
   await target.query('ROLLBACK');await source.query('ROLLBACK');
-  console.log(JSON.stringify({mode:'read-only',sourceProject:expected,targetBranch:'br-rough-hill-bcj6lzt1',fingerprints,tablesCompared:tables.length,differences,dataChecksMatch:differences.length===0,requiresFunctionalValidation:true},null,2));
+  console.log(JSON.stringify({mode:'read-only',sourceProject:expected,targetBranch:'br-rough-hill-bcj6lzt1',fingerprints,tablesCompared:tables.length,differences,conflicts,requiresConflictReview:conflicts.length>0,dataChecksMatch:differences.length===0&&conflicts.length===0,requiresFunctionalValidation:true},null,2));
  }else{
  // Prevent imported rows from generating fresh audit/notification events.
  // Foreign-key constraint triggers remain active.
