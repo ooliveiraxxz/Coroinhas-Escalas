@@ -28,6 +28,8 @@ jobs:
         run: npm ci
       - name: Validate migration script syntax (read-only)
         run: node --check migration/sync.mjs
+      - name: Validate push readiness script syntax
+        run: node --check migration/push-readiness.mjs
       - name: Unit and security tests
         run: npm test
       - name: TypeScript check
