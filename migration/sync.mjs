@@ -29,11 +29,11 @@ try {
  const sourceHostOK=u.hostname==='db.'+expected+'.supabase.co'||u.hostname===expected+'.supabase.co'||
   (u.hostname.endsWith('.pooler.supabase.com')&&decodeURIComponent(u.username).split('.').includes(expected));
  if(!sourceHostOK)throw new Error('Source project mismatch.');
- const target=new URL(targetUrl);
- if(!['postgres:','postgresql:'].includes(target.protocol)||
-    !target.hostname.endsWith('.neon.tech')||
-    target.pathname!=='/coroinhas'||
-    decodeURIComponent(target.username)!=='coroinhas_owner')throw new Error('Target must be the isolated Neon project owner database.');
+ const targetAddress=new URL(targetUrl);
+ if(!['postgres:','postgresql:'].includes(targetAddress.protocol)||
+    !targetAddress.hostname.endsWith('.neon.tech')||
+    targetAddress.pathname!=='/coroinhas'||
+    decodeURIComponent(targetAddress.username)!=='coroinhas_owner')throw new Error('Target must be the isolated Neon project owner database.');
 
  const snapshots=[];
  for(const table of tables){
