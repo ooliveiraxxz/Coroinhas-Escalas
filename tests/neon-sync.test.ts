@@ -4,19 +4,19 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 // Exercise the actual CLI orchestration without credentials or network writes.
-async function runSync(apply=false, extraRows=false, stale=false){
+async function runSync(apply=false, extraRows=false, stale=false, branch='br-rough-hill-bcj6lzt1'){
  const plan=apply?JSON.parse((await runSync()).output[0]):null;
  if(stale)plan.fingerprints[0].targetChecksum='changed';
  const calls:{side:string;sql:string}[]=[];
  const output:string[]=[];
- const proc={argv:apply?['--apply','--confirm-isolated-neon','--reviewed-plan=/reviewed.json']:[],env:{SOURCE_READONLY_DATABASE_URL:'postgresql://reader:fixture@db.dsglwwwwdtjynipauvrp.supabase.co/postgres',NEON_MIGRATION_ADMIN_DATABASE_URL:'postgresql://coroinhas_owner:fixture@fixture.neon.tech/coroinhas',MIGRATION_SOURCE_PROJECT:'dsglwwwwdtjynipauvrp'},exitCode:0};
+ const proc={argv:apply?['--apply','--confirm-isolated-neon','--reviewed-plan=/reviewed.json']:[],env:{SOURCE_READONLY_DATABASE_URL:'postgresql://reader:fixture@db.dsglwwwwdtjynipauvrp.supabase.co/postgres',NEON_MIGRATION_ADMIN_DATABASE_URL:'postgresql://coroinhas_owner:fixture@fixture.neon.tech/coroinhas',MIGRATION_SOURCE_PROJECT:'dsglwwwwdtjynipauvrp',MIGRATION_TARGET_BRANCH_ID:branch},exitCode:0};
  class Client{
   side:string;
   constructor({connectionString}:{connectionString:string}){this.side=connectionString.includes('supabase')?'source':'target'}
   async connect(){} async end(){}
   async query(sql:string){
    calls.push({side:this.side,sql});
-   if(sql.includes('SELECT branch_id'))return {rows:[{branch_id:'br-rough-hill-bcj6lzt1'}]};
+   if(sql.includes('SELECT branch_id'))return {rows:[{branch_id:branch}]};
    if(sql.includes('WHERE NOT EXISTS'))return {rows:[{count:extraRows?1:0}]};
    if(sql.includes('to_jsonb(t) AS row'))return {rows:[],rowCount:0};
    if(sql.includes('checksum'))return {rows:[{count:0,checksum:'empty'}]};
@@ -58,4 +58,14 @@ test('sync read-only reports destination-only fixtures without hiding the reconc
 test('sync aborts a stale reviewed plan before any data mutation',async()=>{
  const r=await runSync(true,false,true);assert.equal(r.proc.exitCode,1);
  assert.ok(!r.calls.some(c=>/^(INSERT|ALTER|UPDATE|DELETE)/.test(c.sql)));
+});
+
+test('sync supports clean explicitly allowlisted isolated rehearsal branch without writes',async()=>{
+ const r=await runSync(false,false,false,'br-odd-bread-bc1jxzsh');
+ assert.equal(r.proc.exitCode,0);
+ assert.equal(JSON.parse(r.output[0]).targetBranch,'br-odd-bread-bc1jxzsh');
+ assert.ok(!r.calls.some(c=>/^(INSERT|ALTER|UPDATE|DELETE)/.test(c.sql)));
+});
+test('sync refuses unknown branch before attempting a database connection',async()=>{
+ await assert.rejects(runSync(false,false,false,'br-unapproved-production'));
 });
