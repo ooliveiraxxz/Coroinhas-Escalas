@@ -192,3 +192,9 @@ npm run build
 ## Encerramento do escopo técnico do Chat — 07/11/2026
 
 As verificações e correções diretamente executáveis pelo Chat estão documentadas em [CHAT-HANDOFF-20261107.md](./CHAT-HANDOFF-20261107.md). A última compilação testada aprovou 28/28 testes, TypeScript, build e auditoria npm sem vulnerabilidades detectadas. O snapshot de `last_seen_at` foi sincronizado na homologação com precisão integral; os 15 checksums de tabelas públicas coincidiram na conferência. Foi criado um ledger privado idempotente para push de teste, mas o envio real permanece desabilitado. O Neon **continua não apto para produção** até conclusão dos testes E2E e autorização expressa de substituição.
+
+## Continuação Work — revisão operacional de 07/11/2026
+
+Ver [WORK-VALIDATION-20261107.md](./WORK-VALIDATION-20261107.md) para evidências atualizadas, correções de sync/push/atribuição de funções e bloqueios. São 38 testes automatizados aprovados; 15/15 checksums iguais na consulta pontual (251 registros). Quatro contas Neon ainda sem senha definida. NÃO APTO para corte.
+
+O sincronizador exige agora `--reviewed-plan=plano-revisao.json` além das flags anteriores para escrever. Gere o plano com a execução read-only, revise-o e interrompa se houver conflitos. A nova guarda SQL 014 acrescentou uma função pública e dois triggers: total 22 funções públicas/19 triggers, sem alterar registros existentes.

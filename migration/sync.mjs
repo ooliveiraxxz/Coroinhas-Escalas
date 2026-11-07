@@ -5,6 +5,9 @@ const inventory=JSON.parse(fs.readFileSync(new URL('./audit/schema.json',import.
 const tables=['profiles','masses','assignments','requests','notifications','messages','guides','fixed_rules','site_updates','audit_log','banned_emails','login_events','push_subscriptions','screen_announcements','screen_announcement_dismissals'];
 const apply=process.argv.includes('--apply');
 const confirmed=process.argv.includes('--confirm-isolated-neon');
+const reviewedPath=process.argv.find(a=>a.startsWith('--reviewed-plan='))?.slice('--reviewed-plan='.length);
+if(apply&&!reviewedPath)throw new Error('Apply requires an explicitly reviewed read-only plan.');
+const reviewed=reviewedPath?JSON.parse(fs.readFileSync(reviewedPath,'utf8')):null;
 const sourceUrl=process.env.SOURCE_READONLY_DATABASE_URL;
 // This offline maintenance tool needs full table visibility for accurate checksums.
 // Never reuse the privileged admin URL in the Vercel application's gateway.
@@ -35,6 +38,16 @@ try {
     targetAddress.pathname!=='/coroinhas'||
     decodeURIComponent(targetAddress.username)!=='coroinhas_owner')throw new Error('Target must be the isolated Neon project owner database.');
 
+ // Hold destination stable while validating the reviewed fingerprints and applying.
+ if(apply)for(const table of tables)await target.query(`LOCK TABLE public.${id(table)} IN SHARE ROW EXCLUSIVE MODE`);
+ const fingerprints=[];
+ for(const table of tables){
+  const q=`SELECT count(*)::int count,md5(coalesce(string_agg(to_jsonb(t)::text,chr(10) ORDER BY to_jsonb(t)::text),'')) checksum FROM public.${id(table)} t`;
+  const a=(await source.query(q)).rows[0],b=(await target.query(q)).rows[0];
+  fingerprints.push({table,sourceCount:a.count,targetCount:b.count,sourceChecksum:a.checksum,targetChecksum:b.checksum});
+ }
+ if(apply&&(reviewed?.sourceProject!==expected||reviewed?.targetBranch!=='br-rough-hill-bcj6lzt1'||JSON.stringify(reviewed?.fingerprints)!==JSON.stringify(fingerprints)))
+  throw new Error('Reviewed plan missing, stale or conflicting; no data written.');
  const snapshots=[];
  for(const table of tables){
   const pk=inventory.constraints.find(c=>c.table_name===table&&c.contype==='p');
@@ -50,15 +63,9 @@ try {
  }
  if(!apply){
   // Default read-only audit: no user records, tokens or credentials are logged.
-  const differences=[];
-  for(const {table,count} of snapshots){
-   const q=`SELECT count(*)::int count,md5(coalesce(string_agg(to_jsonb(t)::text,E'\\\\n' ORDER BY to_jsonb(t)::text),'')) checksum FROM public.${id(table)} t`;
-   const a=await source.query(q),b=await target.query(q);
-   if(a.rows[0].checksum!==b.rows[0].checksum || a.rows[0].count!==b.rows[0].count)
-    differences.push({table,sourceCount:count,targetCount:b.rows[0].count});
-  }
+  const differences=fingerprints.filter(r=>r.sourceCount!==r.targetCount||r.sourceChecksum!==r.targetChecksum);
   await target.query('ROLLBACK');await source.query('ROLLBACK');
-  console.log(JSON.stringify({mode:'read-only',tablesCompared:tables.length,differences,dataChecksMatch:differences.length===0,requiresFunctionalValidation:true},null,2));
+  console.log(JSON.stringify({mode:'read-only',sourceProject:expected,targetBranch:'br-rough-hill-bcj6lzt1',fingerprints,tablesCompared:tables.length,differences,dataChecksMatch:differences.length===0,requiresFunctionalValidation:true},null,2));
  }else{
  // Prevent imported rows from generating fresh audit/notification events.
  // Foreign-key constraint triggers remain active.

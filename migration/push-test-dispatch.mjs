@@ -32,6 +32,9 @@ JOIN public.profiles p ON p.id=n.user_id
 JOIN public.push_subscriptions s ON s.user_id=p.id
 WHERE o.state='pending' AND p.approved=true
  AND coalesce(p.notification_preferences->>'enabled','true')<>'false'
+ AND (n.title !~* 'vaga|substitui' OR coalesce(p.notification_preferences->>'free_slots','true')<>'false')
+ AND (n.title !~* 'desmarc|desist' OR coalesce(p.notification_preferences->>'withdrawals','true')<>'false')
+ AND (n.title !~* 'escala cadastrada|nova escala|você está escalado|escala atualizada' OR coalesce(p.notification_preferences->>'new_schedules','true')<>'false')
  AND s.id=ANY($1::uuid[])
  AND s.created_at >= timestamptz '2026-11-07 00:00:00+00'
  AND ($2::uuid IS NULL OR o.notification_id=$2::uuid)
@@ -68,11 +71,20 @@ try{
       RETURNING attempts`,[item.notification_id,item.subscription_id]);
     await db.query('COMMIT');
     if(!claim.rowCount){skipped++;continue;}
+    // Recheck cancellation, approval and preferences after claiming. A queued
+    // snapshot alone must never authorize a later delivery.
+    const current=await db.query(query,[[item.subscription_id],item.notification_id]);
+    if(!current.rowCount){
+     await db.query(`UPDATE migration_private.push_delivery_attempts
+       SET status='permanent_failure',updated_at=now(),last_error_code=0
+       WHERE notification_id=$1 AND subscription_id=$2`,[item.notification_id,item.subscription_id]);
+     skipped++;continue;
+    }
     try{
      await webpush.sendNotification(
        {endpoint:item.endpoint,keys:{p256dh:item.p256dh,auth:item.auth}},
        JSON.stringify({title:item.title,body:item.body,tag:item.notification_id}),
-       {TTL:3600});
+       {TTL:3600,timeout:10000});
      await db.query(`UPDATE migration_private.push_delivery_attempts SET status='sent',updated_at=now(),
                       last_error_code=NULL WHERE notification_id=$1 AND subscription_id=$2`,
                     [item.notification_id,item.subscription_id]);
