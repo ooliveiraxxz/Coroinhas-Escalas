@@ -26,6 +26,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci
+      - name: Validate migration script syntax (read-only)
+        run: node --check migration/sync.mjs
       - name: Unit and security tests
         run: npm test
       - name: TypeScript check
