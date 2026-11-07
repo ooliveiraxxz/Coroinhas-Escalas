@@ -36,3 +36,9 @@
 - Autorização expressa para alterar `main`, Vercel de produção, Neon em operação e Supabase.
 
 **Não declarar 100% ou desligar Supabase enquanto faltar qualquer desses portões.**
+
+## Homologação SQL adicional
+
+- `migration/sql/022-push-worker-transaction-tests.sql` foi executado no Neon de homologação com **sucesso**.
+- O teste ativou a fila somente dentro de uma subtransação revertida, criou temporariamente perfil, inscrição e aviso fictícios; comprovou enfileiramento `pending`, reserva única, confirmação `sent` e rejeição de reenvio. Ao sair, verificou que todas as fixtures e o estado habilitado foram revertidos.
+- Isto confirma o processamento SQL transacional do worker; **não é uma comprovação de entrega web push em dispositivo**.
