@@ -35,7 +35,7 @@ begin
     insert into public.notifications(user_id,title,body)
     select id,'Vaga para substituição','Função: '||v.function_name||' • '||
        to_char(t at time zone 'America/Sao_Paulo','DD/MM/YYYY HH24:MI')
-    from public.profiles where approved=true and id<>auth.uid();
+    from public.profiles where approved=true and role IN ('coroinha','coordenadora','desenvolvedor') and id<>auth.uid();
   end if;
  elsif p_action='confirmar' then
   if (t AT TIME ZONE 'America/Sao_Paulo')::date <> (now() AT TIME ZONE 'America/Sao_Paulo')::date
