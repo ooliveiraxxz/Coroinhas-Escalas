@@ -3,6 +3,10 @@ import fs from 'node:fs';
 import pg from 'pg';
 const inventory=JSON.parse(fs.readFileSync(new URL('./audit/schema.json',import.meta.url)))[0].inventory;
 const tables=['profiles','masses','assignments','requests','notifications','messages','guides','fixed_rules','site_updates','audit_log','banned_emails','login_events','push_subscriptions','screen_announcements','screen_announcement_dismissals'];
+const allowlistedBranches=new Set(['br-rough-hill-bcj6lzt1','br-odd-bread-bc1jxzsh']);
+const targetBranch=process.env.MIGRATION_TARGET_BRANCH_ID||'br-rough-hill-bcj6lzt1';
+if(!allowlistedBranches.has(targetBranch))
+ throw new Error('Refusing synchronization to any unapproved Neon branch.');
 const apply=process.argv.includes('--apply');
 const confirmed=process.argv.includes('--confirm-isolated-neon');
 const reviewedPath=process.argv.find(a=>a.startsWith('--reviewed-plan='))?.slice('--reviewed-plan='.length);
@@ -24,7 +28,7 @@ try {
  await source.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
  await target.query(apply?'BEGIN':'BEGIN READ ONLY');
  const {rows:marker}=await target.query('SELECT branch_id FROM migration_private.environment WHERE id=true');
- if(marker[0]?.branch_id!=='br-rough-hill-bcj6lzt1')throw new Error('Target is not the authorized isolated branch.');
+ if(marker[0]?.branch_id!==targetBranch)throw new Error('Target is not the explicitly selected isolated branch.');
  // A fingerprint of the source project is required, not a guessed hostname.
  const expected=process.env.MIGRATION_SOURCE_PROJECT;
  if(expected!=='dsglwwwwdtjynipauvrp')throw new Error('Set the expected source project explicitly.');
@@ -46,7 +50,7 @@ try {
   const a=(await source.query(q)).rows[0],b=(await target.query(q)).rows[0];
   fingerprints.push({table,sourceCount:a.count,targetCount:b.count,sourceChecksum:a.checksum,targetChecksum:b.checksum});
  }
- if(apply&&(reviewed?.sourceProject!==expected||reviewed?.targetBranch!=='br-rough-hill-bcj6lzt1'||JSON.stringify(reviewed?.fingerprints)!==JSON.stringify(fingerprints)))
+ if(apply&&(reviewed?.sourceProject!==expected||reviewed?.targetBranch!==targetBranch||JSON.stringify(reviewed?.fingerprints)!==JSON.stringify(fingerprints)))
   throw new Error('Reviewed plan missing, stale or conflicting; no data written.');
  const snapshots=[],conflicts=[];
  for(const table of tables){
@@ -68,7 +72,7 @@ try {
   // Default read-only audit: no user records, tokens or credentials are logged.
   const differences=fingerprints.filter(r=>r.sourceCount!==r.targetCount||r.sourceChecksum!==r.targetChecksum);
   await target.query('ROLLBACK');await source.query('ROLLBACK');
-  console.log(JSON.stringify({mode:'read-only',sourceProject:expected,targetBranch:'br-rough-hill-bcj6lzt1',fingerprints,tablesCompared:tables.length,differences,conflicts,requiresConflictReview:conflicts.length>0,dataChecksMatch:differences.length===0&&conflicts.length===0,requiresFunctionalValidation:true},null,2));
+  console.log(JSON.stringify({mode:'read-only',sourceProject:expected,targetBranch,fingerprints,tablesCompared:tables.length,differences,conflicts,requiresConflictReview:conflicts.length>0,dataChecksMatch:differences.length===0&&conflicts.length===0,requiresFunctionalValidation:true},null,2));
  }else{
  // Prevent imported rows from generating fresh audit/notification events.
  // Foreign-key constraint triggers remain active.
