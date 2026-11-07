@@ -187,3 +187,8 @@ npm run build
 - Preview atualizado e seu teste no navegador, sincronização final, backup/restauração e autorização explícita de cutover.
 
 **Avaliação após esta execução: NÃO APTO para migração final.**
+
+
+## Encerramento do escopo técnico do Chat — 07/11/2026
+
+As verificações e correções diretamente executáveis pelo Chat estão documentadas em [CHAT-HANDOFF-20261107.md](./CHAT-HANDOFF-20261107.md). A última compilação testada aprovou 28/28 testes, TypeScript, build e auditoria npm sem vulnerabilidades detectadas. O snapshot de `last_seen_at` foi sincronizado na homologação com precisão integral; os 15 checksums de tabelas públicas coincidiram na conferência. Foi criado um ledger privado idempotente para push de teste, mas o envio real permanece desabilitado. O Neon **continua não apto para produção** até conclusão dos testes E2E e autorização expressa de substituição.
