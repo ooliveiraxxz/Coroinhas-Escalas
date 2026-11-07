@@ -84,3 +84,19 @@ npm run build
 ```
 
 `migration/sql/001-isolated-security.sql` é uma migração de execução única, somente na branch indicada. Não reaplicar na mesma branch. `security-tests.sql` usa BEGIN/ROLLBACK e fixtures; não usar em produção. O inventário em audit/ contém definições, metadados e checksums, sem conteúdo de usuários ou credenciais.
+
+
+## Continuação — 07/11/2026 (modo Chat)
+
+- **Homologação somente:** não houve alteração nas branches principais, deploy de produção nem mudança no Supabase original.
+- Configuração Neon Auth alterada para cadastro sem OTP de confirmação de e-mail, conforme regra de aprovação manual. Recuperação de senha continua exigindo prova de controle do e-mail. Sem e-mail verificado não significa aprovação automática.
+- `components/NeonLogin.tsx` ajustado para cadastro sem etapa de verificação. `migration/sql/004-optional-email-verification.sql` contém a atualização aplicada a `resolve_neon_identity`. A função continua validando sessão, banimento e vínculo administrativo de identidades.
+- Política de dismissals reforçada em `migration/sql/005-restrict-announcement-dismissals.sql`: somente aviso ativo e destinado ao usuário aprovado poderá ser marcado como visto.
+- `migration/sql/006-readonly-security-smoke.sql` executado e aprovado: 15 tabelas com RLS, role de gateway sem bypass, vínculos de identidade consistentes e políticas dos avisos presentes.
+- Testes SQL de leitura: papel sem identidade vê zero perfis/escalas/avisos; coordenadora vê dados permitidos e zero auditorias; coordenadora não pode executar ação exclusiva de desenvolvedor.
+- `lib/neon/database.ts` recusa URL com usuário de banco diferente de `coroinhas_gateway`, host fora do Neon ou banco diferente de `coroinhas`. Testes de unidade adicionados em `tests/neon-database.test.ts` **ainda não executados** em build/CI.
+- Um evento de login novo foi copiado para a homologação (somente append com PK preservada). Origem e destino têm 38 registros de `login_events`, último ID 39 na verificação. A sequência foi alinhada.
+- Checksum de conteúdo: 14/15 tabelas coincidem no instante de consulta. A única divergência é `profiles.last_seen_at`, informação volátil de último acesso. IDs, e-mails, nomes, papéis, aprovações e demais campos de perfis coincidem. Reconciliar antes do cutover.
+- Neon Auth: 5 identidades, 4 mapeadas a perfis preservados, 1 não mapeada; 0 sessões ativas na verificação. Não apagar a identidade adicional sem confirmação de origem.
+- **Ainda não validado:** novo build TypeScript/Next após estes commits, registro/login/recuperação reais, verificação de comportamento de conta pendente, autenticação dos 4 perfis, integração completa, notificações push, testes E2E de navegador, sincronização final e implantação de homologação.
+- **Bloqueio de lançamento com Neon:** continua **NÃO APTO PARA PRODUÇÃO** enquanto esses testes não passarem. Lançamento em 14/11 deve usar Supabase se não houver validação completa e autorização explícita.
