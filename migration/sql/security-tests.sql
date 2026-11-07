@@ -1,7 +1,7 @@
 BEGIN;
 INSERT INTO profiles(id,name,email,role,approved) VALUES ('00000000-0000-4000-8000-000000000101','Fixture server','server@example.invalid','coroinha',true),('00000000-0000-4000-8000-000000000102','Fixture other','other@example.invalid','coroinha',true),('00000000-0000-4000-8000-000000000103','Fixture parent','parent@example.invalid','pai',true),('00000000-0000-4000-8000-000000000104','Fixture pending','pending@example.invalid','coroinha',false),('00000000-0000-4000-8000-000000000105','Fixture coord','coord@example.invalid','coordenadora',true),('00000000-0000-4000-8000-000000000106','Fixture dev','dev@example.invalid','desenvolvedor',true);
 
-INSERT INTO masses(id,title,starts_at,published) VALUES('00000000-0000-4000-8000-000000000201','Fixture public',now()+interval '2 days',true),('00000000-0000-4000-8000-000000000202','Fixture draft',now()+interval '2 days',false);
+INSERT INTO masses(id,title,starts_at,published) VALUES('00000000-0000-4000-8000-000000000201','Fixture public',((now() AT TIME ZONE 'America/Sao_Paulo')::date + time '23:59') AT TIME ZONE 'America/Sao_Paulo',true),('00000000-0000-4000-8000-000000000202','Fixture draft',now()+interval '2 days',false);
 
 INSERT INTO assignments(id,mass_id,function_name,server_id) VALUES('00000000-0000-4000-8000-000000000301','00000000-0000-4000-8000-000000000201','Fixture','00000000-0000-4000-8000-000000000101');
 
