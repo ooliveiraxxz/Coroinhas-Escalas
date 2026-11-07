@@ -15,3 +15,26 @@ test('batch insert shape cannot silently omit supplied fields',()=>{assert.throw
 test('JSON preferences remain structured bound values',()=>{const prefs={enabled:true};const r=q('profiles','PATCH','id=eq.id',{notification_preferences:prefs});assert.deepEqual(r.values,['id',prefs]);});
 
 test("profile reads use the masked security-invoker view",()=>{assert.match(q("profiles").text,/profile_directory/)});
+
+test('upsert must target an actual primary or unique constraint',()=>{
+ const legal=q('push_subscriptions','POST','on_conflict=endpoint',{user_id:'u',endpoint:'e',p256dh:'p',auth:'a'},'resolution=merge-duplicates');
+ assert.match(legal.text,/ON CONFLICT \("endpoint"\)/);
+ assert.throws(()=>q('push_subscriptions','POST','on_conflict=user_id',{user_id:'u'},'resolution=merge-duplicates'));
+ assert.throws(()=>q('screen_announcement_dismissals','POST','on_conflict=announcement_id,announcement_id',{announcement_id:'a'},'resolution=merge-duplicates'));
+ assert.throws(()=>q('profiles','GET','on_conflict=id'));
+});
+test('queries reject duplicate parameters and unsupported column filtering',()=>{
+ assert.throws(()=>q('masses','GET','limit=2&limit=500'));
+ assert.throws(()=>q('masses','GET','columns=id'));
+ assert.throws(()=>q('rpc/record_site_access','POST','limit=1',{}));
+});
+test('all app-facing table schemas are allowlisted',()=>{
+ for(const table of ['profiles','masses','assignments','notifications','requests','guides','messages','fixed_rules','site_updates','push_subscriptions','screen_announcements','screen_announcement_dismissals','audit_log']){
+  assert.match(q(table).text,/^SELECT \* FROM public\./);
+ }
+});
+test('all app-facing RPCs compile only parameterized calls',()=>{
+ for(const name of ['developer_manage_user','approve_service_request','delete_notification','developer_usage_summary','edit_notification','mark_coordinator_message_seen','mark_notification_seen','reassign_legacy_function','record_site_access','respond_assignment','send_notification']){
+  assert.match(q('rpc/'+name,'POST').text,/^SELECT public\./);
+ }
+});
