@@ -16,7 +16,7 @@
 2. **Conflitos de sincronização:** aplicação agora exige `--reviewed-plan=arquivo.json` com fingerprints exatos da origem e destino. Divergências posteriores abortam antes de INSERT/ALTER. As tabelas do destino ficam bloqueadas durante validação/aplicação. Não há remoção automática. A revisão humana do plano continua obrigatória; este mecanismo não decide sozinho qual versão de um registro conflitante deve vencer.
 3. **Push de teste:** preferências por categoria verificadas; inscrição, aprovação e preferências reconsultadas depois da reserva de tentativa. Timeout de envio de 10 segundos. Dispatcher continua desligado por padrão, restrito a lista explícita, VAPID de teste e autorização.
 4. **Service Worker:** passa a usar identificador da notificação como tag. Antes usava uma única tag para todos os avisos. A tag permite substituir repetição do mesmo aviso sem substituir todos os avisos diferentes. Entrega exatamente uma vez não é garantida por Web Push; queda após entrega e antes de registrar sucesso ainda pode repetir tentativa.
-5. **Pai responsável/pedente atribuído por API:** novo guard no banco impede inserir/reassociar funções a pais ou perfis não aprovados, tanto em assignments como fixed_rules. Duas atribuições históricas a coordenadoras permanecem intactas; coordenação/desenvolvedor aprovados continuam elegíveis, preservando compatibilidade existente. Alterações de presença sem troca do responsável continuam permitidas. SQL 014 aplicado apenas na homologação.
+5. **Pai responsável/pendente atribuído por API:** novo guard no banco impede inserir/reassociar funções a pais ou perfis não aprovados, tanto em assignments como fixed_rules. Duas atribuições históricas a coordenadoras permanecem intactas; coordenação/desenvolvedor aprovados continuam elegíveis, preservando compatibilidade existente. Alterações de presença sem troca do responsável continuam permitidas. SQL 014 aplicado apenas na homologação.
 
 ## Evidências aprovadas
 
@@ -95,3 +95,11 @@ Após aceitar escritas no Neon, retorno ao Supabase exige congelar novas escrita
 5. Completar backup/restauração e plano de worker/ativação em produção. Só solicitar autorização de corte quando todos os portões forem aprovados.
 
 **Nenhuma autorização de corte foi presumida. O lançamento deve permanecer no Supabase enquanto estes bloqueios existirem.**
+
+## Conferência da prévia final
+
+Código final de aplicação: **60c0e253293257ed90e21fc1fa69dec5f712f418**. Deployment de preview **dpl_BHwfVMka5qvs4YA4uaAvX8Cy11EJ**, build concluído na Vercel. URL: https://coroinhas-escalas-lyjyyl4hf-ooliveiraxxz.vercel.app/ . Origem adicionada à lista permitida do Neon Auth apenas na branch isolada.
+
+No navegador, a tela de login carregou e o acesso direto não autenticado a `/api/migration/data/profiles` devolveu `Não autenticado.`, sem retornar perfis. Este é um teste real de rejeição anônima; não prova cookies autenticados, login ou revogação ponta a ponta.
+
+O script SQL de bootstrap/expiração de sessões efetivamente executado com rollback está preservado em `migration/sql/016-auth-session-tests.sql`. A última consulta confirmou novamente zero fixtures, zero sessões ativas, quatro perfis e quatro vínculos; os 15 checksums públicos permaneceram iguais nos dois bancos. Nenhuma restauração de backup foi declarada aprovada.
