@@ -100,3 +100,14 @@ npm run build
 - Neon Auth: 5 identidades, 4 mapeadas a perfis preservados, 1 não mapeada; 0 sessões ativas na verificação. Não apagar a identidade adicional sem confirmação de origem.
 - **Ainda não validado:** novo build TypeScript/Next após estes commits, registro/login/recuperação reais, verificação de comportamento de conta pendente, autenticação dos 4 perfis, integração completa, notificações push, testes E2E de navegador, sincronização final e implantação de homologação.
 - **Bloqueio de lançamento com Neon:** continua **NÃO APTO PARA PRODUÇÃO** enquanto esses testes não passarem. Lançamento em 14/11 deve usar Supabase se não houver validação completa e autorização explícita.
+
+### Testes adicionais do mesmo dia
+
+- `migration/sql/007-assignment-confirmation-rules.sql` foi aplicado apenas ao Neon de homologação. `respond_assignment` exige que a confirmação seja no dia civil da missa (America/Sao_Paulo), antes do início. Desmarcação pode ocorrer depois do horário quando a atribuição ainda estiver `escalado`/`confirmado`, exige justificativa e não dispara anúncio de substituição para eventos já iniciados. Presença `presente`/`faltou` permanece protegida.
+- Interface de homologação em `components/System.tsx` alinhada: botão de confirmação apenas no dia; botão de desmarcar disponível enquanto o status permitir.
+- Testes SQL transacionais de confirmação futura negada, confirmação no dia aceita, desmarcação passada aceita e ausência de notificação de vaga passada **passaram**. Os registros fictícios foram desfeitos por SAVEPOINT; consultas posteriores confirmaram zero fixtures persistidas.
+- Testes SQL transacionais de aviso individual para destinatário errado (negado) e aviso geral (permitido) **passaram**, também com rollback integral.
+- `migration/sql/security-tests.sql` atualizado para usar missa no dia atual na fixture, refletindo a regra nova. **A suíte completa do arquivo ainda precisa ser executada novamente.**
+- Auditoria Vercel somente leitura: existe um deployment de homologação READY na branch experimental, porém baseado no commit `6355e2d`, **anterior** às correções recentes. Nenhum deploy novo foi efetuado; os testes de interface desse deployment não validam o HEAD atual.
+
+**Antes de autorizar produção:** executar `npm ci && npm test && npx tsc --noEmit && npm run build` na branch atualizada, validar variáveis da homologação (gateway restrito), produzir novo preview somente com autorização, testar cadastro/login/resets/4 perfis, revisar a quinta identidade, push, E2E e sincronização final. Não executar cutover automaticamente.
