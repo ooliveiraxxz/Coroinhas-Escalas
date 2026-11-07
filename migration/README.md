@@ -146,3 +146,11 @@ npm run build
 6. Backup, janela de congelamento, reconciliação final, autorização expressa e plano de reversão revisado.
 
 **Decisão:** NÃO APTO PARA MIGRAÇÃO FINAL; Supabase permanece oficial.
+
+
+### Verificação complementar da audiência de substituições
+
+- `respond_assignment` envia avisos de substituição apenas para usuários aprovados com papéis `coroinha`, `coordenadora` ou `desenvolvedor`, excluindo `pai`. A alteração foi aplicada apenas na homologação e registrada em `migration/sql/007-assignment-confirmation-rules.sql`.
+- Teste SQL com coroinha e pai fictícios: coordenadoras receberam os avisos, pai não recebeu e os dados foram revertidos; zero fixtures persistidas.
+- O método `emailOtp.resetPassword` e a verificação por OTP na recuperação de senha foram conferidos na documentação atual do Neon. **Não houve envio de código real nem teste de entrega.** Neon recomenda provedor dedicado de SMTP para produção, enquanto o projeto ainda está configurado com provedor compartilhado de desenvolvimento.
+- Vercel auditada novamente em modo leitura: a última homologação publicada permanece no commit antigo `6355e2d`; os commits recentes não estão implantados. A implantação de produção continua na branch `main`/Supabase.
