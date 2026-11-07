@@ -17,7 +17,7 @@ const id=s=>'"'+s.replaceAll('"','""')+'"';
 try {
  await source.connect();await target.connect();
  await source.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
- await target.query('BEGIN');
+ await target.query(apply?'BEGIN':'BEGIN READ ONLY');
  const {rows:marker}=await target.query('SELECT branch_id FROM migration_private.environment WHERE id=true');
  if(marker[0]?.branch_id!=='br-rough-hill-bcj6lzt1')throw new Error('Target is not the authorized isolated branch.');
  // A fingerprint of the source project is required, not a guessed hostname.
@@ -48,7 +48,7 @@ try {
     differences.push({table,sourceCount:count,targetCount:b.rows[0].count});
   }
   await target.query('ROLLBACK');await source.query('ROLLBACK');
-  console.log(JSON.stringify({mode:'read-only',tablesCompared:tables.length,differences,readyForApply:differences.length===0},null,2));
+  console.log(JSON.stringify({mode:'read-only',tablesCompared:tables.length,differences,dataChecksMatch:differences.length===0,requiresFunctionalValidation:true},null,2));
  }else{
  // Prevent imported rows from generating fresh audit/notification events.
  // Foreign-key constraint triggers remain active.
