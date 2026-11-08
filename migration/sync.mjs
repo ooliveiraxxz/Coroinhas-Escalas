@@ -69,10 +69,36 @@ try {
   snapshots.push({table,keys,cols,payload,count:data.rowCount});
  }
  if(!apply){
+  // The one known source-deleted update is only excluded from LOGICAL readiness
+  // if independent source audit proof and the private destination archive agree.
+  // Never remove it or weaken the --apply conflict gate.
+  let reviewedTombstone={verified:false,reason:'not-reviewed'};
+  
+  if(targetBranch==='br-odd-bread-bc1jxzsh'){
+   const tombstoneId='e1570b88-6c02-4bd7-b9dc-0fcee9c26a87';
+   const srcDeleted=await source.query(
+    "SELECT count(*)::int n FROM public.audit_log WHERE id=168 AND action='DELETE' AND table_name='site_updates' AND record_id=$1",[tombstoneId]);
+   const stillActive=await source.query("SELECT count(*)::int n FROM public.site_updates WHERE id=$1",[tombstoneId]);
+   const archived=await target.query(
+    "SELECT count(*)::int n FROM migration_private.site_update_conflict_archive a JOIN public.site_updates u ON u.id=a.id WHERE a.id=$1 AND a.source_delete_audit_id=168 AND a.decision='pending_review' AND a.snapshot=to_jsonb(u) AND EXISTS(SELECT 1 FROM public.audit_log l WHERE l.id=168 AND l.action='DELETE' AND l.table_name='site_updates' AND l.record_id=a.id::text)",[tombstoneId]);
+   if(srcDeleted.rows[0]?.n===1&&stillActive.rows[0]?.n===0&&archived.rows[0]?.n===1){
+    const logical=await target.query(
+     "SELECT count(*)::int count,md5(coalesce(string_agg(to_jsonb(t)::text,chr(10) ORDER BY to_jsonb(t)::text),'')) checksum FROM public.site_updates t WHERE t.id<>$1",[tombstoneId]);
+    const expected=fingerprints.find(r=>r.table==='site_updates');
+    if(logical.rows[0]?.checksum===expected?.sourceChecksum&&
+       logical.rows[0]?.count===expected?.sourceCount){
+     reviewedTombstone={verified:true,reason:'source-delete-audit-and-archive-match'};
+    }
+   }
+  }
   // Default read-only audit: no user records, tokens or credentials are logged.
   const differences=fingerprints.filter(r=>r.sourceCount!==r.targetCount||r.sourceChecksum!==r.targetChecksum);
+  const logicalDataChecksMatch=(differences.length===0&&conflicts.length===0)||
+    (reviewedTombstone.verified&&differences.length===1&&
+     differences[0].table==='site_updates'&&conflicts.length===1&&
+     conflicts[0].table==='site_updates'&&conflicts[0].targetOnlyCount===1);
   await target.query('ROLLBACK');await source.query('ROLLBACK');
-  console.log(JSON.stringify({mode:'read-only',sourceProject:expected,targetBranch,fingerprints,tablesCompared:tables.length,differences,conflicts,requiresConflictReview:conflicts.length>0,dataChecksMatch:differences.length===0&&conflicts.length===0,requiresFunctionalValidation:true},null,2));
+  console.log(JSON.stringify({mode:'read-only',sourceProject:expected,targetBranch,fingerprints,tablesCompared:tables.length,differences,conflicts,requiresConflictReview:conflicts.length>0,dataChecksMatch:differences.length===0&&conflicts.length===0,logicalDataChecksMatch,reviewedTombstone,requiresFunctionalValidation:true},null,2));
  }else{
  // Prevent imported rows from generating fresh audit/notification events.
  // Foreign-key constraint triggers remain active.
