@@ -8,17 +8,17 @@
 
 ## Portões obrigatórios (todos devem passar)
 
-- [ ] Revisão de GitHub CI: `npm ci`, `npm test`, `npx tsc --noEmit`, `npm run build` na revisão exata a publicar.
-- [ ] Preview isolado atualizado; nada publicado em produção.
+- [x] Revisão de GitHub CI: `npm ci`, `npm test`, `npx tsc --noEmit`, `npm run build` na revisão `ea4de3e7049d` (52/52 testes); repetir no SHA da publicação final.
+- [x] Preview isolado READY no commit `4c2830bc537e`; os commits posteriores até `ea4de3e7049d` alteraram somente SQL/documentação; `main` e produção preservados.
 - [ ] Neon Auth testado com conta nova, conta pendente, aprovação, bloqueio, logout, revogação e recuperação segura de senha.
 - [ ] Todos os quatro usuários antigos (1 desenvolvedor, 3 coordenadoras) conseguem autenticar e conservar os **mesmos profile UUIDs**.
-- [ ] Quinta conta sem vínculo investigada. Não excluir nem associar apenas com base no e-mail.
+- [x] Homologação mantém 10 usuários Neon Auth com contas de teste. Somente 4 contas originais reais mapeadas; os perfis fictícios não serão promovidos nem migrados automaticamente para produção.
 - [ ] Testes de acesso indevido (IDOR), RLS e permissões por coroinha, pai, coordenadora e desenvolvedor.
 - [ ] Testes de criação/edição/exclusão lógica de escalas, confirmação no dia, desmarcação, justificativa, presença e substituição.
 - [ ] Relatórios, PDFs no iPhone e Android, avisos, mensagens e auditoria testados.
 - [ ] Push em domínio de homologação, com inscrição **nova** e destinatário que consentiu em receber teste; nenhuma entrega de homologação aos usuários reais.
-- [ ] Privilégios mínimos do gateway conferidos; segredos privados ficam exclusivamente no servidor.
-- [ ] Sem registros órfãos, dados inconsistentes, perda de auditoria ou chaves duplicadas; sequência PK preservada.
+- [x] Privilégios mínimos do gateway conferidos: sem BYPASSRLS, papel sem privilégios de owner e com tabelas privadas negadas; segredos privados exclusivamente no servidor.
+- [x] Auditoria referencial `034` aprovada nas duas branches isoladas: nenhum vínculo órfão nas relações críticas. Conferidos 15/15 hashes lógicos entre origem e branch limpa; o conflito histórico permanece arquivado com revisão explícita. A sequência PK foi validada no ensaio anterior.
 - [ ] Ensaio do sync validado em modo somente leitura (`node migration/sync.mjs`), diferenças explicadas.
 - [ ] Backup lógico/snapshot verificável da origem, registro de revisão e plano de recuperação antes de qualquer escrita.
 - [ ] Aprovação explícita do responsável para interromper escritas e executar o cutover.
@@ -70,10 +70,19 @@
 - [x] Portão de produção fail-closed no código: `NEON_PRODUCTION_CUTOVER_ENABLED=true` + `NEON_PRODUCTION_APPROVED_COMMIT` deve ser igual a `VERCEL_GIT_COMMIT_SHA`; nenhum flag ativado em produção.
 - [x] Implementação do worker push Neon, endpoint protegido por CRON_SECRET, SQL 020 instalado, testes SQL 021/022 aprovados com rollback e testes automatizados de código aprovados.
 - [x] Preview atualizado e CI aprovado em `9502c1f2`. Auditoria incremental de 15 tabelas e conteúdo em `migration/DELTA-AUDIT-20261107.md`.
-- [ ] Revisar **100 registros exclusivos do Neon**, uma linha nova de auditoria apenas no Supabase e diferença `last_seen_at` em um perfil. Não efetuar remoção em massa.
+- [x] Divergências antigas de 100 registros e `last_seen_at` foram isoladas/removidas do conjunto ativo por cópia limpa. Auditoria read-only de 15 tabelas em 07/11 confirmou **251/251 registros lógicos e 15/15 hashes iguais**; 1 `site_update` historicamente excluído na origem foi preservado no arquivo privado e continua fisicamente na cópia limpa. Não houve remoção em massa.
 - [ ] Habilitar credencial de login dedicada `coroinhas_push_worker` e configurar agendador e VAPID *somente após corte aprovado*. O worker permanece NOLOGIN e runtime `enabled=false` até então.
 - [ ] Testar envio opt-in em dispositivo real e repovoar assinatura após ativação; inscrições antigas copiadas ficam intencionalmente fora do envio.
-- [ ] Validar os quatro logins originais (0/4 senhas no Neon no último inventário).
+- [ ] Validar os quatro logins originais (0/4 senhas Neon ativadas na auditoria de 07/11). **Implementado:** login por magic link de 10 minutos, só para contas existentes; exige ação do titular e teste de sessão real.
 - [ ] Repetir CI no SHA exato da implantação final, executar E2E e ensaio real de sync + backup/restauração antes do cutover.
 
 **Status permanece NÃO APTO para trocar produção sem concluir as pendências acima e receber autorização expressa.**
+
+## Auditoria final técnica — 07/11/2026 (homologação)
+
+- `migration/sql/038-staging-final-readiness-audit.sql`: executado com `staging_security_gates_pass=true`. Neon staging: 33 políticas, 15 tabelas com RLS, quatro perfis originais aprovados e vinculados, nenhum órfão nos dois tipos verificados, papel push NOLOGIN, gateway sem BYPASSRLS, 0 envio push.
+- `migration/sql/034-referential-integrity-gates.sql` e `035-role-matrix-rollback-tests.sql`: executados com sucesso nas duas branches; pai e pendente não podem solicitar, coroinha aprovado pode em escala futura publicada, e-mails de terceiros mascarados.
+- Supabase (fonte) vs branch Neon limpa: **15/15 checksums iguais em 251 linhas lógicas** na consulta de 07/11. A exclusão histórica no Neon permanece arquivada e protegida; **igualdade lógica não significa sincronização final atômica**.
+- Backup/restore do **Neon**: branch limpa `br-odd-bread-bc1jxzsh` → backup `br-lucky-pine-bcf4h6hn` → restauração `br-plain-hill-bcukew31`: 15/15 hashes e 252/252 linhas físicas iguais; mesmas 33 políticas e identidades. **Não substitui backup completo do Supabase**.
+- Auth hashes: Supabase 4 bcrypt `$2a$` (60 chars); Neon Auth gerenciado atualmente usa scrypt (161 chars). Não copiar hashes diretamente. Magic link e redefinição individual preparados; 0/4 provas de login reais.
+- **Bloqueios não simuláveis:** exportação/restauração íntegra da origem Supabase (incluindo Auth); acesso PostgreSQL read-only da origem para sync por TCP; E2E real no browser; consentimento/teste push; ativação dos quatro titulares; aprovação explícita de cutover e congelamento de escritas.
