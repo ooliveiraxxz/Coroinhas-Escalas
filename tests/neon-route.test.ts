@@ -83,6 +83,10 @@ test('migration API rejects malformed or huge Content-Length before invoking aut
  try{
   assert.equal((await (await import('../app/api/migration/data/[...path]/route')).POST(input('999999'),context)).status,413);
   assert.equal((await (await import('../app/api/migration/data/[...path]/route')).POST(input('not-a-number'),context)).status,413);
+  for(const length of ['0','2','65536']){
+   const valid=input(length);valid.headers.delete('cookie');
+   assert.equal((await (await import('../app/api/migration/data/[...path]/route')).POST(valid,context)).status,401);
+  }
  }finally{
   for(const k of ['NEON_MIGRATION_ENABLED','NEXT_PUBLIC_DATA_BACKEND','NEON_MIGRATION_DATABASE_URL',
    'NEON_AUTH_BASE_URL','NEON_AUTH_COOKIE_SECRET'])delete process.env[k];
