@@ -36,3 +36,13 @@ G. Planejar congelamento de escritas, captura final, checksums, rollback com del
 - migration/CHAT-PUSH-CUTOVER-HANDOFF-20261107.md
 
 **Status: NÃO APTO A CUTOVER. Este checkpoint fornece evidências SQL atuais; não declara conclusão de tarefas não executadas.**
+
+## Verificação adicional diretamente pelo Chat (posterior ao primeiro checkpoint)
+
+- Criado SQL de regressão read-only `migration/sql/039-readonly-integrity-security-gates.sql`, commit `04e6cccdc2e1fc318c60584f0f0c6e6947f20553`.
+- Executada a mesma consulta sobre Neon STAGING: `staging_integrity_security_pass=true`.
+- Contagens: 0 vínculos órfãos para `assignments.mass_id`, `assignments.server_id`, `requests.user_id`, `push_subscriptions.user_id`, `migration_private.identity_map.profile_id`; 0 e-mails de perfil duplicados; 0 tabelas public base sem RLS; 0 papéis app/gateway com BYPASSRLS.
+- A view `public.profile_directory` tem `security_invoker=true`, `coroinhas_app` pode consultá-la; não pode excluir diretamente `public.profiles` nem inserir diretamente em `public.audit_log`; fila push segue desativada.
+- Executado também teste restrito de integridade sobre branch de cópia limpa `br-odd-bread-bc1jxzsh`: 0 órfãos em escalas/assinaturas push; 33 políticas public; 0 tabelas base sem RLS. O script 039 COMPLETO é exclusivo de staging, pois a cópia limpa não contém `migration_private.push_runtime`: não extrapolar aprovação da fila para a cópia limpa.
+- Workflow Github Actions do commit anterior `0941c87` terminou com sucesso (run 42437520418); workflow do commit `04e6ccc` estava em andamento no instante da consulta (run 42437854384). Confirmar conclusão antes de promover SHA.
+- Não houve escrita de dados em Supabase nem Neon; somente commit de testes/documentação em branch GitHub de homologação.
