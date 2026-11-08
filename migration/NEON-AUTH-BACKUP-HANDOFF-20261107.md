@@ -29,3 +29,9 @@
 3. Snapshot completo/restauração de Supabase com acesso de backup apropriado, sincronização definitiva após congelar escritas e autorização do cutover.
 
 **Não transformar este handoff em justificativa para publicar `main` ou desligar o Supabase.**
+
+## Teste RLS por perfil — execução complementar
+
+- `migration/sql/035-role-matrix-rollback-tests.sql` criado e executado com sucesso nas branches `br-rough-hill-bcj6lzt1` e `br-odd-bread-bc1jxzsh`.
+- Testes efetivos com `SET LOCAL ROLE coroinhas_app`: pai responsável **não** solicita servir; coroinha ainda não aprovado **não** solicita servir; coroinha aprovado solicita servir em missa publicada e futura; missa não publicada é bloqueada; e-mail de outro perfil fica mascarado em `profile_directory`. Dados fictícios totalmente revertidos.
+- Este teste complementa o `034` (integridade referencial) e as provas anteriores de privilégio de perfil; não é teste de navegador.
