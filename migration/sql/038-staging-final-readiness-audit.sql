@@ -1,11 +1,5 @@
--- READ ONLY. Execute on the isolated Neon Auth staging branch.
--- Returns no secrets or individual user identifiers.
-DO $guard$ BEGIN
- IF NOT EXISTS(SELECT 1 FROM migration_private.environment
-  WHERE id=true AND branch_id='br-rough-hill-bcj6lzt1')
- THEN RAISE EXCEPTION 'Readiness gate must only run in staging';END IF;
-END $guard$;
-WITH originals AS (
+-- Read-only staging readiness. Single SELECT; reports false for non-staging.
+WITH branch_marker AS (SELECT EXISTS(SELECT 1 FROM migration_private.environment WHERE id=true AND branch_id='br-rough-hill-bcj6lzt1') on_staging), originals AS (
  SELECT p.id,p.email,p.approved,p.role,i.subject,u.id auth_id,u.email auth_email,
  EXISTS(SELECT 1 FROM neon_auth.account a
         WHERE a."userId"=u.id AND a."providerId"='credential' AND a.password IS NOT NULL) password_ready
@@ -16,6 +10,7 @@ WITH originals AS (
  AND p.email !~* '@(example|test)[.]invalid$'
 )
 SELECT
+ (SELECT on_staging FROM branch_marker) on_staging,
  (SELECT count(*)::int FROM pg_policies WHERE schemaname='public') AS public_rls_policies,
  (SELECT count(*)::int FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
   WHERE n.nspname='public' AND c.relkind='r' AND c.relrowsecurity)::int AS rls_tables,
@@ -31,7 +26,7 @@ SELECT
   LEFT JOIN public.profiles p ON p.id=i.profile_id WHERE p.id IS NULL) orphan_identities,
  (SELECT rolcanlogin FROM pg_roles WHERE rolname='coroinhas_push_worker') push_role_can_login,
  (SELECT rolbypassrls FROM pg_roles WHERE rolname='coroinhas_gateway') gateway_bypass_rls,
- ((SELECT count(*) FROM originals)=4 AND
+ ((SELECT on_staging FROM branch_marker) AND (SELECT count(*) FROM originals)=4 AND
   (SELECT count(*) FROM originals WHERE approved AND auth_id IS NOT NULL
     AND lower(email)=lower(auth_email))=4 AND
   (SELECT count(*) FROM pg_policies WHERE schemaname='public')>=33 AND
