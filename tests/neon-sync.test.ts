@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 // Exercise the actual CLI orchestration without credentials or network writes.
-async function runSync(apply=false, extraRows=false, stale=false, branch='br-rough-hill-bcj6lzt1'){
+async function runSync(apply=false, extraRows=false, stale=false, branch='br-rough-hill-bcj6lzt1', tombstoneFixture=false){
  const plan=apply?JSON.parse((await runSync()).output[0]):null;
  if(stale)plan.fingerprints[0].targetChecksum='changed';
  const calls:{side:string;sql:string}[]=[];
@@ -17,9 +17,13 @@ async function runSync(apply=false, extraRows=false, stale=false, branch='br-rou
   async query(sql:string){
    calls.push({side:this.side,sql});
    if(sql.includes('SELECT branch_id'))return {rows:[{branch_id:branch}]};
-   if(sql.includes('WHERE NOT EXISTS'))return {rows:[{count:extraRows?1:0}]};
+   if(tombstoneFixture&&sql.includes('SELECT count(*)::int n FROM public.audit_log'))return {rows:[{n:1}]};
+   if(tombstoneFixture&&sql.includes('SELECT count(*)::int n FROM public.site_updates'))return {rows:[{n:0}]};
+   if(tombstoneFixture&&sql.includes('site_update_conflict_archive'))return {rows:[{n:1}]};
+   if(tombstoneFixture&&sql.includes('t.id<>$1'))return {rows:[{count:0,checksum:'empty'}]};
+   if(sql.includes('WHERE NOT EXISTS'))return {rows:[{count:(extraRows||tombstoneFixture&&sql.includes('site_updates'))?1:0}]};
    if(sql.includes('to_jsonb(t) AS row'))return {rows:[],rowCount:0};
-   if(sql.includes('checksum'))return {rows:[{count:0,checksum:'empty'}]};
+   if(sql.includes('checksum'))return {rows:[{count:tombstoneFixture&&this.side==='target'&&sql.includes('site_updates')?1:0,checksum:tombstoneFixture&&this.side==='target'&&sql.includes('site_updates')?'different':'empty'}]};
    return {rows:[],rowCount:0};
   }
  }
@@ -68,4 +72,17 @@ test('sync supports clean explicitly allowlisted isolated rehearsal branch witho
 });
 test('sync refuses unknown branch before attempting a database connection',async()=>{
  await assert.rejects(runSync(false,false,false,'br-unapproved-production'));
+});
+
+test('read-only sync reports audited source deletion as logical match without claiming physical identity',async()=>{
+ const r=await runSync(false,false,false,'br-odd-bread-bc1jxzsh',true);
+ assert.equal(r.proc.exitCode,0);
+ const plan=JSON.parse(r.output[0]);
+ assert.equal(plan.tablesCompared,15);
+ assert.equal(plan.dataChecksMatch,false);
+ assert.equal(plan.logicalDataChecksMatch,true);
+ assert.equal(plan.reviewedTombstone.verified,true);
+ assert.equal(plan.requiresConflictReview,true);
+ assert.deepEqual(plan.conflicts,[{table:'site_updates',targetOnlyCount:1}]);
+ assert.ok(r.calls.every(c=>/^(BEGIN|SELECT|ROLLBACK)/.test(c.sql)));
 });
