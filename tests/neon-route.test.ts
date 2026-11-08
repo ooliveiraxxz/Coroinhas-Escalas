@@ -67,3 +67,24 @@ test('session provisioning refuses cross-origin requests and unsupported payload
   delete process.env.NEXT_PUBLIC_DATA_BACKEND;
  }
 });
+
+test('migration API rejects malformed or huge Content-Length before invoking auth/database',async()=>{
+ process.env.NEON_MIGRATION_ENABLED='true';
+ process.env.NEXT_PUBLIC_DATA_BACKEND='neon-migration';
+ process.env.NEON_MIGRATION_DATABASE_URL='postgresql://coroinhas_gateway:placeholder@ep-test.neon.tech/coroinhas';
+ process.env.NEON_AUTH_BASE_URL='https://example.invalid';
+ process.env.NEON_AUTH_COOKIE_SECRET='test-secret-at-least-32-characters-long';
+ const input=(length:string)=>new NextRequest('http://localhost/api/migration/data/masses',{
+  method:'POST',
+  headers:{origin:'http://localhost',cookie:'s=fake','content-length':length,
+   'content-type':'application/json'},
+  body:'{}'
+ });
+ try{
+  assert.equal((await (await import('../app/api/migration/data/[...path]/route')).POST(input('999999'),context)).status,413);
+  assert.equal((await (await import('../app/api/migration/data/[...path]/route')).POST(input('not-a-number'),context)).status,413);
+ }finally{
+  for(const k of ['NEON_MIGRATION_ENABLED','NEXT_PUBLIC_DATA_BACKEND','NEON_MIGRATION_DATABASE_URL',
+   'NEON_AUTH_BASE_URL','NEON_AUTH_COOKIE_SECRET'])delete process.env[k];
+ }
+});
