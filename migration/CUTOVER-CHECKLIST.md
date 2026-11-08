@@ -86,3 +86,9 @@
 - Backup/restore do **Neon**: branch limpa `br-odd-bread-bc1jxzsh` → backup `br-lucky-pine-bcf4h6hn` → restauração `br-plain-hill-bcukew31`: 15/15 hashes e 252/252 linhas físicas iguais; mesmas 33 políticas e identidades. **Não substitui backup completo do Supabase**.
 - Auth hashes: Supabase 4 bcrypt `$2a$` (60 chars); Neon Auth gerenciado atualmente usa scrypt (161 chars). Não copiar hashes diretamente. Magic link e redefinição individual preparados; 0/4 provas de login reais.
 - **Bloqueios não simuláveis:** exportação/restauração íntegra da origem Supabase (incluindo Auth); acesso PostgreSQL read-only da origem para sync por TCP; E2E real no browser; consentimento/teste push; ativação dos quatro titulares; aprovação explícita de cutover e congelamento de escritas.
+
+## Retomada de 08/11/2026 — evidências HTTP
+
+Código `ca29537f`: 53/53 testes, TypeScript, build e audit sem vulnerabilidades; preview READY. Quatro papéis autenticados pela API real, isolamento de função administrativa e logout validados. CRUD de escala fictícia, presença/falta e revogação por papel/banimento aprovados. Comparação renovada: 15/15 hashes lógicos, 251 registros. Ver [WORK-HTTP-VALIDATION-20261108.md](WORK-HTTP-VALIDATION-20261108.md).
+
+Os itens amplos de Auth, interface, PDFs, push, sincronização e backup continuam abertos: a evidência parcial não equivale a aprovação integral. Nenhuma autorização de produção foi solicitada ou presumida.
