@@ -13,6 +13,9 @@ async function handle(req:NextRequest,context:{params:Promise<{path:string[]}>})
  if(!migrationEnabled())return error('Ambiente de migração desativado.',404);
  if(!process.env.NEON_MIGRATION_DATABASE_URL||!process.env.NEON_AUTH_BASE_URL||!process.env.NEON_AUTH_COOKIE_SECRET)return error('Ambiente de migração incompleto.',503);
  if(req.method!=='GET'&&req.headers.get('origin')!==req.nextUrl.origin)return error('Origem inválida.',403);
+ const length=req.headers.get('content-length');
+ if(length!==null&&(!/^\\d+$/.test(length)||Number(length)>65536))
+  return error('Requisição muito grande.',413);
  if(!req.headers.get('cookie'))return error('Não autenticado.',401);
  let session;
  try{const result=await getNeonAuth().getSession();session=result.data;if(!session?.user||!session.session)return error('Não autenticado.',401)}catch{return error('Sessão inválida.',401)}
