@@ -55,6 +55,13 @@ test('successful delivery with failed acknowledgement does not mark push as fail
  assert.equal(calls.filter(c=>c.sql.includes('push_finish')).length,1);
  assert.deepEqual(calls.find(c=>c.sql.includes('push_finish'))?.args?.slice(2),[1,true,0]);
 });
+test('transport rejection without an error value is never acknowledged as delivered',async()=>{
+ const {db,calls}=database();
+ const result=await dispatchPushBatch(db,async()=>{throw undefined});
+ assert.equal(result.sent,0);
+ assert.equal(result.failed,1);
+ assert.deepEqual(calls.find(c=>c.sql.includes('push_finish'))?.args?.slice(2),[1,false,0]);
+});
 test('rejects abnormal batch sizes before accessing database',async()=>{
  const {db,calls}=database();
  for(const limit of [-1,0,1.5,21,Number.NaN]){

@@ -24,8 +24,9 @@ export async function dispatchPushBatch(db:PushDatabase,deliver:Delivery,limit=1
    counts.skipped++;continue;
   }
   let failure:unknown;
-  try{await deliver(claim)}catch(e){failure=e}
-  if(failure===undefined){
+  let delivered=false;
+  try{await deliver(claim);delivered=true}catch(e){failure=e}
+  if(delivered){
    // If acknowledging a successful send fails, keep the original lease.
    // Do not rewrite an already-delivered item as a failed push.
    await finish(db,claim,true,0);
