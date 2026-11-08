@@ -52,7 +52,7 @@ export default function NeonLogin(){
   finally{setBusy(false)}
  }
  const title={login:'Entrar',signup:'Criar conta',verify:'Verificar e-mail',reset:'Ativar conta / recuperar senha','reset-code':'Definir senha'}[mode];
- return <div className="auth"><div className="auth-brand"><div className="brand-symbol"><Church size={44}/></div><h1>Coroinhas</h1><p>Ambiente de homologação</p></div><div className="auth-box"><h2>{title}</h2>
+ return <div className="auth"><div className="auth-brand"><div className="brand-symbol"><Church size={44}/></div><h1>Coroinhas</h1><p>Escalas e organização das celebrações</p></div><div className="auth-box"><h2>{title}</h2>
  <form onSubmit={e=>{e.preventDefault();void submit()}}>
  {mode==='signup'&&<><label className="field">Nome completo<input required value={name} onChange={e=>setName(e.target.value)}/></label><label className="field">Tipo de cadastro<select value={role} onChange={e=>setRole(e.target.value)}><option value="coroinha">Sou coroinha</option><option value="pai">Sou pai, mãe ou responsável</option></select></label></>}
  <label className="field">E-mail<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/></label>
@@ -63,5 +63,5 @@ export default function NeonLogin(){
  {mode==='login'&&<button className="btn neutral full" type="button" disabled={busy||!email.trim()} onClick={()=>void sendMagicLink()}>Entrar com link enviado por e-mail</button>}
   {mode==='login'&&<button className="btn neutral full" onClick={()=>{setMode('reset');setPassword('')}}>Ativar conta existente / Esqueci minha senha</button>}
  {error&&<div role="alert" className="notice error">{error}</div>}{notice&&<p role="status">{notice}</p>}
- <p className="muted">As alterações feitas aqui não afetam o site em produção.</p></div></div>
+ <p className="muted">Seu cadastro precisa de aprovação antes de acessar as escalas.</p></div></div>
 }
