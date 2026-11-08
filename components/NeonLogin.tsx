@@ -31,6 +31,17 @@ export default function NeonLogin(){
    await refreshNeonSession(role);
   }catch(e){setError(e instanceof Error?e.message:'Não foi possível concluir.')}finally{setBusy(false)}
  }
+ async function sendMagicLink(){
+  const target=email.trim().toLowerCase();
+  if(!target){setError('Informe seu e-mail para receber o link de acesso.');return}
+  setBusy(true);setError('');setNotice('');
+  try{
+   const result=await neonAuth.signIn.magicLink({email:target,callbackURL:window.location.origin});
+   if(result.error)throw new Error(result.error.message||'Não foi possível enviar o link.');
+   setNotice('Se este e-mail já possui conta, confira a caixa de entrada e o spam. O link expira em 10 minutos.');
+  }catch(e){setError(e instanceof Error?e.message:'Não foi possível enviar o link.')}
+  finally{setBusy(false)}
+ }
  const title={login:'Entrar',signup:'Criar conta',reset:'Ativar conta / recuperar senha','reset-code':'Definir senha'}[mode];
  return <div className="auth"><div className="auth-brand"><div className="brand-symbol"><Church size={44}/></div><h1>Coroinhas</h1><p>Ambiente de homologação</p></div><div className="auth-box"><h2>{title}</h2>
  <form onSubmit={e=>{e.preventDefault();void submit()}}>
@@ -40,7 +51,8 @@ export default function NeonLogin(){
  {mode!=='reset'&&<label className="field">{mode==='reset-code'?'Nova senha':'Senha'}<div className="password-field"><input required minLength={8} type={visible?'text':'password'} autoComplete={mode==='login'?'current-password':'new-password'} value={password} onChange={e=>setPassword(e.target.value)}/><button type="button" className="password-toggle" aria-label={visible?'Ocultar senha':'Mostrar senha'} onClick={()=>setVisible(!visible)}>{visible?<EyeOff size={21}/>:<Eye size={21}/>}</button></div></label>}
  <button className="btn full" disabled={busy}>{busy?'Aguarde…':title}</button></form>
  <button className="btn alt full" disabled={busy} style={{marginTop:12}} onClick={()=>{setMode(mode==='login'?'signup':'login');setError('');setNotice('')}}>{mode==='login'?'Criar conta / Solicitar acesso':'Voltar ao login'}</button>
- {mode==='login'&&<button className="btn neutral full" onClick={()=>{setMode('reset');setPassword('')}}>Ativar conta existente / Esqueci minha senha</button>}
+ {mode==='login'&&<button className="btn neutral full" type="button" disabled={busy||!email.trim()} onClick={()=>void sendMagicLink()}>Entrar com link enviado por e-mail</button>}
+  {mode==='login'&&<button className="btn neutral full" onClick={()=>{setMode('reset');setPassword('')}}>Ativar conta existente / Esqueci minha senha</button>}
  {error&&<div role="alert" className="notice error">{error}</div>}{notice&&<p role="status">{notice}</p>}
  <p className="muted">As alterações feitas aqui não afetam o site em produção.</p></div></div>
 }
