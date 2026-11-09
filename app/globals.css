@@ -391,3 +391,6 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
 .support-start-button{display:flex;align-items:center;justify-content:center;gap:10px;line-height:1.3;min-height:50px;text-align:center;flex-wrap:wrap}
 .support-start-button svg{flex:0 0 auto}
 .support-start-button span{display:inline-block}
+
+/* Chats independentes: coordenação acima do chat com o desenvolvedor */
+.support-floating-coordinator{bottom:calc(166px + env(safe-area-inset-bottom,0px));background:linear-gradient(145deg,#a13955,#751d35)}
