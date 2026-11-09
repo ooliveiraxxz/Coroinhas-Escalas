@@ -40,6 +40,7 @@ const rpcs: Record<string, Record<string, string>> = {
  send_notification_prioritized:{p_title:'text',p_body:'text',p_target:'text',p_recipient:'uuid',p_priority:'boolean',p_priority_until:'timestamptz'},
  poll_create:{p_question:'text',p_options:'jsonb',p_starts_at:'timestamptz',p_ends_at:'timestamptz',p_multiple:'boolean',p_priority:'boolean'},
  poll_list:{},
+ poll_tick:{},
  poll_vote:{p_poll:'uuid',p_options:'uuid[]'},
 };
 export class QueryError extends Error {}
