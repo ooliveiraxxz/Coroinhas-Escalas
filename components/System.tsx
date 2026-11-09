@@ -104,7 +104,18 @@ export default function System(){
  async function editNotice(){if(!noticeEditor)return;const ok=await execute(()=>db!.rpc('edit_notification',{p_group:noticeEditor,p_title:noticeTitle.trim(),p_body:noticeBody.trim()}));if(ok){setNoticeEditor('');setNoticeTitle('');setNoticeBody('');alert('Aviso atualizado. Todos deverão confirmar leitura novamente.')}}
  async function deleteNotice(gid:string){if(!confirm('Apagar este aviso para todos os destinatários?'))return;await execute(()=>db!.rpc('delete_notification',{p_group:gid}));}
  async function showNoticeReaders(gid:string){if(!db)return;const {data,error}=await db.from('notifications').select('user_id,seen,read_at').eq('group_id',gid);if(error)return setError(error.message);setNoticeRecipients(data||[]);}
- async function signout(){await db?.auth.signOut();setUser(null);setProfile(null);setView('Início')}
+ async function signout(){
+  if(!db||busy)return;
+  setBusy(true);setError('');
+  try{
+   const result=await db.auth.signOut();
+   if(result?.error)throw result.error;
+   setDrawer(false);setUser(null);setProfile(null);setView('Início');
+   // Reinicia a sessão e limpa os dados em memória antes de exibir o login.
+   window.location.replace(window.location.origin+'/');
+  }catch(e:any){setError('Não foi possível sair. '+(e?.message||'Tente novamente.'));setDrawer(false)}
+  finally{setBusy(false)}
+ }
  async function notifyAll(title:string,body:string,target?:string){if(!db)return;const ids=profiles.filter(p=>p.approved&&(!target||p.id===target)).map(p=>({user_id:p.id,title,body}));if(ids.length)await db.from('notifications').insert(ids)}
  const massTemplates=[
   {title:'Missa Dominical',time:'08:00',weekday:0},
