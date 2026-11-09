@@ -517,3 +517,10 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
 /* Edição de enquetes após publicação */
 .poll-edit-button{align-self:flex-start;border:1px solid #e2c5ce;background:#fff4f6;color:#82233e;border-radius:10px;padding:9px 13px;font-weight:750;font-size:13px;line-height:1.3}
 .poll-edit-button:focus-visible{outline:3px solid #d291a4;outline-offset:2px}
+
+/* Submenus da Central de notificações: cada tarefa em sua própria área */
+.notification-section-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 18px}
+.notification-section-tabs button{min-height:44px;border:1px solid #e6cdd4;border-radius:12px;padding:9px 8px;background:#fff;color:#7b2b43;font-size:12px;font-weight:750;line-height:1.3;text-align:center}
+.notification-section-tabs button.active{color:#fff;background:linear-gradient(135deg,#7e1c37,#a32c4b);border-color:#8b2742}
+.notification-section-tabs button:focus-visible{outline:3px solid #c57b91;outline-offset:2px}
+.notification-subheading{margin:12px 0;color:#78213a;font-size:17px}
