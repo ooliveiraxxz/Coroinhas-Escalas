@@ -37,28 +37,35 @@ export default function NeonLogin(){
    await refreshNeonSession(role);await recordLogin();
   }catch(e){setError(e instanceof Error?e.message:'Não foi possível concluir.')}finally{setBusy(false)}
  }
- async function sendMagicLink(){
-  const target=email.trim().toLowerCase();
-  if(!target){setError('Informe seu e-mail para receber o link de acesso.');return}
-  setBusy(true);setError('');setNotice('');
-  try{
-   const result=await neonAuth.signIn.magicLink({email:target,callbackURL:window.location.origin});
-   if(result.error)throw new Error(result.error.message||'Não foi possível enviar o link.');
-   setNotice('Se este e-mail já possui conta, confira a caixa de entrada e o spam. O link expira em 10 minutos.');
-  }catch(e){setError(e instanceof Error?e.message:'Não foi possível enviar o link.')}
-  finally{setBusy(false)}
- }
- const title={login:'Entrar',signup:'Criar conta',reset:'Ativar conta / recuperar senha','reset-code':'Definir senha'}[mode];
- return <div className="auth"><div className="auth-brand"><div className="brand-symbol"><Church size={44}/></div><h1>Coroinhas</h1><p>Escalas e organização das celebrações</p></div><div className="auth-box"><h2>{title}</h2>
- <form onSubmit={e=>{e.preventDefault();void submit()}}>
- {mode==='signup'&&<><label className="field">Nome completo<input required value={name} onChange={e=>setName(e.target.value)}/></label><label className="field">Tipo de cadastro<select value={role} onChange={e=>setRole(e.target.value)}><option value="coroinha">Sou coroinha</option><option value="pai">Sou pai, mãe ou responsável</option></select></label></>}
- <label className="field">E-mail<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/></label>
- {mode==='reset-code'&&<label className="field">Código recebido<input required inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e=>setOtp(e.target.value)}/></label>}
- {mode!=='reset'&&<label className="field">{mode==='reset-code'?'Nova senha':'Senha'}<div className="password-field"><input required minLength={8} type={visible?'text':'password'} autoComplete={mode==='login'?'current-password':'new-password'} value={password} onChange={e=>setPassword(e.target.value)}/><button type="button" className="password-toggle" aria-label={visible?'Ocultar senha':'Mostrar senha'} onClick={()=>setVisible(!visible)}>{visible?<EyeOff size={21}/>:<Eye size={21}/>}</button></div></label>}
- <button className="btn full" disabled={busy}>{busy?'Aguarde…':title}</button></form>
- <button className="btn alt full" disabled={busy} style={{marginTop:12}} onClick={()=>{setMode(mode==='login'?'signup':'login');setError('');setNotice('')}}>{mode==='login'?'Criar conta / Solicitar acesso':'Voltar ao login'}</button>
- {mode==='login'&&<button className="btn neutral full" type="button" disabled={busy||!email.trim()} onClick={()=>void sendMagicLink()}>Entrar com link enviado por e-mail</button>}
-  {mode==='login'&&<button className="btn neutral full" onClick={()=>{setMode('reset');setPassword('')}}>Ativar conta existente / Esqueci minha senha</button>}
- {error&&<div role="alert" className="notice error">{error}</div>}{notice&&<p role="status">{notice}</p>}
- <p className="muted">Seu cadastro precisa de aprovação antes de acessar as escalas.</p></div></div>
+ const title={login:'Entrar',signup:'Criar conta',reset:'Esqueci minha senha','reset-code':'Definir senha'}[mode];
+ return <div className="auth auth-login">
+  <header className="auth-brand">
+   <div className="brand-symbol"><Church size={38} strokeWidth={1.6}/></div>
+   <h1>Coroinhas</h1>
+   <p>Servir é amar.</p>
+  </header>
+  <section className="auth-box auth-login-card" aria-label={title}>
+   <h2>{title}</h2>
+   {mode==='reset'&&<p className="auth-help">Informe seu e-mail para receber um código de recuperação.</p>}
+   {mode==='reset-code'&&<p className="auth-help">Digite o código enviado ao seu e-mail e escolha uma nova senha.</p>}
+   <form onSubmit={e=>{e.preventDefault();void submit()}}>
+    {mode==='signup'&&<>
+     <label className="field">Nome completo<input required autoComplete="name" value={name} onChange={e=>setName(e.target.value)}/></label>
+     <label className="field">Tipo de cadastro<select value={role} onChange={e=>setRole(e.target.value)}><option value="coroinha">Sou coroinha</option><option value="pai">Sou pai, mãe ou responsável</option></select></label>
+    </>}
+    <label className="field">E-mail<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/></label>
+    {mode==='reset-code'&&<label className="field">Código recebido<input required inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e=>setOtp(e.target.value)}/></label>}
+    {mode!=='reset'&&<label className="field">{mode==='reset-code'?'Nova senha':'Senha'}
+     <div className="password-field"><input required minLength={8} type={visible?'text':'password'} autoComplete={mode==='login'?'current-password':'new-password'} value={password} onChange={e=>setPassword(e.target.value)}/><button type="button" className="password-toggle" aria-label={visible?'Ocultar senha':'Mostrar senha'} onClick={()=>setVisible(!visible)}>{visible?<EyeOff size={21}/>:<Eye size={21}/>}</button></div>
+    </label>}
+    {mode==='login'&&<div className="auth-forgot-row"><button type="button" className="auth-forgot-link" onClick={()=>{setMode('reset');setError('');setNotice('');setPassword('')}}>Esqueci minha senha</button></div>}
+    <button type="submit" className="btn full auth-primary" disabled={busy}>{busy?'Aguarde…':mode==='reset'?'Enviar código':mode==='reset-code'?'Redefinir senha':title}</button>
+   </form>
+   {mode==='login'&&<div className="auth-secondary"><span>Ainda não tem uma conta?</span><button type="button" className="btn alt full" disabled={busy} onClick={()=>{setMode('signup');setError('');setNotice('')}}>Criar conta / Solicitar acesso</button></div>}
+   {mode!=='login'&&<button type="button" className="auth-back-link" disabled={busy} onClick={()=>{setMode('login');setError('');setNotice('');setOtp('')}}>Voltar para entrar</button>}
+   {error&&<div role="alert" className="notice error">{error}</div>}
+   {notice&&<p role="status" className="auth-help">{notice}</p>}
+   {mode==='signup'&&<p className="auth-approval-note">Seu cadastro será analisado pela coordenação antes da liberação.</p>}
+  </section>
+ </div>;
 }
