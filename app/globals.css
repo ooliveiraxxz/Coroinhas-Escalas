@@ -140,3 +140,65 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
 .field .password-field input{display:block;box-sizing:border-box;width:100%;min-height:48px;margin:0;padding-right:58px}
 .field .password-field .password-toggle{position:absolute;z-index:2;top:50%;right:7px;bottom:auto;left:auto;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:40px;height:40px;min-width:40px;min-height:40px;margin:0;padding:0;border:0;border-radius:10px;background:transparent;box-shadow:none;color:#751e33;line-height:1;appearance:none;-webkit-appearance:none}
 .field .password-field .password-toggle:focus-visible{outline:2px solid #751e33;outline-offset:1px}
+
+
+/* Tela de aprovação: composição compacta, centralizada e adaptável ao iPhone */
+.auth.auth-pending{
+  min-height:100svh;
+  min-height:100dvh;
+  justify-content:center;
+  padding:calc(24px + env(safe-area-inset-top,0px)) 20px calc(28px + env(safe-area-inset-bottom,0px));
+  gap:0;
+}
+.auth-pending .auth-brand{width:100%;max-width:420px;margin:0 auto 28px}
+.auth-pending .brand-symbol{width:76px;height:76px;border-radius:23px;margin-bottom:16px}
+.auth-pending .auth-brand h1{font-size:clamp(36px,9vw,46px);line-height:1.12;margin:8px 0 5px}
+.auth-pending .auth-brand p{font-size:15px;letter-spacing:.04em;margin:11px 0 0;opacity:.93}
+.auth-pending .pending-card{
+  width:min(100%,420px);
+  padding:26px 23px 23px;
+  border:1px solid #f1dfe1;
+  border-radius:24px;
+  box-shadow:0 20px 55px #21050d38;
+}
+.auth-pending .pending-eyebrow{
+  text-align:center;
+  color:#9a4a5b;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.15em;
+  margin:1px 0 12px;
+}
+.auth-pending .pending-card h2{
+  font-size:clamp(23px,5.5vw,29px);
+  line-height:1.2;
+  letter-spacing:-.035em;
+  margin:0 auto 14px;
+  max-width:330px;
+  text-wrap:balance;
+}
+.auth-pending .pending-description{
+  margin:0;
+  text-align:center;
+  color:#635258;
+  font-size:14px;
+  line-height:1.55;
+}
+.auth-pending .pending-actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:24px}
+.auth-pending .pending-actions .btn{width:100%;min-height:48px;border-radius:13px;font-size:14px;padding:12px 16px}
+.auth-pending .pending-actions .btn.alt{
+  color:#7a2034;
+  background:#fff5f5;
+  box-shadow:none;
+  border:1px solid #ead2d6;
+}
+@media(max-width:360px){
+  .auth.auth-pending{padding-left:15px;padding-right:15px}
+  .auth-pending .pending-card{padding:23px 17px 19px}
+  .auth-pending .auth-brand{margin-bottom:21px}
+}
+@media(max-height:640px){
+  .auth.auth-pending{justify-content:flex-start}
+  .auth-pending .brand-symbol{width:62px;height:62px}
+  .auth-pending .auth-brand{margin-bottom:18px}
+}
