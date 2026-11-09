@@ -25,6 +25,7 @@ const rpcs: Record<string, Record<string, string>> = {
  reassign_legacy_function:{p_old_assignment_id:'uuid',p_open_assignment_id:'uuid'},
  record_site_access:{p_login:'boolean'},respond_assignment:{p_id:'uuid',p_action:'text',p_reason:'text'},
  send_notification:{p_title:'text',p_body:'text',p_recipient:'uuid'},
+ send_notification_targeted:{p_title:'text',p_body:'text',p_target:'text',p_recipient:'uuid'},
 };
 export class QueryError extends Error {}
 const fail = (): never => {throw new QueryError('Operação não suportada no ambiente de migração.');};
