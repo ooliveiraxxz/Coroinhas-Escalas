@@ -87,7 +87,7 @@ export default function Polls({db,coordinator,userRole}:Props){
    <label className="poll-check"><span>Permitir várias respostas</span><input type="checkbox" checked={multiple} onChange={e=>setMultiple(e.target.checked)}/></label>
    <label className="poll-check"><span>Priorizar notificação</span><input type="checkbox" checked={priority} onChange={e=>setPriority(e.target.checked)}/></label>
    <button type="button" className="btn full" disabled={saving} onClick={()=>void create()}>{saving?'Salvando…':editingId?'Salvar alterações':'Criar enquete'}</button>
-   {editingId&&<button type="button" className="btn alt full" disabled={saving} onClick={()=>{resetForm();setMessage('Edição cancelada.')}}>Cancelar edição</button>
+   {editingId&&<button type="button" className="btn alt full" disabled={saving} onClick={()=>{resetForm();setMessage('Edição cancelada.')}}>Cancelar edição</button>}
   </section>}
   {message&&<div className="poll-status" role="status">{message}</div>}
   {(display.length>0||coordinator)&&<h3 className="poll-list-heading">{coordinator?'Enquetes e resultados':'Enquetes'}</h3>}
