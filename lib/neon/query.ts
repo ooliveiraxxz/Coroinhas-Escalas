@@ -37,6 +37,10 @@ const rpcs: Record<string, Record<string, string>> = {
  record_site_access:{p_login:'boolean'},respond_assignment:{p_id:'uuid',p_action:'text',p_reason:'text'},
  send_notification:{p_title:'text',p_body:'text',p_recipient:'uuid'},
  send_notification_targeted:{p_title:'text',p_body:'text',p_target:'text',p_recipient:'uuid'},
+ send_notification_prioritized:{p_title:'text',p_body:'text',p_target:'text',p_recipient:'uuid',p_priority:'boolean',p_priority_until:'timestamptz'},
+ poll_create:{p_question:'text',p_options:'jsonb',p_starts_at:'timestamptz',p_ends_at:'timestamptz',p_multiple:'boolean',p_priority:'boolean'},
+ poll_list:{},
+ poll_vote:{p_poll:'uuid',p_options:'uuid[]'},
 };
 export class QueryError extends Error {}
 const fail = (): never => {throw new QueryError('Operação não suportada no ambiente de migração.');};
