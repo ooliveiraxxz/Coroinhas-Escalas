@@ -20,7 +20,7 @@ export default function System(){
  const parent=profile?.approved===true&&profile?.role==='pai';
  const ceremony=profile?.approved===true&&profile?.role==='cerimoniario';
  const myGroup=ceremony||profile?.coordination_group==='cerimoniario'?'cerimoniario':'coroinha';
- const roleGroup=(r:{fn:string;group?:string})=>r.group||(roleGroup(r));
+ const roleGroup=(r:{fn:string;group?:string}):string=>r.group||(r.fn.trim().toLowerCase()==='missal'?'cerimoniario':myGroup);
  const coord=profile?.approved===true&&(profile?.role==='coordenadora'||developer);
  useEffect(()=>{if(!developer||!db)return;let valid=true;db.from('service_settings').select('enabled').eq('key','auto_approval_3h').maybeSingle().then(({data,error})=>{if(valid&&!error&&data)setAutoApprovalEnabled(Boolean(data.enabled));});return()=>{valid=false}},[developer,db]);
  const toggleAutoApproval=async()=>{const next=!autoApprovalEnabled;const ok=await execute(()=>db!.from('service_settings').update({enabled:next}).eq('key','auto_approval_3h'));if(ok)setAutoApprovalEnabled(next);};
