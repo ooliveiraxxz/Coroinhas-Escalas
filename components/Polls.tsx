@@ -5,7 +5,7 @@ import type {SupabaseClient} from '@supabase/supabase-js';
 
 type Option={id:string;label:string;position:number};
 type Result={id:string;label:string;votes:number;voters:{name:string;voted_at:string}[]};
-type Poll={id:string;question:string;starts_at:string;ends_at:string;multiple_answers:boolean;priority:boolean;state:'agendada'|'aberta'|'encerrada';voted:boolean;options:Option[];results:Result[];respondents:number};
+type Poll={id:string;question:string;starts_at:string;ends_at:string;multiple_answers:boolean;priority:boolean;state:'agendada'|'aberta'|'encerrada';voted:boolean;my_options:string[];options:Option[];results:Result[];respondents:number};
 type Props={db:SupabaseClient|null;coordinator:boolean;userRole:string;};
 const dateTime=(v:string)=>new Date(v).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'});
 const toDatetimeLocal=(v:string)=>{
@@ -18,6 +18,7 @@ export default function Polls({db,coordinator,userRole}:Props){
  const [polls,setPolls]=useState<Poll[]>([]),[loading,setLoading]=useState(false),[saving,setSaving]=useState(false),[message,setMessage]=useState('');
  const [question,setQuestion]=useState(''),[options,setOptions]=useState(['','']),[start,setStart]=useState(localNow),[end,setEnd]=useState(''),[multiple,setMultiple]=useState(false),[priority,setPriority]=useState(false);
  const [choices,setChoices]=useState<Record<string,string[]>>({});
+ const [editingVote,setEditingVote]=useState<string|null>(null);
  const [editingId,setEditingId]=useState<string|null>(null);
  const [optionIds,setOptionIds]=useState<(string|null)[]>([null,null]);
  const resetForm=()=>{
@@ -66,7 +67,13 @@ export default function Polls({db,coordinator,userRole}:Props){
   const picked=choices[poll.id]||[];
   if(!picked.length){setMessage('Selecione uma opção para responder.');return;}
   setSaving(true);setMessage('');
-  try{await rpc('poll_vote',{p_poll:poll.id,p_options:picked});setChoices(old=>({...old,[poll.id]:[]}));setMessage('Sua resposta foi registrada.');await load()}
+  try{
+   await rpc(editingVote===poll.id?'poll_change_vote':'poll_vote',{p_poll:poll.id,p_options:picked});
+   setChoices(old=>({...old,[poll.id]:[]}));
+   setMessage(editingVote===poll.id?'Sua resposta foi atualizada com sucesso.':'Sua resposta foi registrada.');
+   setEditingVote(null);
+   await load();
+  }
   catch(e:any){setMessage(e?.message||'Não foi possível registrar a resposta.')}
   finally{setSaving(false)}
  };
@@ -104,12 +111,19 @@ export default function Polls({db,coordinator,userRole}:Props){
        {o.voters.map((v,i)=><li key={i}>{v.name}</li>)}
       </ul>:<p className="poll-voter-empty">Nenhum coroinha selecionou esta opção.</p>}
      </div>)}
-    </div>:p.voted?<p className="poll-voted"><CheckCircle2 size={17}/> Sua resposta foi registrada.</p>:p.state==='aberta'?<>
+    </div>:p.voted&&editingVote!==p.id?<>
+      <p className="poll-voted"><CheckCircle2 size={17}/> Sua resposta foi registrada.</p>
+      {p.state==='aberta'&&<button type="button" className="btn alt full" disabled={saving} onClick={()=>{
+       setChoices(prev=>({...prev,[p.id]:Array.isArray(p.my_options)?p.my_options:[]}));
+       setEditingVote(p.id);setMessage('');
+      }}>Alterar minha resposta</button>}
+     </>:p.state==='aberta'?<>
       {p.options.map(o=><label className="poll-vote-option" key={o.id}>
        <input type={p.multiple_answers?'checkbox':'radio'} name={'poll-'+p.id} checked={(choices[p.id]||[]).includes(o.id)} onChange={e=>setChoices(old=>({...old,[p.id]:p.multiple_answers?(e.target.checked?[...(old[p.id]||[]),o.id]:(old[p.id]||[]).filter(x=>x!==o.id)):[o.id]}))}/>
        <span>{o.label}</span>
       </label>)}
-      <button type="button" className="btn full" disabled={saving||!(choices[p.id]||[]).length} onClick={()=>void vote(p)}>Enviar resposta</button>
+      <button type="button" className="btn full" disabled={saving||!(choices[p.id]||[]).length} onClick={()=>void vote(p)}>{editingVote===p.id?'Salvar nova resposta':'Enviar resposta'}</button>
+      {editingVote===p.id&&<button type="button" className="btn alt full" disabled={saving} onClick={()=>{setEditingVote(null);setChoices(prev=>({...prev,[p.id]:[]}))}}>Cancelar alteração</button>}
      </>:null}
    </>}
   </section>)}
