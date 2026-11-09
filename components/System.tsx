@@ -678,7 +678,7 @@ export default function System(){
  <label className="field">E-mail do coroinha<input type="email" autoComplete="email" value={linkEmail} onChange={e=>setLinkEmail(e.target.value)} placeholder="email@exemplo.com"/></label>
  <button type="button" className="btn" disabled={linkBusy||!linkEmail.trim()} onClick={()=>void requestParentCode()}>{linkBusy?'Aguarde…':'Enviar código'}</button>
  {linkChallenge&&<><p className="muted">Digite o código numérico de 6 dígitos recebido pelo coroinha. Validade: 10 minutos. Até 5 tentativas.</p>
- <label className="field">Código<input inputMode="numeric" pattern="[0-9]*" maxLength={6} value={linkCode} onChange={e=>setLinkCode(e.target.value.replace(/\\D/g,'').slice(0,6))}/></label>
+ <label className="field">Código<input inputMode="numeric" pattern="[0-9]*" maxLength={6} value={linkCode} onChange={e=>setLinkCode(e.target.value.replace(/[^0-9]/g,'').slice(0,6))}/></label>
  <button type="button" className="btn" disabled={linkBusy||linkCode.length!==6} onClick={()=>void confirmParentCode()}>Confirmar vínculo</button></>}
  </>}
  {parentLinks.filter(link=>parent?link.parent_id===user.id:link.child_id===user.id).map(link=><div className="item" key={link.parent_id+link.child_id}><b>{parent?link.child_name:link.parent_name}</b><p className="muted">{parent?'Coroinha vinculado — você pode acompanhar as escalas, mas não alterá-las.':'Responsável vinculado à sua conta.'}</p><button type="button" className="btn alt" disabled={linkBusy} onClick={()=>void unlinkParent(link.parent_id,link.child_id)}>Desvincular</button></div>)}
