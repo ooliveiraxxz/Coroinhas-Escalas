@@ -41,8 +41,11 @@ async function handle(req:NextRequest,context:{params:Promise<{path:string[]}>})
  }catch(e){
   if(client)await client.query('ROLLBACK').catch(()=>{});
   const code=typeof e==='object'&&e!==null&&'code'in e?String(e.code):'';
-  // Avoid returning SQL, connection details, or server error payloads.
-  return error(code==='42501'?'Acesso negado.':'Operação não concluída na homologação.',code==='42501'?403:400);
+  // Mensagens de domínio explicitamente permitidas; nunca exponha SQL, detalhes de conexão ou erros internos.
+  const detail=typeof e==='object'&&e!==null&&'message' in e?String(e.message):'';
+  if(code==='42501')return error('Acesso negado.',403);
+  if(code==='P0001'&&detail==='Nenhum destinatario encontrado')return error('Não há coroinhas aprovados para receber esta notificação.',422,'NO_RECIPIENTS');
+  return error('Não foi possível concluir a operação. Tente novamente.',400);
  }finally{client?.release()}
 }
 export {handle as GET,handle as POST,handle as PATCH,handle as DELETE};
