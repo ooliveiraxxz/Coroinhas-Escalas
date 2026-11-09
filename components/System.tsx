@@ -72,6 +72,11 @@ function readableAuditValue(key:string,value:any):string{
   return ({coroinha:'Coroinha',pai:'Pai ou responsável',coordenadora:'Coordenador(a)',desenvolvedor:'Desenvolvedor',cerimoniario:'Cerimoniário',all:'Todos',individual:'Pessoa específica'} as Record<string,string>)[String(value)]||'Outro perfil';
  }
  if(key==='notification_preferences')return 'Preferências de notificação alteradas';
+ if(key==='function_name'&&typeof value==='string'&&value.startsWith('__')){
+  const role=value.match(/__como_usar_(desenvolvedor|coordenadora|coroinha|pai)/);
+  if(role)return 'Orientações para '+({desenvolvedor:'desenvolvedor',coordenadora:'coordenação',coroinha:'coroinhas',pai:'pais e responsáveis'} as Record<string,string>)[role[1]];
+  return 'Orientação interna';
+ }
  if(key==='starts_at'){const d=new Date(value);return isNaN(d.getTime())?'Data atualizada':d.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'});}
  if(typeof value==='object')return 'Configuração atualizada';
  const v=String(value);
@@ -95,7 +100,7 @@ function summarizeAudit(row:AnyRow){
    .map(k=>auditFields[k]?'**'+auditFields[k]+'**: de '+readableAuditValue(k,before[k])+' para '+readableAuditValue(k,after[k]):'Outra informação do registro foi alterada');
  }else{
   details=Object.keys(record).filter(k=>!ignoredAuditFields.has(k)&&auditFields[k])
-   .filter(k=>!['name','title','email','function_name'].includes(k))
+   .filter(k=>!['name','title','email','function_name'].includes(k)&&record[k]!==null&&record[k]!==undefined&&record[k]!=='')
    .slice(0,5).map(k=>auditFields[k]+': '+readableAuditValue(k,record[k]));
  }
  if(details.length===0)details=[row.action==='INSERT'?'Um novo registro foi adicionado.':row.action==='DELETE'?'Este registro foi removido.':'Informações administrativas do registro foram alteradas.'];
