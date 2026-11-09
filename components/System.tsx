@@ -139,6 +139,17 @@ export default function System(){
  }catch(e:any){setError(e.message||String(e))}finally{setProfileLoading(false)}}
  useEffect(()=>{let live=true;try{const client=getSupabase();setDb(client);client.auth.getSession().then(({data})=>{if(live){setUser(data.session?.user||null);setAuthLoading(false)}}).catch(e=>{if(live){setError(friendlyAppError(e));setAuthLoading(false)}});const {data:{subscription}}=client.auth.onAuthStateChange((_e,s)=>{if(live){if(_e==='PASSWORD_RECOVERY')setRecovering(true);setUser(s?.user||null);setAuthLoading(false)}});return()=>{live=false;subscription.unsubscribe()}}catch(e:any){setError(friendlyAppError(e));setAuthLoading(false)}},[]);
  useEffect(()=>{if(user&&db){refresh(db,user);db.rpc('record_site_access',{p_login:false}).then(()=>{});const tick=setInterval(()=>db.rpc('record_site_access',{p_login:false}).then(()=>{}),180000);return()=>clearInterval(tick)}else{setProfile(null);setProfileLoading(false)}},[user?.id,db]);
+ useEffect(()=>{
+  if(!db||!user?.id||!profile?.approved)return;
+  let alive=true;
+  const fetchAlerts=async()=>{
+   const result=await db.from('notifications').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(80);
+   if(alive&&!result.error)setNotices(result.data||[]);
+  };
+  void fetchAlerts();
+  const timer=setInterval(()=>void fetchAlerts(),15000);
+  return()=>{alive=false;clearInterval(timer)};
+ },[db,user?.id,profile?.approved]);
  async function activatePush(){
   if(!db||!user)return;
   if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){setError('Este navegador não suporta notificações push. No iPhone, adicione o aplicativo à Tela de Início e abra por lá.');return;}
