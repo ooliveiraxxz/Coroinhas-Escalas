@@ -202,3 +202,77 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
   .auth-pending .brand-symbol{width:62px;height:62px}
   .auth-pending .auth-brand{margin-bottom:18px}
 }
+
+
+/* Login do Coroinhas: visual compacto, limpo e responsivo */
+.auth.auth-login{
+  min-height:100svh;
+  min-height:100dvh;
+  justify-content:center;
+  padding:calc(env(safe-area-inset-top,0px) + 24px) 18px calc(env(safe-area-inset-bottom,0px) + 24px);
+  background:radial-gradient(ellipse at 50% 11%,#ae686c 0%,#731c2c 46%,#470b18 100%);
+}
+.auth-login .auth-brand{width:100%;max-width:430px;margin:0 auto 25px}
+.auth-login .brand-symbol{width:74px;height:74px;border-radius:22px;margin:0 auto 15px;background:#ffffff16;border:1px solid #ffffff55}
+.auth-login .auth-brand h1{font-size:clamp(37px,9vw,48px);line-height:1.12;margin:0;letter-spacing:-1px}
+.auth-login .auth-brand p{margin:12px 0 0;font-size:15px;line-height:1.4;letter-spacing:.06em}
+.auth-login .auth-login-card{
+  width:min(100%,430px);
+  padding:29px 24px 23px;
+  background:#fffaf8;
+  border:1px solid #f6eaeb;
+  border-radius:25px;
+  box-shadow:0 18px 46px #24071038;
+}
+.auth-login .auth-login-card h2{
+  margin:0 0 23px;
+  font-family:Georgia,serif;
+  font-size:28px;
+  line-height:1.2;
+  text-align:center;
+  color:#741d33;
+}
+.auth-login .auth-login-card .field{
+  display:block;
+  margin:0 0 16px;
+  color:#54464c;
+  font-size:13px;
+  font-weight:650;
+}
+.auth-login .auth-login-card .field input,
+.auth-login .auth-login-card .field select{
+  width:100%;
+  height:49px;
+  min-height:49px;
+  margin:7px 0 0;
+  border:1px solid #deccd0;
+  border-radius:13px;
+  background:#fff;
+  padding:10px 13px;
+  color:#34252b;
+  font-size:16px;
+}
+.auth-login .auth-login-card .field .password-field{margin-top:7px}
+.auth-login .auth-login-card .field .password-field input{margin:0;padding-right:56px}
+.auth-login .auth-login-card .field input:focus-visible,
+.auth-login .auth-login-card .field select:focus-visible{outline:2px solid #a34863;outline-offset:1px}
+.auth-login .auth-forgot-row{display:flex;justify-content:flex-end;margin:-4px 0 19px}
+.auth-login .auth-forgot-link,.auth-login .auth-back-link{
+  border:0;
+  background:transparent;
+  color:#84233d;
+  font-size:13px;
+  font-weight:700;
+  padding:7px 1px;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.auth-login .auth-primary{width:100%;min-height:49px;font-size:15px;border-radius:13px}
+.auth-login .auth-secondary{margin-top:22px;display:grid;gap:10px;text-align:center}
+.auth-login .auth-secondary span{font-size:13px;color:#786a70}
+.auth-login .auth-secondary .btn{min-height:47px;box-shadow:none;border-radius:13px}
+.auth-login .auth-back-link{display:block;margin:18px auto 0}
+.auth-login .auth-help{font-size:13px;line-height:1.5;color:#75666b;text-align:center;margin:-8px 0 20px}
+.auth-login .auth-approval-note{font-size:12px;line-height:1.5;color:#7e6c70;text-align:center;margin:18px 2px 0}
+@media(max-width:370px){.auth.auth-login{padding-left:14px;padding-right:14px}.auth-login .auth-login-card{padding:24px 18px 20px}.auth-login .auth-brand{margin-bottom:20px}}
+@media(max-height:720px){.auth.auth-login{justify-content:flex-start}.auth-login .auth-brand{margin-bottom:18px}.auth-login .brand-symbol{width:62px;height:62px;margin-bottom:10px}.auth-login .auth-brand h1{font-size:36px}.auth-login .auth-login-card{padding-top:23px}}
