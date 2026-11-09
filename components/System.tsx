@@ -153,6 +153,14 @@ export default function System(){
   const timer=setInterval(()=>void fetchAlerts(),15000);
   return()=>{alive=false;clearInterval(timer)};
  },[db,user?.id,profile?.approved]);
+ useEffect(()=>{
+  if(!db||!user?.id||!profile?.approved)return;
+  // Além do cron diário do plano Hobby, processa os avisos enquanto há alguém conectado.
+  const tick=()=>{void db.rpc('poll_tick').then(({error})=>{if(error)console.warn('Não foi possível atualizar as enquetes.');})};
+  tick();
+  const interval=setInterval(tick,60000);
+  return()=>clearInterval(interval);
+ },[db,user?.id,profile?.approved]);
  async function activatePush(){
   if(!db||!user)return;
   if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){setError('Este navegador não suporta notificações push. No iPhone, adicione o aplicativo à Tela de Início e abra por lá.');return;}
