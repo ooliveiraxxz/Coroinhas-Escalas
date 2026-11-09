@@ -100,7 +100,16 @@ export default function System(){
  }
  async function execute(fn:()=>PromiseLike<any>){setBusy(true);setError('');try{const r=await fn();if(r?.error)throw r.error;await refresh();return true}catch(e:any){setError(e?.message||String(e));return false}finally{setBusy(false)}}
  async function auth(){if(!db)return setError('Supabase não configurado. Configure as variáveis na Vercel.');setBusy(true);setError('');try{if(register){const {data,error}=await db.auth.signUp({email,password,options:{data:{name,requested_role:requestedRole}}});if(error)throw error;alert(data.session?'Cadastro enviado para aprovação.':'Cadastro criado! Confira seu e-mail se for solicitada confirmação.');setRegister(false)}else{const {error}=await db.auth.signInWithPassword({email,password});if(error)throw error;await db.rpc('record_site_access',{p_login:true})}}catch(e:any){setError(e.message)}finally{setBusy(false)}}
- async function sendNotice(){if(!noticeTitle.trim()||!noticeBody.trim())return setError('Informe título e mensagem.');const ok=await execute(()=>db!.rpc('send_notification',{p_title:noticeTitle.trim(),p_body:noticeBody.trim(),p_recipient:noticeTarget==='all'?null:noticeTarget}));if(ok){setNoticeTitle('');setNoticeBody('');setNoticeTarget('all');alert('Notificação enviada.')}}
+ async function sendNotice(){
+  if(!noticeTitle.trim()||!noticeBody.trim())return setError('Informe título e mensagem.');
+  const recipients=profiles.filter(p=>p.approved===true&&p.role==='coroinha'&&(noticeTarget==='all'||p.id===noticeTarget));
+  if(recipients.length===0){
+   setError(noticeTarget==='all'?'Não há coroinhas aprovados para receber esta notificação. Aguarde ou aprove um cadastro na aba Usuários.':'O destinatário selecionado não está aprovado como coroinha.');
+   return;
+  }
+  const ok=await execute(()=>db!.rpc('send_notification',{p_title:noticeTitle.trim(),p_body:noticeBody.trim(),p_recipient:noticeTarget==='all'?null:noticeTarget}));
+  if(ok){setNoticeTitle('');setNoticeBody('');setNoticeTarget('all');alert('Notificação enviada.')}
+ }
  async function editNotice(){if(!noticeEditor)return;const ok=await execute(()=>db!.rpc('edit_notification',{p_group:noticeEditor,p_title:noticeTitle.trim(),p_body:noticeBody.trim()}));if(ok){setNoticeEditor('');setNoticeTitle('');setNoticeBody('');alert('Aviso atualizado. Todos deverão confirmar leitura novamente.')}}
  async function deleteNotice(gid:string){if(!confirm('Apagar este aviso para todos os destinatários?'))return;await execute(()=>db!.rpc('delete_notification',{p_group:gid}));}
  async function showNoticeReaders(gid:string){if(!db)return;const {data,error}=await db.from('notifications').select('user_id,seen,read_at').eq('group_id',gid);if(error)return setError(error.message);setNoticeRecipients(data||[]);}
