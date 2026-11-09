@@ -20,6 +20,7 @@ const rpcs: Record<string, Record<string, string>> = {
  developer_manage_user:{p_user:'uuid',p_action:'text',p_role:'text'},
  developer_recent_access:{p_role:'text'},
  developer_audit_recent:{},
+ create_mass_with_assignments:{p_title:'text',p_starts_at:'timestamptz',p_location:'text',p_celebrant:'text',p_notes:'text',p_roles:'jsonb'},
  support_create:{p_category:'text',p_message:'text'},
  support_send:{p_ticket:'uuid',p_message:'text'},
  support_close:{p_ticket:'uuid'},
@@ -50,7 +51,7 @@ export function compileQuery(path:string[],method:string,params:URLSearchParams,
  // Never silently reinterpret duplicate or unsupported PostgREST query parameters.
  const seen=new Set<string>();
  for(const [key] of params){if(seen.has(key))return fail();seen.add(key)}
- if(params.has('columns'))return fail();
+ if(params.has('columns') && method!=='POST')return fail();
  const values: unknown[]=[];
  const value=(v:unknown)=>{values.push(v);return '$'+values.length};
  if(path.length===2&&path[0]==='rpc') {
@@ -69,7 +70,7 @@ export function compileQuery(path:string[],method:string,params:URLSearchParams,
  const selected=selection==='*'?'*':selection.split(',').map(col).join(',');
  let order='',limit='';const filters:string[]=[];
  for(const [key,raw] of params){
-  if(['select','on_conflict'].includes(key))continue;
+  if(['select','on_conflict','columns'].includes(key))continue;
   if(key==='order'){
    order=' ORDER BY '+raw.split(',').map(item=>{const [c,dir,...rest]=item.split('.');if(rest.length||!['asc','desc'].includes(dir))return fail();return `${col(c)} ${dir.toUpperCase()}`}).join(',');continue;
   }
@@ -96,6 +97,10 @@ export function compileQuery(path:string[],method:string,params:URLSearchParams,
   const rows=Array.isArray(body)?body:[body];
   if(!rows.length||rows.length>200||rows.some(r=>!r||typeof r!=='object'||Array.isArray(r)))return fail();
   const keys=Object.keys(rows[0]);if(!keys.length||keys.length>30)return fail();
+  if(params.has('columns')){
+   const supplied=params.get('columns')!.split(',').map(k=>k.trim().replace(/^"|"$/g,''));
+   if(supplied.length!==keys.length||new Set(supplied).size!==keys.length||supplied.some(k=>!keys.includes(k)))return fail();
+  }
   if(rows.some(r=>Object.keys(r).length!==keys.length||keys.some(k=>!Object.hasOwn(r,k))))return fail();
   text=`INSERT INTO ${relation} (${keys.map(col).join(',')}) VALUES ${rows.map(r=>'('+keys.map(k=>value(r[k])).join(',')+')').join(',')}`;
   if(prefer.includes('resolution=merge-duplicates')){
