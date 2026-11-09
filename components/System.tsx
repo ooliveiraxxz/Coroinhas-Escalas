@@ -84,9 +84,11 @@ function summarizeAudit(row:AnyRow){
  const before=row.before_data&&typeof row.before_data==='object'?row.before_data:{};
  const after=row.after_data&&typeof row.after_data==='object'?row.after_data:{};
  const record=row.action==='DELETE'?before:after;
- const subject=record.name||record.title||record.function_name||record.email||'';
- const subjectText=typeof subject==='string'&&subject.trim()?': '+subject.trim().slice(0,90):'';
- const title=action+' — '+kind+subjectText;
+ // Referências internas como __como_usar_desenvolvedor_<uuid> não são nomes para exibir.
+ const rawSubject=String(record.name||record.title||record.email||'').trim();
+ const cleanSubject=rawSubject&&!/^(?:__|[0-9a-f]{8}-)/i.test(rawSubject)&&!/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}/i.test(rawSubject)
+   ?rawSubject.slice(0,65):'';
+ const title=action+' — '+kind+(cleanSubject?': '+cleanSubject:'');
  let details:string[]=[];
  if(row.action==='UPDATE'){
   details=Object.keys({...before,...after}).filter(k=>!ignoredAuditFields.has(k)&&JSON.stringify(before[k])!==JSON.stringify(after[k]))
@@ -439,11 +441,15 @@ export default function System(){
  <div className="card"><div className="btnrow">{b('Atualizar registros',loadAudit)}<select aria-label="Filtrar auditoria" value={auditFilter} onChange={e=>setAuditFilter(e.target.value)}><option value="todos">Todos</option><option value="INSERT">Criações</option><option value="UPDATE">Alterações</option><option value="DELETE">Exclusões</option></select></div></div>
  {auditRows.filter(a=>auditFilter==='todos'||a.action===auditFilter).map(a=>{
   const info=summarizeAudit(a);
-  return <article className="card audit-item audit-readable" key={a.id}>
-   <strong className="audit-readable-title">{info.title}</strong>
-   <span className="audit-readable-date">{new Date(a.happened_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}</span>
-   <p className="muted audit-readable-actor">Responsável: {a.actor_email||'Sistema / operação administrativa'}</p>
-   <div className="audit-readable-details">{info.details.map((detail,i)=><p key={i}>{detail}</p>)}</div>
+  return <article className="card audit-item audit-readable" key={a.id} style={{display:'flex',flexDirection:'column',alignItems:'stretch',gap:13,minWidth:0,overflow:'hidden',padding:18}}>
+   <div style={{display:'block',minWidth:0,width:'100%'}}>
+    <strong className="audit-readable-title" style={{display:'block',width:'100%',fontSize:16,lineHeight:1.45,overflowWrap:'anywhere'}}>{info.title}</strong>
+   </div>
+   <div style={{display:'block',width:'100%'}}>
+    <span className="audit-readable-date" style={{display:'inline-block',borderRadius:10,padding:'7px 10px',background:'#f9ecee',color:'#81324a',fontSize:12,fontWeight:700}}>{new Date(a.happened_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}</span>
+   </div>
+   <p className="muted audit-readable-actor" style={{display:'block',margin:0,overflowWrap:'anywhere'}}>Responsável: {a.actor_email||'Sistema / operação administrativa'}</p>
+   <div className="audit-readable-details" style={{display:'flex',flexDirection:'column',gap:9,width:'100%',borderTop:'1px solid #f0e3e4',paddingTop:12}}>{info.details.map((detail,i)=><p key={i} style={{display:'block',margin:0,lineHeight:1.55,overflowWrap:'anywhere'}}>{detail}</p>)}</div>
   </article>
  })}
  {auditRows.length===0&&<div className="card">Toque em Atualizar registros para carregar a auditoria.</div>}
