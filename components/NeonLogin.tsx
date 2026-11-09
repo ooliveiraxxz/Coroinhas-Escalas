@@ -51,7 +51,7 @@ export default function NeonLogin(){
    <form onSubmit={e=>{e.preventDefault();void submit()}}>
     {mode==='signup'&&<>
      <label className="field">Nome completo<input required autoComplete="name" value={name} onChange={e=>setName(e.target.value)}/></label>
-     <label className="field">Tipo de cadastro<select value={role} onChange={e=>setRole(e.target.value)}><option value="coroinha">Sou coroinha</option><option value="pai">Sou pai, mãe ou responsável</option></select></label>
+     <label className="field">Tipo de cadastro<select value={role} onChange={e=>setRole(e.target.value)}><option value="coroinha">Sou coroinha</option><option value="cerimoniario">Sou cerimoniário</option><option value="pai">Sou pai, mãe ou responsável</option></select></label>
     </>}
     <label className="field">E-mail<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/></label>
     {mode==='reset-code'&&<label className="field">Código recebido<input required inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e=>setOtp(e.target.value)}/></label>}
