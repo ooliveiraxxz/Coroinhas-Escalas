@@ -385,9 +385,11 @@ export default function System(){
  <div className="users-list">
  {profiles.filter(p=>usersRole==='pendentes'?!p.approved:p.approved&&p.role===usersRole).map(p=>
   <div className="item users-person-card" key={p.id}>
-   <strong className="users-person-name">{p.name||'Sem nome'}</strong>
-   <span className="users-person-email">{p.email}</span>
-   <span className="users-person-meta">{p.approved?'Aprovado':'Pendente'} <span aria-hidden="true">•</span> {p.role==='coroinha'?'Coroinha':p.role==='pai'?'Pai / Responsável':p.role==='coordenadora'?'Coordenador(a)':'Desenvolvedor'}</span>
+   <div className="users-person-identity" style={{display:'flex',flexDirection:'column',alignItems:'stretch',gap:6,minWidth:0,width:'100%'}}>
+    <div className="users-person-name" style={{display:'block',fontWeight:800,fontSize:17,lineHeight:1.35,overflowWrap:'anywhere'}}>{p.name||'Sem nome'}</div>
+    <div className="users-person-email" style={{display:'block',fontSize:13,lineHeight:1.5,overflowWrap:'anywhere',wordBreak:'break-word'}}>{p.email}</div>
+    <div className="users-person-meta" style={{display:'block',fontSize:12,lineHeight:1.45,marginTop:2}}>{p.approved?'Aprovado':'Pendente'} {' • '}{p.role==='coroinha'?'Coroinha':p.role==='pai'?'Pai / Responsável':p.role==='coordenadora'?'Coordenador(a)':'Desenvolvedor'}</div>
+   </div>
    <label className="field users-person-role">Tipo de usuário
     <select disabled={p.id===user.id||busy} value={p.role} onChange={e=>{const role=e.target.value;if(confirm('Alterar '+p.name+' para '+role+'?'))void execute(()=>db!.rpc('developer_manage_user',{p_user:p.id,p_action:'role',p_role:role}))}}>
      <option value="coroinha">Coroinha</option>
