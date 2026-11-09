@@ -33,7 +33,7 @@ export default function Polls({db,coordinator,userRole}:Props){
   if(!start||!end||new Date(end)<=new Date(start)||new Date(end)<=new Date()){setMessage('Confira as datas de início e encerramento.');return;}
   setSaving(true);setMessage('');
   try{
-   await rpc('poll_create',{p_question:question.trim(),p_options:options.map(o=>o.trim()),p_starts_at:new Date(start).toISOString(),p_ends_at:new Date(end).toISOString(),p_multiple:multiple,p_priority:priority});
+   await rpc('poll_create',{p_question:question.trim(),p_options:JSON.stringify(options.map(o=>o.trim())),p_starts_at:new Date(start).toISOString(),p_ends_at:new Date(end).toISOString(),p_multiple:multiple,p_priority:priority});
    setQuestion('');setOptions(['','']);setMultiple(false);setPriority(false);setStart(localNow());setEnd('');
    setMessage('Enquete criada! A abertura e os avisos serão realizados no horário programado.');await load();
   }catch(e:any){setMessage(e?.message&&/^[^A-Za-z]*[A-Za-zÀ-ú ]{5,100}$/.test(e.message)?e.message:'Não foi possível criar a enquete. Confira os campos.')}
