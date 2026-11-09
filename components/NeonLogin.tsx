@@ -6,6 +6,12 @@ import {refreshNeonSession} from '@/lib/neon/client';
 export default function NeonLogin(){
  const [mode,setMode]=useState<'login'|'signup'|'reset'|'reset-code'>('login');
  const [email,setEmail]=useState(''),[name,setName]=useState(''),[password,setPassword]=useState(''),[otp,setOtp]=useState(''),[role,setRole]=useState('coroinha'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[visible,setVisible]=useState(false),[notice,setNotice]=useState('');
+ async function recordLogin(){
+  try{
+   const response=await fetch('/api/migration/data/rpc/record_site_access',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({p_login:true})});
+   if(!response.ok)console.warn('Histórico de login indisponível.');
+  }catch{console.warn('Histórico de login indisponível.');}
+ }
  async function submit(){
   setBusy(true);setError('');setNotice('');
   try{
@@ -17,7 +23,7 @@ export default function NeonLogin(){
      const signed=await neonAuth.signIn.email({email,password});
      if(signed.error){setMode('login');setNotice('Conta criada. Entre com sua senha para solicitar aprovação.');return;}
     }
-    await refreshNeonSession(role);return;
+    await refreshNeonSession(role);await recordLogin();return;
    }
    if(mode==='reset'){
     result=await neonAuth.emailOtp.sendVerificationOtp({email,type:'forget-password'});if(result.error)throw new Error(result.error.message);
@@ -28,7 +34,7 @@ export default function NeonLogin(){
     setMode('login');setPassword('');setOtp('');setNotice('Senha definida. Entre na sua conta.');return;
    }
    result=await neonAuth.signIn.email({email,password});if(result.error)throw new Error(result.error.message);
-   await refreshNeonSession(role);
+   await refreshNeonSession(role);await recordLogin();
   }catch(e){setError(e instanceof Error?e.message:'Não foi possível concluir.')}finally{setBusy(false)}
  }
  async function sendMagicLink(){
