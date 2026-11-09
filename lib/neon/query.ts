@@ -17,6 +17,10 @@ for (const c of schema[0].inventory.columns) {
  set.add(c.column_name); columns.set(c.table_name, set);
 }
 const rpcs: Record<string, Record<string, string>> = {
+ request_parent_link:{p_child_email:'text'},
+ confirm_parent_link:{p_challenge_id:'uuid',p_code:'text'},
+ list_parent_links:{},
+ unlink_parent_child:{p_parent:'uuid',p_child:'uuid'},
  developer_manage_user:{p_user:'uuid',p_action:'text',p_role:'text'},
  developer_recent_access:{p_role:'text'},
  developer_audit_recent:{},
