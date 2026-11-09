@@ -524,3 +524,7 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
 .notification-section-tabs button.active{color:#fff;background:linear-gradient(135deg,#7e1c37,#a32c4b);border-color:#8b2742}
 .notification-section-tabs button:focus-visible{outline:3px solid #c57b91;outline-offset:2px}
 .notification-subheading{margin:12px 0;color:#78213a;font-size:17px}
+
+/* Três abas de notificações dos coroinhas na mesma linha, inclusive no celular. */
+.notification-section-tabs.notification-server-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+.notification-server-tabs button{min-width:0;padding:9px 4px;font-size:clamp(10px,2.9vw,12px);overflow-wrap:anywhere}
