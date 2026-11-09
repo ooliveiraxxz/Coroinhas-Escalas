@@ -19,6 +19,7 @@ for (const c of schema[0].inventory.columns) {
 const rpcs: Record<string, Record<string, string>> = {
  developer_manage_user:{p_user:'uuid',p_action:'text',p_role:'text'},
  developer_recent_access:{p_role:'text'},
+ developer_audit_recent:{},
  support_create:{p_category:'text',p_message:'text'},
  support_send:{p_ticket:'uuid',p_message:'text'},
  support_close:{p_ticket:'uuid'},
