@@ -4,7 +4,7 @@ import {BarChart3,Clock,CheckCircle2,Plus,Trash2} from 'lucide-react';
 import type {SupabaseClient} from '@supabase/supabase-js';
 
 type Option={id:string;label:string;position:number};
-type Result={id:string;label:string;votes:number};
+type Result={id:string;label:string;votes:number;voters:{name:string;voted_at:string}[]};
 type Poll={id:string;question:string;starts_at:string;ends_at:string;multiple_answers:boolean;priority:boolean;state:'agendada'|'aberta'|'encerrada';voted:boolean;options:Option[];results:Result[];respondents:number};
 type Props={db:SupabaseClient|null;coordinator:boolean;userRole:string;};
 const dateTime=(v:string)=>new Date(v).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'});
@@ -72,7 +72,12 @@ export default function Polls({db,coordinator,userRole}:Props){
     <p className="muted poll-dates"><Clock size={14}/> {dateTime(p.starts_at)} até {dateTime(p.ends_at)}</p>
     {coordinator?<div className="poll-results">
      <p className="muted">{p.respondents||0} pessoa(s) responderam</p>
-     {p.results.map(o=><div key={o.id} className="poll-result"><span>{o.label}</span><strong>{o.votes} voto(s)</strong></div>)}
+     {p.results.map(o=><div key={o.id} className="poll-result-group">
+      <div className="poll-result"><span>{o.label}</span><strong>{o.votes} voto(s)</strong></div>
+      {(o.voters?.length||0)>0?<ul className="poll-voter-list" aria-label={'Coroinhas que escolheram '+o.label}>
+       {o.voters.map((v,i)=><li key={i}>{v.name}</li>)}
+      </ul>:<p className="poll-voter-empty">Nenhum coroinha selecionou esta opção.</p>}
+     </div>)}
     </div>:p.voted?<p className="poll-voted"><CheckCircle2 size={17}/> Sua resposta foi registrada.</p>:p.state==='aberta'?<>
       {p.options.map(o=><label className="poll-vote-option" key={o.id}>
        <input type={p.multiple_answers?'checkbox':'radio'} name={'poll-'+p.id} checked={(choices[p.id]||[]).includes(o.id)} onChange={e=>setChoices(old=>({...old,[p.id]:p.multiple_answers?(e.target.checked?[...(old[p.id]||[]),o.id]:(old[p.id]||[]).filter(x=>x!==o.id)):[o.id]}))}/>
