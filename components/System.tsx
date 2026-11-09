@@ -340,20 +340,25 @@ export default function System(){
    <button className="btn alt full" type="button" disabled={accessLoading} onClick={()=>void loadRecentAccess()}>{accessLoading?'Consultando…':'Atualizar acessos'}</button>
    {accessError&&<div className="notice error" role="alert">{accessError}</div>}
    {!accessLoading&&!accessError&&accessRows.length===0&&<p className="muted developer-access-empty">Nenhuma pessoa aprovada neste perfil.</p>}
-   <div className="developer-access-list">{accessRows.map((entry,i)=><div className="developer-access-item" key={entry.email||i}>
-    <strong>{entry.name||'Sem nome'}</strong>
-    <span className="developer-access-email">{entry.email}</span>
-    <span className={entry.active_24h?'developer-access-online':'developer-access-last'}>{entry.last_seen_at?'Último acesso: '+new Date(entry.last_seen_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}):'Nenhum acesso registrado'}{entry.active_24h?' · Ativo nas últimas 24h':''}</span>
-   </div>)}</div>
+   <div className="developer-access-list" style={{display:'grid',gridTemplateColumns:'minmax(0,1fr)',gap:12,marginTop:16}}>
+    {accessRows.map((entry,i)=><article className="developer-access-item" key={entry.email||i} style={{display:'flex',flexDirection:'column',alignItems:'stretch',gap:8,padding:'16px',border:'1px solid #e9d4d9',borderRadius:16,background:'#fff9f9',minWidth:0,overflowWrap:'anywhere'}}>
+     <strong style={{display:'block',fontSize:15,lineHeight:1.35,color:'#741e35'}}>{entry.name||'Sem nome'}</strong>
+     <span className="developer-access-email" style={{display:'block',fontSize:13,color:'#64565b',lineHeight:1.45,wordBreak:'break-word'}}>{entry.email}</span>
+     <div style={{borderTop:'1px solid #eedee1',paddingTop:9,display:'flex',flexDirection:'column',gap:4}}>
+      <span style={{fontSize:12,fontWeight:700,color:'#74535c'}}>Último acesso</span>
+      <span style={{fontSize:13,color:'#4d4145'}}>{entry.last_seen_at?new Date(entry.last_seen_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'}):'Nenhum acesso registrado'}</span>
+      {entry.active_24h&&<span style={{color:'#256e4b',fontWeight:700,fontSize:12}}>Ativo nas últimas 24 horas</span>}
+     </div>
+    </article>)}
+   </div>
   </div>
   <div className="card">
    <h3>Gestão de conteúdo</h3>
    <p className="muted">Gerencie comunicados, orientações e atualizações do aplicativo.</p>
-   <div className="developer-content-grid">
-    <button type="button" onClick={()=>setView('Atualizações')}><BookOpen size={21}/><span>Atualizações</span></button>
-    <button type="button" onClick={()=>setView('Notificações')}><Bell size={21}/><span>Notificações</span></button>
-    <button type="button" onClick={()=>setView('Como servir')}><Church size={21}/><span>Como servir</span></button>
-    <button type="button" onClick={()=>setView('Como usar o site')}><BookOpen size={21}/><span>Como usar o site</span></button>
+   <div className="developer-content-grid" style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:10,marginTop:16}}>
+    {([['Atualizações','Atualizações'],['Notificações','Notificações'],['Como servir','Como servir'],['Como usar o site','Como usar o site']] as [string,string][]).map(([label,target])=>
+     <button className="btn" type="button" key={target} onClick={()=>setView(target)} style={{display:'flex',alignItems:'center',justifyContent:'center',minWidth:0,width:'100%',minHeight:52,padding:'11px 7px',borderRadius:12,color:'#fff',background:'linear-gradient(130deg,#801b34,#a83450)',border:0,fontSize:13,fontWeight:700,lineHeight:1.3,textAlign:'center',whiteSpace:'normal'}}>{label}</button>
+    )}
    </div>
   </div>
  </>}
