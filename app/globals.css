@@ -506,3 +506,10 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
  right:10px;
  opacity:.6;
 }
+
+/* Coordenadores: relação nominal de coroinhas disponíveis por opção da enquete */
+.poll-result-group{min-width:0;border-bottom:1px solid #eadcdf;padding:3px 0 12px}
+.poll-result-group .poll-result{border-bottom:0;padding-bottom:5px}
+.poll-voter-list{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.poll-voter-list li{border-radius:10px;background:#f7edf0;border:1px solid #ead3da;padding:6px 9px;font-size:12px;font-weight:650;line-height:1.35;color:#7c2b43;overflow-wrap:anywhere}
+.poll-voter-empty{color:#86767b;font-size:12px;line-height:1.4;margin:3px 0 0}
