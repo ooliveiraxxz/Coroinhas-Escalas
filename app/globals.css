@@ -293,3 +293,17 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
 .notification-settings-card .notification-pref-future{opacity:.62}
 .notification-settings-card .notification-save{margin-top:19px}
 .notification-save-confirm{font-size:13px;color:#176b47;font-weight:700;margin:12px 0 0;text-align:center}
+
+
+/* Painel de desenvolvedor: gestão e acessos no iPhone */
+.developer-content-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:15px}
+.developer-content-grid button{min-height:92px;min-width:0;padding:14px 8px;border:1px solid #ead8dc;border-radius:17px;background:#fff8f7;color:#761d35;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:9px;font-size:13px;font-weight:750;text-align:center;line-height:1.25;box-shadow:none}
+.developer-content-grid button:active{background:#f6e7e9}
+.developer-access-list{display:grid;gap:9px;margin-top:15px}
+.developer-access-item{padding:13px 14px;background:#fffaf9;border:1px solid #e9dbdc;border-radius:14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.developer-access-item strong{font-size:14px;color:#702036;overflow-wrap:anywhere}
+.developer-access-email{font-size:12px;color:#64565b;overflow-wrap:anywhere}
+.developer-access-last{font-size:12px;color:#897b7d;overflow-wrap:anywhere}
+.developer-access-online{font-size:12px;font-weight:650;color:#256e4b;overflow-wrap:anywhere}
+.developer-access-empty{margin:18px 0 5px;text-align:center}
+@media(max-width:350px){.developer-content-grid{gap:7px}.developer-content-grid button{font-size:12px;padding:11px 5px;min-height:82px}}
