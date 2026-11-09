@@ -45,6 +45,7 @@ async function handle(req:NextRequest,context:{params:Promise<{path:string[]}>})
   const detail=typeof e==='object'&&e!==null&&'message' in e?String(e.message):'';
   if(code==='42501')return error('Acesso negado.',403);
   if(code==='P0001'&&detail==='Nenhum destinatario encontrado')return error('Não há coroinhas aprovados para receber esta notificação.',422,'NO_RECIPIENTS');
+  if(code==='P0001'&&detail==='Nenhum destinatário aprovado encontrado para o grupo selecionado.')return error(detail,422,'NO_RECIPIENTS');
   return error('Não foi possível concluir a operação. Tente novamente.',400);
  }finally{client?.release()}
 }
