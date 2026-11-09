@@ -302,15 +302,64 @@ export default function System(){
   setError('');
   setMassForm(prev=>({...prev,title:template.title,time:template.time,date:nextDate}));
  }
- async function saveMass(){if(!db)return;if(roles.some(r=>!r.fn.trim())){setError('Preencha a função adicionada ou remova o campo vazio.');return;}await execute(async()=>{const dateISO=new Date(`${massForm.date}T${massForm.time}:00-03:00`).toISOString();const payload={title:massForm.title,starts_at:dateISO,location:massForm.location,celebrant:massForm.celebrant,notes:massForm.notes,published:true};let id=editId;if(editId){const r=await db.from('masses').update(payload).eq('id',editId);if(r.error)return r;const oldSlots=assignments.filter(a=>a.mass_id===editId);for(let i=0;i<roles.length;i++){const existing=oldSlots[i];if(existing){const changed=existing.server_id!==(roles[i].uid||null);const rr=await db.from('assignments').update({function_name:roles[i].fn,server_id:roles[i].uid||null,...(changed?{status:'escalado',reason:null}:{})}).eq('id',existing.id);if(rr.error)return rr;}else{const rr=await db.from('assignments').insert({mass_id:editId,function_name:roles[i].fn,server_id:roles[i].uid||null,status:'escalado'});if(rr.error)return rr;}}for(const extra of oldSlots.slice(roles.length)){const rr=await db.from('assignments').delete().eq('id',extra.id);if(rr.error)return rr;}await notifyAll('Escala atualizada',`${massForm.title} • ${massForm.date} ${massForm.time}`);setView('Missas');setEditId('');return {error:null}}else{
- const created=await db.rpc('create_mass_with_assignments',{
-  p_title:massForm.title.trim(),p_starts_at:dateISO,p_location:massForm.location,
-  p_celebrant:massForm.celebrant,p_notes:massForm.notes,
-  p_roles:JSON.stringify(roles.map(x=>({fn:x.fn.trim(),uid:x.uid||null})))
- });
- if(created.error)return created;
- id=created.data;
-}await notifyAll('Escala cadastrada',`${massForm.title} • ${massForm.date} ${massForm.time}`);for(const r of roles.filter(x=>x.uid))await notifyAll('Você está escalado!',`${massForm.title}: ${r.fn}`,r.uid);setView('Missas');setEditId('');return {error:null}})}
+ async function saveMass(){
+  if(!db)return;
+  if(roles.some(r=>!r.fn.trim())){setError('Preencha a função adicionada ou remova o campo vazio.');return;}
+  await execute(async()=>{
+   const dateISO=new Date(`${massForm.date}T${massForm.time}:00-03:00`).toISOString();
+   const targetRoles=roles.map(r=>({...r,group:roleGroup(r)}));
+   if(!developer&&targetRoles.some(r=>r.group!==myGroup))return {error:{message:'Você só pode editar funções do seu grupo.'}};
+   const assignRoles=async(massId:string,previous:AnyRow[])=>{
+    for(let i=0;i<targetRoles.length;i++){
+     const slot=targetRoles[i],existing=previous[i];
+     if(existing){
+      if(!developer&&serviceGroup(existing)!==myGroup)return {error:{message:'Esta função pertence a outra coordenação.'}};
+      const changed=existing.server_id!==(slot.uid||null);
+      const data={function_name:slot.fn.trim(),service_group:slot.group,server_id:slot.uid||null,...(changed?{status:'escalado',reason:null}:{})};
+      const result=await db.from('assignments').update(data).eq('id',existing.id);
+      if(result.error)return result;
+     }else{
+      const result=await db.from('assignments').insert({mass_id:massId,function_name:slot.fn.trim(),service_group:slot.group,server_id:slot.uid||null,status:'escalado'});
+      if(result.error)return result;
+     }
+    }
+    for(const extra of previous.slice(targetRoles.length)){
+     const result=await db.from('assignments').delete().eq('id',extra.id);
+     if(result.error)return result;
+    }
+    return {error:null};
+   };
+   if(editId){
+    if(developer){
+     const payload={title:massForm.title,starts_at:dateISO,location:massForm.location,celebrant:massForm.celebrant,notes:massForm.notes,published:true};
+     const result=await db.from('masses').update(payload).eq('id',editId);
+     if(result.error)return result;
+    }
+    const oldSlots=assignments.filter(a=>a.mass_id===editId&&(developer||serviceGroup(a)===myGroup));
+    const result=await assignRoles(editId,oldSlots);
+    if(result.error)return result;
+    await notifyAll('Escala atualizada',`${massForm.title} • ${massForm.date} ${massForm.time}`);
+    setView('Missas');setEditId('');return {error:null};
+   }
+   const existing=masses.find(m=>m.starts_at===dateISO&&m.title.trim().toLowerCase()===massForm.title.trim().toLowerCase());
+   if(existing){
+    const oldSlots=assignments.filter(a=>a.mass_id===existing.id&&(developer||serviceGroup(a)===myGroup));
+    if(oldSlots.length)return {error:{message:'A missa já existe com funções deste grupo. Abra a escala para editar.'}};
+    const result=await assignRoles(existing.id,[]);
+    if(result.error)return result;
+   }else{
+    const created=await db.rpc('create_mass_with_assignments',{
+     p_title:massForm.title.trim(),p_starts_at:dateISO,p_location:massForm.location,
+     p_celebrant:massForm.celebrant,p_notes:massForm.notes,
+     p_roles:JSON.stringify(targetRoles.map(r=>({fn:r.fn.trim(),uid:r.uid||null,group:r.group})))
+    });
+    if(created.error)return created;
+   }
+   await notifyAll('Escala cadastrada',`${massForm.title} • ${massForm.date} ${massForm.time}`);
+   for(const r of roles.filter(x=>x.uid))await notifyAll('Você está escalado!',`${massForm.title}: ${r.fn}`,r.uid);
+   setView('Missas');setEditId('');return {error:null};
+  });
+ }
  function editMass(m:AnyRow){setEditId(m.id);const d=new Date(m.starts_at);setMassForm({title:m.title,date:day(m.starts_at),time:d.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'}),location:m.location,celebrant:m.celebrant||'',notes:m.notes||''});setRoles(assignments.filter(a=>a.mass_id===m.id&&(developer||serviceGroup(a)===myGroup)).map(a=>({fn:a.function_name,uid:a.server_id||'',group:serviceGroup(a)})));setView('Cadastrar missa')}
  const chooseMass=(m:AnyRow)=>{setMassReturnView(view);setSelected(m.id);setView('Detalhes da missa')};
  
@@ -488,7 +537,7 @@ export default function System(){
 <button className="btn alt" disabled={busy} onClick={()=>{const suggestion=prompt('Qual alteração você sugere para esta escala?');if(suggestion?.trim())execute(()=>db!.from('messages').insert({user_id:user.id,type:'sugestao',body:'Sugestão para '+m.title+' ('+fmt(m.starts_at)+') / '+a.function_name+': '+suggestion.trim()}))}}>Sugerir alteração</button>
 {a.status==='escalado'&&day(m.starts_at)===nowday()&&new Date(m.starts_at)>new Date()&&<button className="btn assignment-confirm" disabled={busy} onClick={()=>execute(()=>db!.rpc('respond_assignment',{p_id:a.id,p_action:'confirmar',p_reason:''}))}>Confirmar escala</button>}
 </div>}{!coord&&!parent&&serviceGroup(a)===myGroup&&a.status==='desmarcado'&&(a.server_id===user.id?<p className="muted" role="status">Você desmarcou essa missa. Não é possível servir novamente nesta vaga.</p>:b('Quero substituir',()=>execute(()=>db!.from('requests').insert({mass_id:m.id,assignment_id:a.id,user_id:user.id,type:'substituir',service_group:myGroup})).then(ok=>ok&&alert('Solicitação enviada ao(à) coordenador(a)'))))}</div>)}{coord&&<div className="card"><h3>Gerenciar coroinhas da escala</h3>{aa.filter(a=>developer||serviceGroup(a)===myGroup).map(a=><div className="item" key={'manage'+a.id}><b>{a.function_name} — {a.server_id?byId(a.server_id):'Vaga aberta'}</b>{a.function_name==='A definir'&&a.server_id&&a.status!=='desmarcado'&&<div className="legacy-function-fix"><label className="field">Corrigir função antiga<select value={legacyTargets[a.id]||''} onChange={e=>setLegacyTargets(prev=>({...prev,[a.id]:e.target.value}))}><option value="">Selecione uma vaga aberta</option>{aa.filter(x=>x.id!==a.id&&(!x.server_id||x.status==='desmarcado')).map(x=><option value={x.id} key={x.id}>{x.function_name}</option>)}</select></label><button className="btn" disabled={!legacyTargets[a.id]||busy} onClick={async()=>{const ok=await execute(()=>db!.rpc('reassign_legacy_function',{p_old_assignment_id:a.id,p_open_assignment_id:legacyTargets[a.id]}));if(ok){setLegacyTargets(prev=>({...prev,[a.id]:''}));alert('Função corrigida na escala.')}}}>Atribuir função</button></div>}<label className="field">Coroinha<select value={a.server_id||''} onChange={e=>setAssignment(a.id,{server_id:e.target.value||null,status:'escalado',reason:null})}><option value="">Vaga aberta</option>{profiles.filter(p=>p.approved&&p.role===serviceGroup(a)).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label><label className="field">Função<input defaultValue={a.function_name} key={a.id+a.function_name} onBlur={e=>{if(e.target.value.trim()&&e.target.value!==a.function_name)setAssignment(a.id,{function_name:e.target.value.trim()})}} /></label><div className="btnrow">{a.status!=='presente'&&b('Confirmar presença',()=>setAssignment(a.id,{status:'presente',reason:null}),true)}{a.status!=='faltou'&&b('Faltou',()=>setAssignment(a.id,{status:'faltou'}),true)}{b('Excluir',()=>{if(confirm('Excluir esta atribuição da escala?'))execute(()=>db!.from('assignments').delete().eq('id',a.id).select('id').single())},true)}</div></div>)}</div>}{coord&&<div className="btnrow">{b('Editar escala',()=>editMass(m))}{b('Excluir escala',()=>{if(confirm('Excluir esta missa e as escalas?'))execute(()=>db!.from('masses').delete().eq('id',m.id)).then(()=>setView('Missas'))},true)}{b('Baixar PDF',()=>exportPdf('dia'),true)}</div>}</>})()}
- {view==='Cadastrar missa'&&coord&&<><h2 className="title">{editId?'Editar':'Cadastrar'} missa</h2><div className="card">{!editId&&<label className="field">Selecionar modelo de missa<select defaultValue="" onChange={e=>{if(e.target.value!=='')selectMassTemplate(Number(e.target.value))}}><option value="">Escolha um modelo ou preencha manualmente</option>{massTemplates.map((t,i)=><option key={i} value={i}>{t.title} — {t.time.replace(':','h')} ({['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'][t.weekday]})</option>)}</select></label>}{field('Nome da missa',massForm.title,v=>setMassForm({...massForm,title:v}))}{field('Data',massForm.date,v=>setMassForm({...massForm,date:v}),'date')}{field('Horário',massForm.time,v=>setMassForm({...massForm,time:v}),'time')}{field('Observações',massForm.notes,v=>setMassForm({...massForm,notes:v}))}<h3>Funções e integrantes escalados</h3>{roles.map((r,i)=><div className="item" key={i}><label className="field">Função<input type="text" placeholder="Ex.: Cruz, Missal, Turíbulo..." value={r.fn} onChange={e=>setRoles(roles.map((x,j)=>j===i?{...x,fn:e.target.value}:x))}/></label><label className="field">Integrante<select value={r.uid} onChange={e=>setRoles(roles.map((x,j)=>j===i?{...x,uid:e.target.value}:x))}><option value="">Vaga aberta</option>{profiles.filter(p=>p.approved&&p.role===roleGroup(r)).map(p=><option value={p.id} key={p.id}>{p.name}</option>)}</select></label>{b('Remover função',()=>setRoles(roles.filter((_,j)=>j!==i)),true)}</div>)}<div className="btnrow">{b('+ Adicionar função',()=>setRoles([...roles,{fn:'',uid:''}]),true)}{b(busy?'Salvando...':'Publicar escala',saveMass)}</div></div></>}
+ {view==='Cadastrar missa'&&coord&&<><h2 className="title">{editId?'Editar':'Cadastrar'} missa</h2><div className="card">{!editId&&<label className="field">Selecionar modelo de missa<select defaultValue="" onChange={e=>{if(e.target.value!=='')selectMassTemplate(Number(e.target.value))}}><option value="">Escolha um modelo ou preencha manualmente</option>{massTemplates.map((t,i)=><option key={i} value={i}>{t.title} — {t.time.replace(':','h')} ({['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'][t.weekday]})</option>)}</select></label>}{field('Nome da missa',massForm.title,v=>setMassForm({...massForm,title:v}))}{field('Data',massForm.date,v=>setMassForm({...massForm,date:v}),'date')}{field('Horário',massForm.time,v=>setMassForm({...massForm,time:v}),'time')}{field('Observações',massForm.notes,v=>setMassForm({...massForm,notes:v}))}<h3>Funções e integrantes escalados</h3>{roles.map((r,i)=><div className="item" key={i}><label className="field">Função<input type="text" placeholder="Ex.: Cruz, Missal, Turíbulo..." value={r.fn} onChange={e=>setRoles(roles.map((x,j)=>j===i?{...x,fn:e.target.value}:x))}/></label><label className="field">Grupo<select value={roleGroup(r)} disabled={!developer} onChange={e=>setRoles(roles.map((x,j)=>j===i?{...x,group:e.target.value,uid:''}:x))}><option value="coroinha">Coroinhas</option><option value="cerimoniario">Cerimoniários</option></select></label><label className="field">Integrante<select value={r.uid} onChange={e=>setRoles(roles.map((x,j)=>j===i?{...x,uid:e.target.value}:x))}><option value="">Vaga aberta</option>{profiles.filter(p=>p.approved&&p.role===roleGroup(r)).map(p=><option value={p.id} key={p.id}>{p.name}</option>)}</select></label>{b('Remover função',()=>setRoles(roles.filter((_,j)=>j!==i)),true)}</div>)}<div className="btnrow">{b('+ Adicionar função',()=>setRoles([...roles,{fn:'',uid:'',group:myGroup}]),true)}{b(busy?'Salvando...':'Publicar escala',saveMass)}</div></div></>}
  {view==='Painel desenvolvedor'&&developer&&<><div className="card"><h3>Aprovação automática de vagas (3 horas)</h3><button className="btn alt" disabled={busy} onClick={()=>void toggleAutoApproval()}>{autoApprovalEnabled?'Desativar':'Ativar'} aprovação automática</button></div>
   <h2 className="title">Painel do desenvolvedor</h2>
   <div className="card">
