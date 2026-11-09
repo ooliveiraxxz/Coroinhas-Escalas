@@ -44,6 +44,75 @@ const notificationOptions:Record<string,NotificationOption[]>={
   {key:'developer_system',label:'Alertas administrativos e do sistema',future:true}
  ]
 };
+
+// Auditoria em linguagem simples: mantém o histórico original intacto no Neon.
+const auditTables:Record<string,string>={
+ profiles:'conta de usuário',guides:'orientação de serviço',fixed_rules:'regra de escala',
+ masses:'missa ou celebração',assignments:'função da escala',requests:'solicitação de escala',
+ notifications:'notificação',site_updates:'atualização do aplicativo',
+ messages:'mensagem',screen_announcements:'aviso na tela',
+ screen_announcement_dismissals:'preferência de aviso',push_subscriptions:'notificações do aparelho',
+ banned_emails:'bloqueio de e-mail',login_events:'registro de acesso'
+};
+const auditFields:Record<string,string>={
+ name:'Nome',email:'E-mail',role:'Tipo de usuário',approved:'Aprovação',
+ notes:'Observações',photo_url:'Foto de perfil',notification_preferences:'Preferências de notificações',
+ title:'Título',body:'Mensagem',description:'Descrição',version:'Versão',
+ function_name:'Função',instructions:'Orientações',location:'Local',
+ starts_at:'Data e horário',celebrant:'Celebrante',published:'Publicação',
+ status:'Situação',reason:'Justificativa',seen:'Leitura',active:'Ativação',
+ target_role:'Público destinatário',display_mode:'Frequência do aviso',
+ weekday:'Dia da semana',hour:'Hora',minute:'Minuto',type:'Tipo de solicitação'
+};
+const ignoredAuditFields=new Set(['id','created_at','updated_at','read_at','last_seen_at','user_id','created_by','server_id','mass_id','assignment_id','target_user_id','group_id','endpoint','p256dh','auth']);
+function readableAuditValue(key:string,value:any):string{
+ if(value===null||value===undefined||value==='')return 'Não informado';
+ if(typeof value==='boolean')return key==='approved'?(value?'Aprovado':'Aguardando aprovação'):(value?'Sim':'Não');
+ if(key==='role'||key==='target_role'){
+  return ({coroinha:'Coroinha',pai:'Pai ou responsável',coordenadora:'Coordenador(a)',desenvolvedor:'Desenvolvedor',cerimoniario:'Cerimoniário',all:'Todos',individual:'Pessoa específica'} as Record<string,string>)[String(value)]||'Outro perfil';
+ }
+ if(key==='notification_preferences')return 'Preferências de notificação alteradas';
+ if(key==='starts_at'){const d=new Date(value);return isNaN(d.getTime())?'Data atualizada':d.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'});}
+ if(typeof value==='object')return 'Configuração atualizada';
+ const v=String(value);
+ if(/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(v))return 'Referência interna';
+ return v.length>180?v.slice(0,177)+'…':v;
+}
+function summarizeAudit(row:AnyRow){
+ const kind=auditTables[row.table_name]||'registro do sistema';
+ const action=row.action==='INSERT'?'Criado':row.action==='DELETE'?'Excluído':'Atualizado';
+ const before=row.before_data&&typeof row.before_data==='object'?row.before_data:{};
+ const after=row.after_data&&typeof row.after_data==='object'?row.after_data:{};
+ const record=row.action==='DELETE'?before:after;
+ const subject=record.name||record.title||record.function_name||record.email||'';
+ const subjectText=typeof subject==='string'&&subject.trim()?': '+subject.trim().slice(0,90):'';
+ const title=action+' — '+kind+subjectText;
+ let details:string[]=[];
+ if(row.action==='UPDATE'){
+  details=Object.keys({...before,...after}).filter(k=>!ignoredAuditFields.has(k)&&JSON.stringify(before[k])!==JSON.stringify(after[k]))
+   .map(k=>auditFields[k]?'**'+auditFields[k]+'**: de '+readableAuditValue(k,before[k])+' para '+readableAuditValue(k,after[k]):'Outra informação do registro foi alterada');
+ }else{
+  details=Object.keys(record).filter(k=>!ignoredAuditFields.has(k)&&auditFields[k])
+   .filter(k=>!['name','title','email','function_name'].includes(k))
+   .slice(0,5).map(k=>auditFields[k]+': '+readableAuditValue(k,record[k]));
+ }
+ if(details.length===0)details=[row.action==='INSERT'?'Um novo registro foi adicionado.':row.action==='DELETE'?'Este registro foi removido.':'Informações administrativas do registro foram alteradas.'];
+ return {title,details:details.map(d=>d.replaceAll('**',''))};
+}
+function friendlyAppError(value:unknown){
+ const raw=typeof value==='string'?value:value&&typeof value==='object'&&'message' in value?String((value as {message:unknown}).message):'';
+ const message=raw.toLowerCase();
+ if(!raw)return 'Não foi possível concluir a operação. Tente novamente.';
+ if(/permission denied|row-level security|not authorized|forbidden|access denied/.test(message))return 'Você não tem permissão para realizar esta ação.';
+ if(/duplicate key|already exists|unique constraint/.test(message))return 'Este registro já existe. Verifique os dados informados.';
+ if(/foreign key|violates foreign key/.test(message))return 'Este registro está vinculado a outras informações e não pode ser alterado dessa forma.';
+ if(/network|failed to fetch|fetch failed|timeout/.test(message))return 'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.';
+ if(/not found|no rows/.test(message))return 'O registro solicitado não foi encontrado. Atualize a página.';
+ if(/invalid login|invalid credentials|wrong password/.test(message))return 'E-mail ou senha incorretos.';
+ if(/homologaç|migration/.test(message))return 'Não foi possível concluir esta operação. Atualize o aplicativo e tente novamente.';
+ if(/[A-Za-z]{2,}Error:|SQLSTATE|PGRST[0-9]|[0-9A-F]{8}-[0-9A-F-]{27,}/i.test(raw))return 'Não foi possível concluir esta operação. Verifique os dados e tente novamente.';
+ return raw;
+}
 export default function System(){
  const [legacyTargets,setLegacyTargets]=useState<Record<string,string>>({}),[notificationDraft,setNotificationDraft]=useState<Record<string,boolean>>({}),[notificationSaved,setNotificationSaved]=useState(false),[pushEnabled,setPushEnabled]=useState(false),[pushBusy,setPushBusy]=useState(false),[authLoading,setAuthLoading]=useState(true),[profileLoading,setProfileLoading]=useState(true),[db,setDb]=useState<SupabaseClient|null>(null),[user,setUser]=useState<any>(null),[profile,setProfile]=useState<AnyRow|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[register,setRegister]=useState(false),[recovering,setRecovering]=useState(false),[newPassword,setNewPassword]=useState(''),[showPassword,setShowPassword]=useState(false),[showNewPassword,setShowNewPassword]=useState(false),[requestedRole,setRequestedRole]=useState<'coroinha'|'pai'>('coroinha'),[usage,setUsage]=useState<AnyRow|null>(null),[usersRole,setUsersRole]=useState('coroinha'),[accessRole,setAccessRole]=useState('coroinha'),[accessRows,setAccessRows]=useState<AnyRow[]>([]),[accessLoading,setAccessLoading]=useState(false),[accessError,setAccessError]=useState(''),[updates,setUpdates]=useState<AnyRow[]>([]),[auditRows,setAuditRows]=useState<AnyRow[]>([]),[auditFilter,setAuditFilter]=useState('todos'),[updateId,setUpdateId]=useState(''),[updateForm,setUpdateForm]=useState({version:'',title:'',description:''}),[helpTarget,setHelpTarget]=useState('coroinha'),[helpText,setHelpText]=useState(''),[helpEditTarget,setHelpEditTarget]=useState(''),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[name,setName]=useState(''),[profileNameDraft,setProfileNameDraft]=useState<string|null>(null),[view,setView]=useState('Início'),[massReturnView,setMassReturnView]=useState('Início'),[pdfDocument,setPdfDocument]=useState<{url:string;blob:Blob;filename:string}|null>(null),[pdfBusy,setPdfBusy]=useState(false),[drawer,setDrawer]=useState(false),[masses,setMasses]=useState<AnyRow[]>([]),[assignments,setAssignments]=useState<AnyRow[]>([]),[profiles,setProfiles]=useState<AnyRow[]>([]),[notices,setNotices]=useState<AnyRow[]>([]),[sentNotices,setSentNotices]=useState<AnyRow[]>([]),[requests,setRequests]=useState<AnyRow[]>([]),[requestFunctions,setRequestFunctions]=useState<Record<string,string>>({}),[guides,setGuides]=useState<AnyRow[]>([]),[messages,setMessages]=useState<AnyRow[]>([]),[rules,setRules]=useState<AnyRow[]>([]),[selected,setSelected]=useState(''),[chosenMonth,setChosenMonth]=useState(nowday().slice(0,7)),[massForm,setMassForm]=useState({title:'',date:'',time:'',location:'',celebrant:'',notes:''}),[roles,setRoles]=useState<{fn:string;uid:string}[]>([]),[editId,setEditId]=useState(''),[guideForm,setGuideForm]=useState({function_name:'',instructions:'',notes:''}),[ruleForm,setRuleForm]=useState({server_id:'',weekday:'0',hour:'19',minute:'0',function_name:'',location:''}),[screenPopup,setScreenPopup]=useState<AnyRow|null>(null),[screenOptOut,setScreenOptOut]=useState(false),[screenKind,setScreenKind]=useState('message'),[screenRepeat,setScreenRepeat]=useState('optional'),[screenRole,setScreenRole]=useState('all'),[screenTarget,setScreenTarget]=useState(''),[screenSent,setScreenSent]=useState<AnyRow[]>([]),[noticeTitle,setNoticeTitle]=useState(''),[noticeBody,setNoticeBody]=useState(''),[noticeTarget,setNoticeTarget]=useState('coroinha'),[noticeEditor,setNoticeEditor]=useState(''),[noticeRecipients,setNoticeRecipients]=useState<AnyRow[]>([]),[messageBody,setMessageBody]=useState(''),[messageType,setMessageType]=useState('reclamacao'),[supportTarget,setSupportTarget]=useState('');
  const developer=profile?.approved===true&&profile?.role==='desenvolvedor';
@@ -131,7 +200,7 @@ export default function System(){
   const ok=await execute(()=>db.from('screen_announcements').update({active:false}).eq('id',id));
   if(ok)setScreenSent(previous=>previous.map(x=>x.id===id?{...x,active:false}:x));
  }
- async function execute(fn:()=>PromiseLike<any>){setBusy(true);setError('');try{const r=await fn();if(r?.error)throw r.error;await refresh();return true}catch(e:any){setError(e?.message||String(e));return false}finally{setBusy(false)}}
+ async function execute(fn:()=>PromiseLike<any>){setBusy(true);setError('');try{const r=await fn();if(r?.error)throw r.error;await refresh();return true}catch(e:any){setError(friendlyAppError(e));return false}finally{setBusy(false)}}
  async function auth(){if(!db)return setError('Supabase não configurado. Configure as variáveis na Vercel.');setBusy(true);setError('');try{if(register){const {data,error}=await db.auth.signUp({email,password,options:{data:{name,requested_role:requestedRole}}});if(error)throw error;alert(data.session?'Cadastro enviado para aprovação.':'Cadastro criado! Confira seu e-mail se for solicitada confirmação.');setRegister(false)}else{const {error}=await db.auth.signInWithPassword({email,password});if(error)throw error;await db.rpc('record_site_access',{p_login:true})}}catch(e:any){setError(e.message)}finally{setBusy(false)}}
  async function sendNotice(){
   if(!noticeTitle.trim()||!noticeBody.trim())return setError('Informe título e mensagem.');
@@ -293,7 +362,7 @@ export default function System(){
  const setAssignment=async(id:string,patch:AnyRow)=>{if(!coord||busy||!db)return;setBusy(true);setError('');try{const {data,error}=await db.from('assignments').update(patch).eq('id',id).select('*').single();if(error)throw error;if(!data)throw new Error('Nenhuma escala foi alterada.');setAssignments(previous=>previous.map(a=>a.id===id?{...a,...data}:a));alert(patch.status==='presente'?'Presença registrada com sucesso.':patch.status==='faltou'?'Falta registrada com sucesso.':'Alterações salvas com sucesso.');}catch(e:any){setError('Não foi possível salvar: '+(e?.message||String(e)));}finally{setBusy(false)}};
  const liveMasses=masses.filter(m=>m.published);
  const availableToServe=liveMasses.filter(m=>new Date(m.starts_at)>new Date()&&!assignments.some(a=>a.mass_id===m.id&&a.server_id===user?.id&&a.status!=='desmarcado')&&!requests.some(r=>r.mass_id===m.id&&r.user_id===user?.id&&r.type==='servir'&&r.status==='pendente'));
- const loadAudit=async()=>{if(!db||!developer)return;const {data,error}=await db.from('audit_log').select('*').order('happened_at',{ascending:false}).limit(250);if(error)setError(error.message);else setAuditRows(data||[])};
+ const loadAudit=async()=>{if(!db||!developer)return;const {data,error}=await db.from('audit_log').select('*').order('happened_at',{ascending:false}).limit(250);if(error)setError(friendlyAppError(error));else setAuditRows(data||[])};
  const showDeveloper=async()=>{if(!db)return;const {data,error}=await db.rpc('developer_usage_summary');if(error)setError(error.message);else setUsage(data)};
  const loadRecentAccess=async(role=accessRole)=>{if(!db||!developer)return;setAccessLoading(true);setAccessError('');setAccessRole(role);try{const {data,error}=await db.rpc('developer_recent_access',{p_role:role});if(error)throw error;setAccessRows(Array.isArray(data)?data:[])}catch(e:any){setAccessError('Não foi possível consultar os acessos: '+(e?.message||String(e)));setAccessRows([])}finally{setAccessLoading(false)}};
  const cardMass=(m:AnyRow)=><div className="item" key={m.id} onClick={()=>chooseMass(m)}><div className="line"><div><b>{m.title}</b><div className="muted">{fmt(m.starts_at)} · {m.location}</div><div className="muted">{assignments.filter(a=>a.mass_id===m.id).length} funções</div></div><span className="chip">Ver →</span></div></div>;
@@ -364,7 +433,21 @@ export default function System(){
  </>}
  {view==='Atualizações'&&<><h2 className="title">Atualizações</h2>{developer&&<><div className="card"><h3>{updateId?'Editar atualização':'Publicar atualização'}</h3>{field('Versão (ex.: 1.1.0)',updateForm.version,v=>setUpdateForm({...updateForm,version:v}))}{field('Título',updateForm.title,v=>setUpdateForm({...updateForm,title:v}))}<label className="field">Novidades<textarea rows={5} value={updateForm.description} onChange={e=>setUpdateForm({...updateForm,description:e.target.value})}/></label><div className="btnrow">{b(updateId?'Salvar alterações':'Publicar',()=>{if(!updateForm.version.trim()||!updateForm.title.trim())return setError('Informe a versão e o título.');execute(()=>updateId?db!.from('site_updates').update(updateForm).eq('id',updateId):db!.from('site_updates').insert(updateForm)).then(ok=>{if(ok){setUpdateId('');setUpdateForm({version:'',title:'',description:''})}})})}{updateId&&b('Cancelar',()=>{setUpdateId('');setUpdateForm({version:'',title:'',description:''})},true)}</div></div></>}
 <h3>Histórico de atualizações</h3>{updates.length===0&&<div className="card">Nenhuma atualização publicada ainda.</div>}{updates.map(u=><div className="card update-card" key={u.id}><div className="line"><h3>{u.title}</h3><span className="chip">v{u.version}</span></div><p style={{whiteSpace:'pre-wrap'}}>{u.description}</p><small className="muted">{new Date(u.published_at).toLocaleDateString('pt-BR')}</small>{developer&&<div className="btnrow" style={{marginTop:12}}>{b('Editar',()=>{setUpdateId(u.id);setUpdateForm({version:u.version,title:u.title,description:u.description})},true)}{b('Apagar',()=>{if(confirm('Apagar esta atualização definitivamente?'))execute(()=>db!.from('site_updates').delete().eq('id',u.id))},true)}</div>}</div>)}</>}
- {view==='Auditoria'&&developer&&<><h2 className="title">Auditoria</h2><p className="muted">Histórico das 250 alterações mais recentes no banco. Registros anteriores à ativação não aparecem aqui. Apenas desenvolvedores têm acesso.</p><div className="card"><div className="btnrow">{b('Atualizar registros',loadAudit)}<select aria-label="Filtrar auditoria" value={auditFilter} onChange={e=>setAuditFilter(e.target.value)}><option value="todos">Todos</option><option value="INSERT">Lançamentos</option><option value="UPDATE">Edições</option><option value="DELETE">Exclusões</option></select></div></div>{auditRows.filter(a=>auditFilter==='todos'||a.action===auditFilter).map(a=><div className="card audit-item" key={a.id}><div className="line"><strong>{a.action==='INSERT'?'Criado':a.action==='UPDATE'?'Editado':'Apagado'} — {a.table_name}</strong><span className="chip">{new Date(a.happened_at).toLocaleString('pt-BR')}</span></div><p className="muted">Por: {a.actor_email||'Sistema / operação administrativa'}</p><p className="muted">Registro: {a.record_id||'Sem ID'}</p><details><summary>Ver alterações</summary>{a.before_data&&<><b>Antes</b><pre>{JSON.stringify(a.before_data,null,2)}</pre></>}{a.after_data&&<><b>Depois</b><pre>{JSON.stringify(a.after_data,null,2)}</pre></>}</details></div>)}{auditRows.length===0&&<div className="card">Toque em Atualizar registros para carregar a auditoria.</div>}</>}
+ {view==='Auditoria'&&developer&&<>
+ <h2 className="title">Auditoria</h2>
+ <p className="muted">Histórico das 250 alterações mais recentes, explicado em português. Apenas desenvolvedores podem consultar.</p>
+ <div className="card"><div className="btnrow">{b('Atualizar registros',loadAudit)}<select aria-label="Filtrar auditoria" value={auditFilter} onChange={e=>setAuditFilter(e.target.value)}><option value="todos">Todos</option><option value="INSERT">Criações</option><option value="UPDATE">Alterações</option><option value="DELETE">Exclusões</option></select></div></div>
+ {auditRows.filter(a=>auditFilter==='todos'||a.action===auditFilter).map(a=>{
+  const info=summarizeAudit(a);
+  return <article className="card audit-item audit-readable" key={a.id}>
+   <strong className="audit-readable-title">{info.title}</strong>
+   <span className="audit-readable-date">{new Date(a.happened_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}</span>
+   <p className="muted audit-readable-actor">Responsável: {a.actor_email||'Sistema / operação administrativa'}</p>
+   <div className="audit-readable-details">{info.details.map((detail,i)=><p key={i}>{detail}</p>)}</div>
+  </article>
+ })}
+ {auditRows.length===0&&<div className="card">Toque em Atualizar registros para carregar a auditoria.</div>}
+ </>}
  {view==='Usuários'&&developer&&<>
  <h2 className="title">Usuários</h2>
  <p className="muted">Gerencie coroinhas, pais, coordenadores e desenvolvedores. Alterações de acesso ficam registradas na auditoria.</p>
