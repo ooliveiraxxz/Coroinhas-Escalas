@@ -65,6 +65,7 @@ export function compileQuery(path:string[],method:string,params:URLSearchParams,
   if(!Object.hasOwn(rpcs,name)||method!=='POST'||params.size!==0||!body||Array.isArray(body)||typeof body!=='object')return fail();
   const args=Object.entries(body);
   if(args.some(([k])=>!Object.hasOwn(signature,k)))return fail();
+  if(name==='list_parent_links')return {text:`SELECT COALESCE(json_agg(t),'[]'::json) AS result FROM public.list_parent_links() t`,values:[],rpc:true,returning:true};
   const text=`SELECT public."${name}"(${args.map(([k,v])=>`"${k}" => ${value(v)}::${signature[k]}`).join(',')}) AS result`;
   return {text,values,rpc:true,returning:true};
  }
