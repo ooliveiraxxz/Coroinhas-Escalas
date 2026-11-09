@@ -44,6 +44,7 @@ const rpcs: Record<string, Record<string, string>> = {
  poll_list:{},
  poll_tick:{},
  poll_vote:{p_poll:'uuid',p_options:'uuid[]'},
+ poll_change_vote:{p_poll:'uuid',p_options:'uuid[]'},
  poll_update:{p_poll:'uuid',p_question:'text',p_options:'jsonb',p_starts_at:'timestamptz',p_ends_at:'timestamptz',p_multiple:'boolean',p_priority:'boolean'},
 };
 export class QueryError extends Error {}
