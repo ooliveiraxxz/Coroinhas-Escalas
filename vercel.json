@@ -6,5 +6,11 @@
     "deploymentEnabled": {
       "migration/neon-20261106": false
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/polls/dispatch",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }
