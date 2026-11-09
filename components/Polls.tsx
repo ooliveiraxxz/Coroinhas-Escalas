@@ -8,6 +8,9 @@ type Result={id:string;label:string;votes:number;voters:{name:string;voted_at:st
 type Poll={id:string;question:string;starts_at:string;ends_at:string;multiple_answers:boolean;priority:boolean;state:'agendada'|'aberta'|'encerrada';voted:boolean;options:Option[];results:Result[];respondents:number};
 type Props={db:SupabaseClient|null;coordinator:boolean;userRole:string;};
 const dateTime=(v:string)=>new Date(v).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'});
+const toDatetimeLocal=(v:string)=>{
+ const d=new Date(v);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);
+};
 function localNow(){
  const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);
 }
@@ -15,6 +18,18 @@ export default function Polls({db,coordinator,userRole}:Props){
  const [polls,setPolls]=useState<Poll[]>([]),[loading,setLoading]=useState(false),[saving,setSaving]=useState(false),[message,setMessage]=useState('');
  const [question,setQuestion]=useState(''),[options,setOptions]=useState(['','']),[start,setStart]=useState(localNow),[end,setEnd]=useState(''),[multiple,setMultiple]=useState(false),[priority,setPriority]=useState(false);
  const [choices,setChoices]=useState<Record<string,string[]>>({});
+ const [editingId,setEditingId]=useState<string|null>(null);
+ const [optionIds,setOptionIds]=useState<(string|null)[]>([null,null]);
+ const resetForm=()=>{
+  setEditingId(null);setQuestion('');setOptions(['','']);setOptionIds([null,null]);
+  setMultiple(false);setPriority(false);setStart(localNow());setEnd('');
+ };
+ const editPoll=(poll:Poll)=>{
+  setMessage('');setEditingId(poll.id);setQuestion(poll.question);
+  setOptions(poll.options.map(o=>o.label));setOptionIds(poll.options.map(o=>o.id));
+  setStart(toDatetimeLocal(poll.starts_at));setEnd(toDatetimeLocal(poll.ends_at));
+  setMultiple(poll.multiple_answers);setPriority(poll.priority);
+ };
  const rpc=useCallback(async(name:string,params:Record<string,unknown>={})=>{
   if(!db)throw Error('Sem conexão com o servidor.');
   const {data,error}=await db.rpc(name as never,params as never);
@@ -30,12 +45,20 @@ export default function Polls({db,coordinator,userRole}:Props){
  useEffect(()=>{if(!db)return;void load();const timer=setInterval(()=>void load(),20000);return()=>clearInterval(timer)},[db,load]);
  const create=async()=>{
   if(!question.trim()||options.some(o=>!o.trim())||options.length<2){setMessage('Informe a pergunta e ao menos duas opções.');return;}
-  if(!start||!end||new Date(end)<=new Date(start)||new Date(end)<=new Date()){setMessage('Confira as datas de início e encerramento.');return;}
+  if(!start||!end||new Date(end)<=new Date(start)||(!editingId&&new Date(end)<=new Date())){setMessage('Confira as datas de início e encerramento.');return;}
   setSaving(true);setMessage('');
   try{
-   await rpc('poll_create',{p_question:question.trim(),p_options:JSON.stringify(options.map(o=>o.trim())),p_starts_at:new Date(start).toISOString(),p_ends_at:new Date(end).toISOString(),p_multiple:multiple,p_priority:priority});
-   setQuestion('');setOptions(['','']);setMultiple(false);setPriority(false);setStart(localNow());setEnd('');
-   setMessage('Enquete criada! A abertura e os avisos serão realizados no horário programado.');await load();
+   if(editingId){
+    await rpc('poll_update',{p_poll:editingId,p_question:question.trim(),
+     p_options:JSON.stringify(options.map((label,i)=>({id:optionIds[i],label:label.trim()}))),
+     p_starts_at:new Date(start).toISOString(),p_ends_at:new Date(end).toISOString(),
+     p_multiple:multiple,p_priority:priority});
+    setMessage('Enquete atualizada. Os votos já registrados foram preservados.');
+   }else{
+    await rpc('poll_create',{p_question:question.trim(),p_options:JSON.stringify(options.map(o=>o.trim())),p_starts_at:new Date(start).toISOString(),p_ends_at:new Date(end).toISOString(),p_multiple:multiple,p_priority:priority});
+    setMessage('Enquete criada! A abertura e os avisos serão realizados no horário programado.');
+   }
+   resetForm();await load();
   }catch(e:any){setMessage(e?.message&&/^[^A-Za-z]*[A-Za-zÀ-ú ]{5,100}$/.test(e.message)?e.message:'Não foi possível criar a enquete. Confira os campos.')}
   finally{setSaving(false)}
  };
@@ -50,24 +73,27 @@ export default function Polls({db,coordinator,userRole}:Props){
  const display=coordinator?polls:userRole==='coroinha'?polls:[];
  return <div className="polls-root">
   {coordinator&&<section className="card poll-create">
-   <h3><BarChart3 size={20}/> Criar enquete</h3>
+   <h3><BarChart3 size={20}/> {editingId?'Editar enquete':'Criar enquete'}</h3>
+   {editingId&&<p className="muted">Opções que já receberam votos não podem ser renomeadas ou excluídas. As respostas existentes serão preservadas.</p>}
    <label className="field">Pergunta<input maxLength={250} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="Qual sua pergunta?"/></label>
    <div className="poll-options"><strong>Opções de resposta</strong>{options.map((o,i)=><div className="poll-option-editor" key={i}>
      <input aria-label={'Opção '+(i+1)} maxLength={140} value={o} onChange={e=>setOptions(old=>old.map((v,j)=>j===i?e.target.value:v))} placeholder={'Opção '+(i+1)}/>
-     {options.length>2&&<button type="button" aria-label={'Remover opção '+(i+1)} onClick={()=>setOptions(old=>old.filter((_,j)=>j!==i))}><Trash2 size={18}/></button>}
+     {options.length>2&&<button type="button" aria-label={'Remover opção '+(i+1)} onClick={()=>{setOptions(old=>old.filter((_,j)=>j!==i));setOptionIds(old=>old.filter((_,j)=>j!==i))}}><Trash2 size={18}/></button>}
     </div>)}
-    {options.length<10&&<button type="button" className="btn alt full" onClick={()=>setOptions(old=>[...old,''])}><Plus size={16}/> Adicionar opção</button>}
+    {options.length<10&&<button type="button" className="btn alt full" onClick={()=>{setOptions(old=>[...old,'']);setOptionIds(old=>[...old,null])}}><Plus size={16}/> Adicionar opção</button>}
    </div>
    <label className="field poll-datetime">Início<input type="datetime-local" value={start} onChange={e=>setStart(e.target.value)}/></label>
    <label className="field poll-datetime">Encerramento<input type="datetime-local" value={end} onChange={e=>setEnd(e.target.value)}/></label>
    <label className="poll-check"><span>Permitir várias respostas</span><input type="checkbox" checked={multiple} onChange={e=>setMultiple(e.target.checked)}/></label>
    <label className="poll-check"><span>Priorizar notificação</span><input type="checkbox" checked={priority} onChange={e=>setPriority(e.target.checked)}/></label>
-   <button type="button" className="btn full" disabled={saving} onClick={()=>void create()}>{saving?'Publicando…':'Criar enquete'}</button>
+   <button type="button" className="btn full" disabled={saving} onClick={()=>void create()}>{saving?'Salvando…':editingId?'Salvar alterações':'Criar enquete'}</button>
+   {editingId&&<button type="button" className="btn alt full" disabled={saving} onClick={()=>{resetForm();setMessage('Edição cancelada.')}}>Cancelar edição</button>
   </section>}
   {message&&<div className="poll-status" role="status">{message}</div>}
   {(display.length>0||coordinator)&&<h3 className="poll-list-heading">{coordinator?'Enquetes e resultados':'Enquetes'}</h3>}
   {display.map(p=><section className="card poll-card" key={p.id}>
    <div className="poll-heading"><strong>{p.question}</strong><span>{p.state==='aberta'?'Aberta':p.state==='agendada'?'Agendada':'Encerrada'}</span></div>
+   {coordinator&&<button type="button" className="poll-edit-button" onClick={()=>{editPoll(p);window.scrollTo({top:0,behavior:'smooth'})}}>Editar enquete</button>}
    {p.state==='encerrada'&&!coordinator?<p className="poll-closed"><CheckCircle2 size={17}/> Enquete encerrada. A votação não está mais disponível.</p>:<>
     <p className="muted poll-dates"><Clock size={14}/> {dateTime(p.starts_at)} até {dateTime(p.ends_at)}</p>
     {coordinator?<div className="poll-results">
