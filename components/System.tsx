@@ -125,8 +125,8 @@ function friendlyAppError(value:unknown){
  if(/network|failed to fetch|fetch failed|timeout/.test(message))return 'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.';
  if(/not found|no rows/.test(message))return 'O registro solicitado não foi encontrado. Atualize a página.';
  if(/invalid login|invalid credentials|wrong password/.test(message))return 'E-mail ou senha incorretos.';
- if(/homologaç|migration/.test(message))return 'Não foi possível concluir esta operação. Atualize o aplicativo e tente novamente.';
- if(/[A-Za-z]{2,}Error:|SQLSTATE|PGRST[0-9]|[0-9A-F]{8}-[0-9A-F-]{27,}/i.test(raw))return 'Não foi possível concluir esta operação. Verifique os dados e tente novamente.';
+ if(/homologaç|migraç|migration|operaç[aã]o n[aã]o suportada|unsupported/.test(message))return 'Erro ao concluir a operação. Entre em contato com o suporte do desenvolvedor e envie um print desta mensagem. Código: SUP-001.';
+ if(/[A-Za-z]{2,}Error:|SQLSTATE|PGRST[0-9]|[0-9A-F]{8}-[0-9A-F-]{27,}/i.test(raw))return 'Erro ao concluir a operação. Entre em contato com o suporte do desenvolvedor e envie um print desta mensagem. Código: SUP-002.';
  return raw;
 }
 export default function System(){
@@ -438,7 +438,7 @@ export default function System(){
    if(!data)throw new Error('Não foi possível criar a solicitação.');
    setLinkChallenge(String(data));setLinkCode('');
    alert('Código enviado às notificações do coroinha. Ele vale por 10 minutos.');
-  }catch(e:any){setError(e?.message||'Falha ao solicitar o código.')}
+  }catch(e:any){setError(friendlyAppError(e))}
   finally{setLinkBusy(false)}
  }
  async function confirmParentCode(){
@@ -451,7 +451,7 @@ export default function System(){
    setLinkChallenge('');setLinkCode('');setLinkEmail('');
    await refresh(db,user);
    alert('Vinculação realizada! Você já pode acompanhar as escalas do coroinha.');
-  }catch(e:any){setError(e?.message||'Não foi possível vincular as contas.')}
+  }catch(e:any){setError(friendlyAppError(e))}
   finally{setLinkBusy(false)}
  }
  async function unlinkParent(parentId:string,childId:string){
@@ -461,7 +461,7 @@ export default function System(){
    const {error}=await db.rpc('unlink_parent_child',{p_parent:parentId,p_child:childId});
    if(error)throw error;
    await refresh(db,user);
-  }catch(e:any){setError(e?.message||'Não foi possível desvincular.')}
+  }catch(e:any){setError(friendlyAppError(e))}
   finally{setLinkBusy(false)}
  }
  const cardMass=(m:AnyRow)=><div className="item" key={m.id} onClick={()=>chooseMass(m)}><div className="line"><div><b>{m.title}</b><div className="muted">{fmt(m.starts_at)} · {m.location}</div><div className="muted">{parent?('Escala de '+parentAssigned(m).join(', ')):assignments.filter(a=>a.mass_id===m.id).length+' funções'}</div></div><span className="chip">Ver →</span></div></div>;
