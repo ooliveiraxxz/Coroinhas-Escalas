@@ -58,8 +58,8 @@ export default function Polls({db,coordinator,userRole}:Props){
     </div>)}
     {options.length<10&&<button type="button" className="btn alt full" onClick={()=>setOptions(old=>[...old,''])}><Plus size={16}/> Adicionar opção</button>}
    </div>
-   <label className="field">Início<input type="datetime-local" value={start} onChange={e=>setStart(e.target.value)}/></label>
-   <label className="field">Encerramento<input type="datetime-local" value={end} onChange={e=>setEnd(e.target.value)}/></label>
+   <label className="field poll-datetime">Início<input type="datetime-local" value={start} onChange={e=>setStart(e.target.value)}/></label>
+   <label className="field poll-datetime">Encerramento<input type="datetime-local" value={end} onChange={e=>setEnd(e.target.value)}/></label>
    <label className="poll-check"><span>Permitir várias respostas</span><input type="checkbox" checked={multiple} onChange={e=>setMultiple(e.target.checked)}/></label>
    <label className="poll-check"><span>Priorizar aviso da enquete</span><input type="checkbox" checked={priority} onChange={e=>setPriority(e.target.checked)}/></label>
    <button type="button" className="btn full" disabled={saving} onClick={()=>void create()}>{saving?'Publicando…':'Criar enquete'}</button>
