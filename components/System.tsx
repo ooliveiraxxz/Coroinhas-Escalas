@@ -281,7 +281,15 @@ export default function System(){
   }catch(e:any){setError('Não foi possível salvar suas preferências: '+(e?.message||'Tente novamente.'))}
   finally{setBusy(false)}
  };
- const visibleNotices=notices.filter(n => prefs.enabled !== false && (!/vaga|substitui/i.test(n.title) || prefs.free_slots !== false) && (!/desmarc|desist/i.test(n.title) || prefs.withdrawals !== false) && (!/escala cadastrada|nova escala|você está escalado|escala atualizada/i.test(n.title) || prefs.new_schedules !== false));
+ const visibleNotices=notices.filter(n=>{
+  if(prefs.enabled===false)return false;
+  const eventKey=typeof n.event_key==='string'?n.event_key:'general';
+  if(prefs[eventKey]===false)return false;
+  if(eventKey!=='general')return true;
+  return (!/vaga|substitui/i.test(n.title)||prefs.free_slots!==false)
+    &&(!/desmarc|desist/i.test(n.title)||prefs.withdrawals!==false)
+    &&(!/escala cadastrada|nova escala|você está escalado|escala atualizada/i.test(n.title)||prefs.new_schedules!==false);
+ });
  const setAssignment=async(id:string,patch:AnyRow)=>{if(!coord||busy||!db)return;setBusy(true);setError('');try{const {data,error}=await db.from('assignments').update(patch).eq('id',id).select('*').single();if(error)throw error;if(!data)throw new Error('Nenhuma escala foi alterada.');setAssignments(previous=>previous.map(a=>a.id===id?{...a,...data}:a));alert(patch.status==='presente'?'Presença registrada com sucesso.':patch.status==='faltou'?'Falta registrada com sucesso.':'Alterações salvas com sucesso.');}catch(e:any){setError('Não foi possível salvar: '+(e?.message||String(e)));}finally{setBusy(false)}};
  const liveMasses=masses.filter(m=>m.published);
  const availableToServe=liveMasses.filter(m=>new Date(m.starts_at)>new Date()&&!assignments.some(a=>a.mass_id===m.id&&a.server_id===user?.id&&a.status!=='desmarcado')&&!requests.some(r=>r.mass_id===m.id&&r.user_id===user?.id&&r.type==='servir'&&r.status==='pendente'));
