@@ -18,6 +18,10 @@ for (const c of schema[0].inventory.columns) {
  set.add(c.column_name); columns.set(c.table_name, set);
 }
 const rpcs: Record<string, Record<string, string>> = {
+ developer_list_permission_rules:{},
+ developer_save_permission:{p_permission:'text',p_role:'text',p_user:'uuid',p_allowed:'boolean',p_expires:'timestamptz',p_confirmation:'text'},
+ developer_set_automation:{p_enabled:'boolean',p_confirmation:'text'},
+ has_site_permission:{p_key:'text'},
  request_parent_link:{p_child_email:'text'},
  confirm_parent_link:{p_challenge_id:'uuid',p_code:'text'},
  list_parent_links:{},
