@@ -18,6 +18,7 @@ for (const c of schema[0].inventory.columns) {
  set.add(c.column_name); columns.set(c.table_name, set);
 }
 const rpcs: Record<string, Record<string, string>> = {
+ my_site_permissions:{},
  developer_permission_snapshot:{p_user:'uuid'},
  developer_apply_permissions:{p_user:'uuid',p_changes:'jsonb',p_until:'timestamptz',p_confirmation:'text'},
  developer_revoke_permission:{p_id:'uuid',p_confirmation:'text'},
