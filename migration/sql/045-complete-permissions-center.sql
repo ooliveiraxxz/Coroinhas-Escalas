@@ -897,3 +897,24 @@ CREATE TRIGGER permission_rules_audit AFTER INSERT OR UPDATE OR DELETE ON public
 REVOKE ALL ON public.permission_catalog,public.automation_catalog FROM PUBLIC,coroinhas_app,coroinhas_gateway;
 REVOKE ALL ON FUNCTION public.developer_permission_snapshot(uuid),public.developer_apply_permissions(uuid,jsonb,timestamptz,text),public.developer_revoke_permission(uuid,text),public.developer_automation_snapshot(),public.developer_apply_automations(jsonb,text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.developer_permission_snapshot(uuid),public.developer_apply_permissions(uuid,jsonb,timestamptz,text),public.developer_revoke_permission(uuid,text),public.developer_automation_snapshot(),public.developer_apply_automations(jsonb,text),public.my_site_permissions(),public.automation_enabled(text) TO coroinhas_app,coroinhas_gateway;
+
+-- Complemento: verificação obrigatória de pedidos e de presença no servidor.
+ALTER POLICY requests_insert ON public.requests WITH CHECK ((has_site_permission('request_service'::text) AND ((status = 'pendente'::text) AND (user_id = auth.uid()) AND is_approved() AND (EXISTS ( SELECT 1
+   FROM profiles p
+  WHERE ((p.id = auth.uid()) AND p.approved AND (p.role = requests.service_group) AND (p.role = ANY (ARRAY['coroinha'::text, 'cerimoniario'::text]))))) AND (EXISTS ( SELECT 1
+   FROM masses m
+  WHERE ((m.id = requests.mass_id) AND m.published AND (m.starts_at > now())))) AND (((type = 'servir'::text) AND (assignment_id IS NULL) AND (EXISTS ( SELECT 1
+   FROM assignments a
+  WHERE ((a.mass_id = requests.mass_id) AND (a.service_group = requests.service_group) AND ((a.server_id IS NULL) OR (a.status = 'desmarcado'::text)))))) OR ((type = 'substituir'::text) AND (assignment_id IS NOT NULL) AND (EXISTS ( SELECT 1
+   FROM assignments a
+  WHERE ((a.id = requests.assignment_id) AND (a.mass_id = requests.mass_id) AND (a.service_group = requests.service_group) AND (a.status = 'desmarcado'::text) AND (a.server_id IS DISTINCT FROM auth.uid())))))) AND (NOT (EXISTS ( SELECT 1
+   FROM assignments a
+  WHERE ((a.mass_id = requests.mass_id) AND (a.server_id = auth.uid()) AND (a.status <> 'desmarcado'::text))))))));
+CREATE OR REPLACE FUNCTION public.guard_assignment_attendance_permission()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$ BEGIN IF NEW.status IS DISTINCT FROM OLD.status AND NEW.status IN ('presente','faltou') AND NOT public.has_site_permission('attendance') THEN RAISE EXCEPTION 'Sem permissão para registrar presença ou falta' USING ERRCODE='42501'; END IF; RETURN NEW; END $function$;
+DROP TRIGGER IF EXISTS guard_assignment_attendance_permission_trg ON public.assignments;
+CREATE TRIGGER guard_assignment_attendance_permission_trg BEFORE UPDATE ON public.assignments FOR EACH ROW EXECUTE FUNCTION public.guard_assignment_attendance_permission();
