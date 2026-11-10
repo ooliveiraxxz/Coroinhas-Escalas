@@ -611,12 +611,13 @@ export default function System(){
  </>}
  {view==='Usuários'&&developer&&<>
  <h2 className="title">Usuários</h2>
- <p className="muted">Gerencie coroinhas, pais, coordenadores e desenvolvedores. Alterações de acesso ficam registradas na auditoria.</p>
+ <p className="muted">Gerencie coroinhas, cerimoniários, pais, coordenadores e desenvolvedores. Alterações de acesso ficam registradas na auditoria.</p>
  <div className="card users-filter-card">
   <strong>{profiles.length} contas cadastradas</strong>
   <label className="field users-role-label">Selecionar usuários
    <select value={usersRole} onChange={e=>setUsersRole(e.target.value)}>
     <option value="coroinha">Coroinhas</option>
+     <option value="cerimoniario">Cerimoniários</option>
     <option value="pai">Pais e responsáveis</option>
     <option value="coordenadora">Coordenadores(as)</option>
     <option value="desenvolvedor">Desenvolvedores</option>
@@ -632,7 +633,7 @@ export default function System(){
    <div className="users-person-identity" style={{display:'flex',flexDirection:'column',alignItems:'stretch',gap:6,minWidth:0,width:'100%'}}>
     <div className="users-person-name" style={{display:'block',fontWeight:800,fontSize:17,lineHeight:1.35,overflowWrap:'anywhere'}}>{p.name||'Sem nome'}</div>
     <div className="users-person-email" style={{display:'block',fontSize:13,lineHeight:1.5,overflowWrap:'anywhere',wordBreak:'break-word'}}>{p.email}</div>
-    <div className="users-person-meta" style={{display:'block',fontSize:12,lineHeight:1.45,marginTop:2}}>{p.role==='coroinha'&&parentLinks.some(link=>link.child_id===p.id)&&<span>Vinculado a responsável • </span>}{p.approved?'Aprovado':'Pendente'} {' • '}{p.role==='coroinha'?'Coroinha':p.role==='pai'?'Pai / Responsável':p.role==='coordenadora'?'Coordenador(a)':'Desenvolvedor'}</div>
+    <div className="users-person-meta" style={{display:'block',fontSize:12,lineHeight:1.45,marginTop:2}}>{p.role==='coroinha'&&parentLinks.some(link=>link.child_id===p.id)&&<span>Vinculado a responsável • </span>}{p.approved?'Aprovado':'Pendente'} {' • '}{p.role==='coroinha'?'Coroinha':p.role==='cerimoniario'?'Cerimoniário':p.role==='pai'?'Pai / Responsável':p.role==='coordenadora'?'Coordenador(a)':'Desenvolvedor'}</div>
    </div>
    <label className="field users-person-role">Tipo de usuário
     <select disabled={p.id===user.id||busy} value={p.role==='coordenadora'&&p.coordination_group==='cerimoniario'?'coordenadora_cerimoniario':p.role} onChange={e=>{const role=e.target.value;if(confirm('Alterar '+p.name+' para '+role+'?'))void execute(()=>db!.rpc('developer_manage_user',{p_user:p.id,p_action:'role',p_role:role}))}}>
