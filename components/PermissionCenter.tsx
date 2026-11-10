@@ -25,7 +25,7 @@ export default function PermissionCenter({db,users}:Props){
  const [error,setError]=useState('');
  const [success,setSuccess]=useState('');
  const [expanded,setExpanded]=useState('Coroinhas e cerimoniários');
- const eligible=users.filter(u=>u.approved&&u.role!=='desenvolvedor').sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
+ const eligible=users.filter(u=>u.role!=='desenvolvedor').sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
  useEffect(()=>{if(!eligible.some(u=>u.id===userId))setUserId(eligible[0]?.id||'')},[users,userId]);
  const fetchAll=async()=>{
   if(!db)return;
@@ -92,7 +92,7 @@ export default function PermissionCenter({db,users}:Props){
   <h2 className="title">Permissões</h2>
   <p className="muted">Controle por pessoa, com chaves liga/desliga. Nada muda até você confirmar e salvar.</p>
   <div className="card"><label className="field">Selecionar seção<select value={section} onChange={e=>{setSection(e.target.value as Section);setChanges({});setConfirmName('');setSuccess('')}}><option value="automacoes">Automações</option><option value="gerenciamento">Gerenciamento</option><option value="temporarias">Permissões temporárias</option></select></label></div>
-  {section!=='automacoes'&&<div className="card"><label className="field">Selecionar pessoa<select value={userId} onChange={e=>setUserId(e.target.value)}>{eligible.map(u=><option key={u.id} value={u.id}>{u.name||u.email} — {u.role}</option>)}</select></label><p className="muted">As opções habilitadas indicam o que {current?.name||'esta pessoa'} pode fazer. Alterações individuais têm prioridade sobre o perfil padrão.</p></div>}
+  {section!=='automacoes'&&<div className="card"><label className="field">Selecionar pessoa<select value={userId} onChange={e=>setUserId(e.target.value)}>{eligible.map(u=><option key={u.id} value={u.id}>{u.name||u.email} — {u.role}{u.approved?'':' (aguardando aprovação)'}</option>)}</select></label><p className="muted">As opções habilitadas indicam o que {current?.name||'esta pessoa'} pode fazer. Alterações individuais têm prioridade sobre o perfil padrão.</p></div>}
   {section==='automacoes'?<div className="card"><h3>Automações identificadas no sistema</h3>{autoRows.map(row=><div className="item" key={row.key} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><div style={{flex:1,minWidth:0}}><strong>{row.label}</strong><p className="muted" style={{margin:'4px 0'}}>{row.description}</p></div><Toggle enabled={getState(row.key,Boolean(row.enabled))} onChange={()=>toggle(row.key,Boolean(row.enabled))} label={row.label}/></div>)}</div>
   :<>
   {section==='temporarias'&&<div className="card"><label className="field">Acesso permitido até<input type="datetime-local" value={expires} onChange={e=>setExpires(e.target.value)}/></label><p className="muted">Após o prazo, cada função retorna automaticamente à permissão anterior. Você também pode revogar antes.</p></div>}
