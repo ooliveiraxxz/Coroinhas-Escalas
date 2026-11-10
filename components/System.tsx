@@ -4,6 +4,7 @@ import {createPortal} from 'react-dom';
 import NeonLogin from './NeonLogin';
 import SupportChat from './SupportChat';
 import Polls from './Polls';
+import PermissionCenter from './PermissionCenter';
 import {getSupabase} from '@/lib/supabase';
 import {Home,CalendarDays,Users,ChartColumn,Menu,Bell,LogOut,X,Plus,Download,BookOpen,Settings,MessageCircle,UserCircle,Church,CalendarCheck,ChevronRight,Heart,ShieldCheck,Eye,EyeOff} from 'lucide-react';
 import type {SupabaseClient} from '@supabase/supabase-js';
@@ -596,24 +597,7 @@ export default function System(){
  </>}
  {view==='Atualizações'&&<><h2 className="title">Atualizações</h2>{developer&&<><div className="card"><h3>{updateId?'Editar atualização':'Publicar atualização'}</h3>{field('Versão (ex.: 1.1.0)',updateForm.version,v=>setUpdateForm({...updateForm,version:v}))}{field('Título',updateForm.title,v=>setUpdateForm({...updateForm,title:v}))}<label className="field">Novidades<textarea rows={5} value={updateForm.description} onChange={e=>setUpdateForm({...updateForm,description:e.target.value})}/></label><div className="btnrow">{b(updateId?'Salvar alterações':'Publicar',()=>{if(!updateForm.version.trim()||!updateForm.title.trim())return setError('Informe a versão e o título.');execute(()=>updateId?db!.from('site_updates').update(updateForm).eq('id',updateId):db!.from('site_updates').insert(updateForm)).then(ok=>{if(ok){setUpdateId('');setUpdateForm({version:'',title:'',description:''})}})})}{updateId&&b('Cancelar',()=>{setUpdateId('');setUpdateForm({version:'',title:'',description:''})},true)}</div></div></>}
 <h3>Histórico de atualizações</h3>{updates.length===0&&<div className="card">Nenhuma atualização publicada ainda.</div>}{updates.map(u=><div className="card update-card" key={u.id}><div className="line"><h3>{u.title}</h3><span className="chip">v{u.version}</span></div><p style={{whiteSpace:'pre-wrap'}}>{u.description}</p><small className="muted">{new Date(u.published_at).toLocaleDateString('pt-BR')}</small>{developer&&<div className="btnrow" style={{marginTop:12}}>{b('Editar',()=>{setUpdateId(u.id);setUpdateForm({version:u.version,title:u.title,description:u.description})},true)}{b('Apagar',()=>{if(confirm('Apagar esta atualização definitivamente?'))execute(()=>db!.from('site_updates').delete().eq('id',u.id))},true)}</div>}</div>)}</>}
- {view==='Permissões'&&developer&&<>
-  <h2 className="title">Permissões</h2>
-  <p className="muted">Controle as autorizações e automações. As permissões atuais permanecem como padrão.</p>
-  <div className="card"><label className="field">Selecionar seção<select value={permTab} onChange={e=>{setPermTab(e.target.value);setPermConfirm('')}}><option value="automacoes">Permissões (automações)</option><option value="gerenciamento">Gerenciamento</option><option value="temporarias">Permissão temporária</option></select></label></div>
-  {permTab==='automacoes'?<div className="card"><h3>Aprovação automática — 3 horas</h3><p className="muted">Aprova solicitações elegíveis quando faltarem até três horas para a missa. Novos pedidos na janela são processados automaticamente.</p><strong>{autoApprovalEnabled?'Ativada':'Desativada'}</strong></div>:<div className="card">
-   <h3>{permTab==='temporarias'?'Dar permissão temporária':'Gerenciar permissões'}</h3>
-   <label className="field">Perfil ou usuário<select value={permTarget} onChange={e=>setPermTarget(e.target.value)}>
-    <optgroup label="Perfis"><option value="role:coroinha">Coroinhas</option><option value="role:cerimoniario">Cerimoniários</option><option value="role:pai">Pais e responsáveis</option><option value="role:coordenadora">Todas as coordenações</option><option value="role:coordenadora_coroinha">Coordenadores dos coroinhas</option><option value="role:coordenadora_cerimoniario">Coordenadores dos cerimoniários</option></optgroup>
-    <optgroup label="Usuários">{profiles.filter(p=>p.role!=='desenvolvedor').map(p=><option key={p.id} value={'user:'+p.id}>{p.name||p.email}</option>)}</optgroup>
-   </select></label>
-   <label className="field">Função<select value={permKey} onChange={e=>setPermKey(e.target.value)}><option value="edit_coroinha">Gerenciar atribuições dos coroinhas</option><option value="edit_cerimoniario">Gerenciar atribuições dos cerimoniários</option><option value="view_audit">Consultar auditoria (acesso avançado)</option></select></label>
-   <label className="field">Acesso<select value={permAllow?'sim':'nao'} onChange={e=>setPermAllow(e.target.value==='sim')}><option value="sim">Permitir</option><option value="nao">Bloquear</option></select></label>
-   {permTab==='temporarias'&&<label className="field">Válido até<input type="datetime-local" value={permExpiry} onChange={e=>setPermExpiry(e.target.value)}/></label>}
-   <p className="muted">Permissões individuais prevalecem sobre as do perfil. Após o vencimento, o padrão volta automaticamente.</p>
-  </div>}
-  <div className="card"><label className="field">Para confirmar, digite DESENVOLVEDOR<input placeholder="DESENVOLVEDOR" value={permConfirm} onChange={e=>setPermConfirm(e.target.value)}/></label><button className="btn" disabled={busy||permConfirm!=='DESENVOLVEDOR'} onClick={()=>void(permTab==='automacoes'?toggleAutoApproval():savePerm())}>Salvar alterações</button></div>
-  {permTab!=='automacoes'&&<div className="card"><h3>Regras registradas</h3>{permRules.length===0&&<p className="muted">Nenhuma alteração registrada. Padrões preservados.</p>}{permRules.slice(0,50).map(r=><div className="item" key={r.id}><strong>{r.subject_role||profiles.find(p=>p.id===r.subject_user)?.name||'Usuário'}: {r.permission_key}</strong><p>{r.allowed?'Permitido':'Bloqueado'} — {r.expires_at?'Até '+fmt(r.expires_at):'Permanente'}{r.expires_at&&new Date(r.expires_at)<=new Date()?' (expirado)':''}</p></div>)}</div>}
-  </>}
+ {view==='Permissões'&&developer&&<PermissionCenter db={db} users={profiles}/>}
   {view==='Auditoria'&&(developer||runtimePermissions.view_audit)&&<>
  <h2 className="title">Auditoria</h2>
  <p className="muted">Histórico das 250 alterações mais recentes, explicado em português. Somente usuários autorizados podem consultar.</p>
