@@ -254,7 +254,7 @@ export default function System(){
   }
  }
  async function disableScreenPopup(id:string){
-  if(!db||!developer)return;
+  if(!db||!can('send_popup'))return;
   const ok=await execute(()=>db.from('screen_announcements').update({active:false}).eq('id',id));
   if(ok)setScreenSent(previous=>previous.map(x=>x.id===id?{...x,active:false}:x));
  }
