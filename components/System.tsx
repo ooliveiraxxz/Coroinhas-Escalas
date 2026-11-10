@@ -154,6 +154,8 @@ export default function System(){
   return()=>{valid=false};
  },[db,user?.id,profile?.approved,profile?.role,view]);
    const canEditGroup=(g:string)=>g==='cerimoniario'?can('edit_cerimoniario'):can('edit_coroinha');
+  useEffect(()=>{if(db&&user?.id&&can('send_popup')){db.from('screen_announcements').select('*').order('created_at',{ascending:false}).limit(100).then(({data,error})=>{if(!error)setScreenSent(data||[])})}},[db,user?.id,runtimePermissions.send_popup,profile?.role]);
+  useEffect(()=>{if(view==='Notificações'&&can('send_popup')&&!can('send_notifications'))setScreenKind('popup')},[view,runtimePermissions.send_popup,runtimePermissions.send_notifications]);
   const campaigns=sentNotices.filter(n=>n.group_id).reduce((acc:AnyRow[],n:AnyRow)=>acc.some(x=>x.group_id===n.group_id)?acc:[...acc,n],[]);
  async function refresh(client=db,usr=user){if(!client||!usr)return;setProfileLoading(true);try{
   const p=await client.from('profiles').select('*').eq('id',usr.id).maybeSingle();if(p.error)throw p.error;setProfile(p.data);if(!p.data?.approved)return;
@@ -219,7 +221,7 @@ export default function System(){
    ]);
    if(!active)return;
    if(announcements.error||dismissals.error){console.warn('Não foi possível carregar avisos de tela:',announcements.error?.message||dismissals.error?.message);return}
-   if(profile.role==='desenvolvedor')setScreenSent(announcements.data||[]);
+   if(can('send_popup'))setScreenSent(announcements.data||[]);
    const dismissed=new Set((dismissals.data||[]).map(row=>row.announcement_id));
    const next=(announcements.data||[]).find(row=>row.active&&!dismissed.has(row.id)&&(row.target_role==='all'||row.target_role===profile.role||(row.target_role==='individual'&&row.target_user_id===user.id)));
    if(next){setScreenOptOut(false);setScreenPopup(next)}
@@ -236,7 +238,7 @@ export default function System(){
   setScreenPopup(null);setScreenOptOut(false);
  }
  async function sendScreenPopup(){
-  if(!db||!user||!developer)return;
+  if(!db||!user||!can('send_popup'))return;
   if(!noticeTitle.trim()||!noticeBody.trim())return setError('Informe título e mensagem.');
   if(screenRole==='individual'&&!screenTarget)return setError('Selecione o destinatário.');
   const ok=await execute(()=>db.from('screen_announcements').insert({
