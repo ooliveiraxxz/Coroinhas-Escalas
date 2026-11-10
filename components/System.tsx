@@ -150,7 +150,7 @@ export default function System(){
   const savePerm=async()=>{if(!db||!developer||permConfirm!=='DESENVOLVEDOR')return setError('Digite DESENVOLVEDOR.');const temporary=permTab==='temporarias';if(temporary&&(!permExpiry||new Date(permExpiry)<=new Date()))return setError('Defina um prazo futuro.');const individual=permTarget.startsWith('user:');const ok=await execute(()=>db.rpc('developer_save_permission',{p_permission:permKey,p_role:individual?null:permTarget.slice(5),p_user:individual?permTarget.slice(5):null,p_allowed:permAllow,p_expires:temporary?new Date(permExpiry).toISOString():null,p_confirmation:permConfirm}));if(ok){setPermConfirm('');setPermExpiry('');await loadPerms();alert('Permissão salva.')}};
   const toggleAutoApproval=async()=>{if(!developer||!db||permConfirm!=='DESENVOLVEDOR')return setError('Digite DESENVOLVEDOR.');const next=!autoApprovalEnabled;const ok=await execute(()=>db.rpc('developer_set_automation',{p_enabled:next,p_confirmation:permConfirm}));if(ok){setAutoApprovalEnabled(next);setPermConfirm('')}};
  useEffect(()=>{if(!db||!user?.id||!profile?.approved){setRuntimePermissions({});return;}let valid=true;
-  db.rpc('my_site_permissions').then(({data,error})=>{if(valid&&!error&&data&&typeof data==='object')setRuntimePermissions(data as Record<string,boolean>)}).catch(()=>{});
+  db.rpc('my_site_permissions').then(({data,error})=>{if(valid&&!error&&data&&typeof data==='object')setRuntimePermissions(data as Record<string,boolean>)},()=>{});
   return()=>{valid=false};
  },[db,user?.id,profile?.approved,profile?.role,view]);
    const canEditGroup=(g:string)=>g==='cerimoniario'?can('edit_cerimoniario'):can('edit_coroinha');
