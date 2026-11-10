@@ -11,9 +11,14 @@ export async function GET(req:NextRequest){
   return NextResponse.json({error:'Acesso não autorizado'},{status:401});
  if(!migrationEnabled())return NextResponse.json({error:'Banco indisponível'},{status:503});
  try{
-  const result=await getPool().query('SELECT public.poll_dispatch() AS result');
-  return NextResponse.json({ok:true,processed:result.rows[0]?.result??null},{headers:{'Cache-Control':'no-store'}});
+  const pool=getPool();
+  const polls=await pool.query('SELECT public.poll_dispatch() AS result');
+  const approvals=await pool.query('SELECT public.run_pending_auto_approvals() AS count');
+  return NextResponse.json(
+   {ok:true,processed:polls.rows[0]?.result??null,autoApprovals:approvals.rows[0]?.count??0},
+   {headers:{'Cache-Control':'no-store'}}
+  );
  }catch{
-  return NextResponse.json({error:'Falha ao processar enquetes programadas'},{status:500});
+  return NextResponse.json({error:'Falha ao processar rotinas programadas'},{status:500});
  }
 }

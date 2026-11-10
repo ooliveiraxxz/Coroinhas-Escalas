@@ -23,7 +23,7 @@ export async function POST(req:NextRequest){
  const fields=Object.keys(body);
  if(fields.some(field=>field!=='requestedRole'))return response('Campos não permitidos',400);
  const requestedRole=(body as {requestedRole?:unknown}).requestedRole;
- if(requestedRole!==undefined&&requestedRole!==null&&requestedRole!=='pai'&&requestedRole!=='coroinha')
+ if(requestedRole!==undefined&&requestedRole!==null&&requestedRole!=='pai'&&requestedRole!=='coroinha'&&requestedRole!=='cerimoniario')
   return response('Tipo de cadastro inválido',400);
  try{
   const {data}=await getNeonAuth().getSession();
