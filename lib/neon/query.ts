@@ -18,6 +18,11 @@ for (const c of schema[0].inventory.columns) {
  set.add(c.column_name); columns.set(c.table_name, set);
 }
 const rpcs: Record<string, Record<string, string>> = {
+ developer_permission_snapshot:{p_user:'uuid'},
+ developer_apply_permissions:{p_user:'uuid',p_changes:'jsonb',p_until:'timestamptz',p_confirmation:'text'},
+ developer_revoke_permission:{p_id:'uuid',p_confirmation:'text'},
+ developer_automation_snapshot:{},
+ developer_apply_automations:{p_changes:'jsonb',p_confirmation:'text'},
  developer_list_permission_rules:{},
  developer_save_permission:{p_permission:'text',p_role:'text',p_user:'uuid',p_allowed:'boolean',p_expires:'timestamptz',p_confirmation:'text'},
  developer_set_automation:{p_enabled:'boolean',p_confirmation:'text'},
