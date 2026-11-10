@@ -725,7 +725,7 @@ export default function System(){
  </div>
  {supportTarget==='coordenadora'&&<div className="card support-card">
   <h3>{profile?.role==='coordenadora'?'Chats da coordenação':'Chat com a coordenação'}</h3>
-  <p>{profile?.role==='coordenadora'?'Responda aos coroinhas e consulte os atendimentos arquivados.':'Fale com a coordenação e acompanhe as respostas no chat.'}</p>
+  <p>{profile?.role==='coordenadora'?`Responda aos ${myGroup==='cerimoniario'?'cerimoniários':'coroinhas'} e consulte os atendimentos arquivados.`:'Fale com a coordenação e acompanhe as respostas no chat.'}</p>
   <button type="button" className="btn full support-start-button" onClick={()=>{setSupportChatChannel('coordinator');setSupportChatOpen(true)}}>
    <MessageCircle size={19} aria-hidden="true"/><span>{profile?.role==='coordenadora'?'Abrir atendimentos':'Iniciar chat com a coordenação'}</span>
   </button>
