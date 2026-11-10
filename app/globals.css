@@ -537,3 +537,36 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
 /* Três abas de notificações dos coroinhas na mesma linha, inclusive no celular. */
 .notification-section-tabs.notification-server-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
 .notification-server-tabs button{min-width:0;padding:9px 4px;font-size:clamp(10px,2.9vw,12px);overflow-wrap:anywhere}
+
+/* iPhone Safari: keep the temporary permission date/time picker inside its field. */
+.field input.permission-expiry-input[type="datetime-local"]{
+ display:block;
+ width:100%;
+ max-width:100%;
+ min-width:0;
+ height:52px;
+ min-height:52px;
+ margin-top:8px;
+ padding:10px 12px;
+ border-radius:13px;
+ box-sizing:border-box;
+ font-size:16px;
+ line-height:1.25;
+ background-color:#fff;
+ color:var(--ink);
+ -webkit-appearance:none;
+ appearance:none;
+ overflow:hidden;
+}
+.field input.permission-expiry-input[type="datetime-local"]::-webkit-date-and-time-value{
+ display:block;
+ min-width:0;
+ width:100%;
+ text-align:left;
+}
+.field input.permission-expiry-input[type="datetime-local"]::-webkit-datetime-edit{
+ display:inline-flex;
+ align-items:center;
+ min-width:0;
+ padding:0;
+}
