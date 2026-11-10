@@ -287,7 +287,7 @@ export default function System(){
   }catch(e:any){setError('Não foi possível sair. '+(e?.message||'Tente novamente.'));setDrawer(false)}
   finally{setBusy(false)}
  }
- async function notifyAll(title:string,body:string,target?:string){if(!db)return;const ids=profiles.filter(p=>p.approved&&(!target||p.id===target)).map(p=>({user_id:p.id,title,body}));if(ids.length)await db.from('notifications').insert(ids)}
+ async function notifyAll(title:string,body:string,target?:string){if(!db)return;const enabled=await db.rpc('automation_enabled',{p_key:'notify_assignment_events'});if(enabled.error||enabled.data!==true)return;const ids=profiles.filter(p=>p.approved&&(!target||p.id===target)).map(p=>({user_id:p.id,title,body}));if(ids.length)await db.from('notifications').insert(ids)}
  const massTemplates=[
   {title:'Missa Dominical',time:'08:00',weekday:0},
   {title:'Missa Dominical',time:'19:00',weekday:0},
