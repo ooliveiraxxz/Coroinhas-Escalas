@@ -14,8 +14,9 @@ export async function GET(req:NextRequest){
   const pool=getPool();
   const polls=await pool.query('SELECT public.poll_dispatch() AS result');
   const approvals=await pool.query('SELECT public.run_pending_auto_approvals() AS count');
+  const archive=await pool.query('SELECT public.archive_maintenance() AS result');
   return NextResponse.json(
-   {ok:true,processed:polls.rows[0]?.result??null,autoApprovals:approvals.rows[0]?.count??0},
+   {ok:true,processed:polls.rows[0]?.result??null,autoApprovals:approvals.rows[0]?.count??0,archive:archive.rows[0]?.result??null},
    {headers:{'Cache-Control':'no-store'}}
   );
  }catch{
