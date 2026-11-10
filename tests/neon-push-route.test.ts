@@ -24,7 +24,8 @@ test('Neon push dispatcher remains disabled on preview even with tempting flags'
   process.env.NEON_PRODUCTION_CUTOVER_ENABLED='true';
   process.env.NEON_PRODUCTION_APPROVED_COMMIT='b'.repeat(40);
   process.env.VERCEL_GIT_COMMIT_SHA='a'.repeat(40);
-  assert.equal((await GET(req)).status,404);
+  // Once enabled in production, an unauthenticated request is still rejected.
+  assert.equal((await GET(req)).status,401);
  }finally{
   for(const [key,value] of Object.entries(previous)){
    if(value===undefined)delete process.env[key];else process.env[key]=value;

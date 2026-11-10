@@ -19,6 +19,10 @@ BEGIN
   INSERT INTO public.masses(id,title,starts_at,published) VALUES
     (mass_id,'Open mass RLS',now()+interval '3 days',true),
     (unpublished,'Unpublished RLS',now()+interval '3 days',false);
+  -- A request now requires an actual open vacancy in the matching group.
+  INSERT INTO public.assignments(mass_id,function_name,service_group) VALUES
+    (mass_id,'RLS test vacancy','coroinha'),
+    (unpublished,'RLS unpublished vacancy','coroinha');
   FOREACH parent IN ARRAY ARRAY[parent,pending] LOOP
    PERFORM set_config('app.user_id',parent::text,true);
    EXECUTE 'SET LOCAL ROLE coroinhas_app';

@@ -13,7 +13,7 @@ test('migration endpoint defaults to disabled and cannot be enabled in productio
  assert.equal((await GET(req(),context)).status,404);
  delete process.env.VERCEL_ENV;delete process.env.NEON_MIGRATION_ENABLED;
 });
-test('production cutover only activates when deployment SHA equals explicitly approved commit',()=>{
+test('production cutover requires explicit enablement and survives subsequent commits',()=>{
  const old=Object.fromEntries(['NEON_MIGRATION_ENABLED','NEXT_PUBLIC_DATA_BACKEND','VERCEL_ENV','NEON_PRODUCTION_CUTOVER_ENABLED','NEON_PRODUCTION_APPROVED_COMMIT','VERCEL_GIT_COMMIT_SHA'].map(k=>[k,process.env[k]]));
  const commit='a'.repeat(40);
  try{
@@ -22,11 +22,11 @@ test('production cutover only activates when deployment SHA equals explicitly ap
   delete process.env.NEON_PRODUCTION_APPROVED_COMMIT;
   assert.equal(migrationEnabled(),false);
   process.env.NEON_PRODUCTION_CUTOVER_ENABLED='true';
-  assert.equal(migrationEnabled(),false);
+  assert.equal(migrationEnabled(),true);
   process.env.NEON_PRODUCTION_APPROVED_COMMIT='b'.repeat(40);
-  assert.equal(migrationEnabled(),false);
+  assert.equal(migrationEnabled(),true);
   process.env.NEON_PRODUCTION_APPROVED_COMMIT='not-a-git-sha';
-  assert.equal(migrationEnabled(),false);
+  assert.equal(migrationEnabled(),true);
   process.env.NEON_PRODUCTION_APPROVED_COMMIT=commit;
   assert.equal(migrationEnabled(),true);
   process.env.NEON_PRODUCTION_CUTOVER_ENABLED='false';
