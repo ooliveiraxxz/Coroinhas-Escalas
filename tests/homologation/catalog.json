@@ -1,0 +1,297 @@
+{
+  "automation_catalog": [
+    {
+      "key": "auto_approval_3h",
+      "label": "Aprovação de vagas nas últimas 3 horas",
+      "description": "Aprova pedidos elegíveis quando a missa está próxima",
+      "implemented": true
+    },
+    {
+      "key": "notify_assignment_events",
+      "label": "Avisos de escalas e presenças",
+      "description": "Notifica integrantes e coordenação após mudanças nas escalas",
+      "implemented": true
+    },
+    {
+      "key": "notify_service_requests",
+      "label": "Avisos de solicitações",
+      "description": "Notifica a coordenação quando alguém solicita uma vaga",
+      "implemented": true
+    },
+    {
+      "key": "notify_profile_pending",
+      "label": "Avisos de cadastro pendente",
+      "description": "Notifica a coordenação de novos cadastros",
+      "implemented": true
+    },
+    {
+      "key": "notify_profile_approved",
+      "label": "Avisos de cadastro aprovado",
+      "description": "Notifica usuários quando seus cadastros são aprovados",
+      "implemented": true
+    },
+    {
+      "key": "notify_coordinator_messages",
+      "label": "Avisos de mensagens",
+      "description": "Notifica coordenação sobre sugestões e reclamações",
+      "implemented": true
+    },
+    {
+      "key": "poll_dispatch",
+      "label": "Avisos automáticos de enquetes",
+      "description": "Notifica abertura, lembrete e encerramento das enquetes",
+      "implemented": true
+    },
+    {
+      "key": "push_queue",
+      "label": "Enfileiramento de notificações push",
+      "description": "Envia avisos para a fila de notificações do dispositivo",
+      "implemented": true
+    },
+    {
+      "key": "archive_retention",
+      "label": "Arquivamento e exclusão automática",
+      "description": "Arquiva missas após 24 horas do início; outros conteúdos após 30 dias; exclui dados arquivados após mais 30 dias.",
+      "implemented": true
+    }
+  ],
+  "permission_catalog": [
+    {
+      "key": "view_scales",
+      "label": "Visualizar escalas",
+      "category": "Coroinhas e cerimoniários",
+      "sensitive": false,
+      "default_roles": [
+        "coroinha",
+        "cerimoniario",
+        "coordenadora",
+        "pai",
+        "desenvolvedor"
+      ]
+    },
+    {
+      "key": "confirm_assignment",
+      "label": "Confirmar minha escala",
+      "category": "Coroinhas e cerimoniários",
+      "sensitive": false,
+      "default_roles": [
+        "coroinha",
+        "cerimoniario"
+      ]
+    },
+    {
+      "key": "unassign_self",
+      "label": "Desmarcar minha escala",
+      "category": "Coroinhas e cerimoniários",
+      "sensitive": false,
+      "default_roles": [
+        "coroinha",
+        "cerimoniario"
+      ]
+    },
+    {
+      "key": "request_service",
+      "label": "Solicitar vaga para servir",
+      "category": "Coroinhas e cerimoniários",
+      "sensitive": false,
+      "default_roles": [
+        "coroinha",
+        "cerimoniario"
+      ]
+    },
+    {
+      "key": "vote_polls",
+      "label": "Responder enquetes",
+      "category": "Coroinhas e cerimoniários",
+      "sensitive": false,
+      "default_roles": [
+        "coroinha"
+      ]
+    },
+    {
+      "key": "read_notifications",
+      "label": "Consultar notificações",
+      "category": "Coroinhas e cerimoniários",
+      "sensitive": false,
+      "default_roles": [
+        "coroinha",
+        "cerimoniario",
+        "coordenadora",
+        "pai",
+        "desenvolvedor"
+      ]
+    },
+    {
+      "key": "send_suggestions",
+      "label": "Enviar sugestões e reclamações",
+      "category": "Coroinhas e cerimoniários",
+      "sensitive": false,
+      "default_roles": [
+        "coroinha",
+        "cerimoniario"
+      ]
+    },
+    {
+      "key": "view_child_scales",
+      "label": "Acompanhar escalas vinculadas",
+      "category": "Pais e responsáveis",
+      "sensitive": false,
+      "default_roles": [
+        "pai"
+      ]
+    },
+    {
+      "key": "create_scales",
+      "label": "Cadastrar missas e escalas",
+      "category": "Coordenação",
+      "sensitive": true,
+      "default_roles": [
+        "coordenadora"
+      ]
+    },
+    {
+      "key": "edit_coroinha",
+      "label": "Editar funções e vagas dos coroinhas",
+      "category": "Coordenação",
+      "sensitive": true,
+      "default_roles": [
+        "coordenadora_coroinha"
+      ]
+    },
+    {
+      "key": "edit_cerimoniario",
+      "label": "Editar funções e vagas dos cerimoniários",
+      "category": "Coordenação",
+      "sensitive": true,
+      "default_roles": [
+        "coordenadora_cerimoniario"
+      ]
+    },
+    {
+      "key": "delete_scales",
+      "label": "Excluir escalas",
+      "category": "Coordenação",
+      "sensitive": true,
+      "default_roles": [
+        "coordenadora"
+      ]
+    },
+    {
+      "key": "approve_requests",
+      "label": "Aprovar solicitações de serviço",
+      "category": "Coordenação",
+      "sensitive": true,
+      "default_roles": [
+        "coordenadora"
+      ]
+    },
+    {
+      "key": "attendance",
+      "label": "Registrar presença ou falta",
+      "category": "Coordenação",
+      "sensitive": true,
+      "default_roles": [
+        "coordenadora"
+      ]
+    },
+    {
+      "key": "send_notifications",
+      "label": "Enviar notificações",
+      "category": "Coordenação",
+      "sensitive": true,
+      "default_roles": [
+        "coordenadora"
+      ]
+    },
+    {
+      "key": "manage_polls",
+      "label": "Criar e editar enquetes",
+      "category": "Coordenação",
+      "sensitive": true,
+      "default_roles": [
+        "coordenadora"
+      ]
+    },
+    {
+      "key": "manage_guides",
+      "label": "Gerenciar orientações e funções",
+      "category": "Coordenação",
+      "sensitive": true,
+      "default_roles": [
+        "coordenadora"
+      ]
+    },
+    {
+      "key": "manage_fixed_rules",
+      "label": "Gerenciar escala automática de integrantes fixos",
+      "category": "Coordenação",
+      "sensitive": true,
+      "default_roles": [
+        "coordenadora"
+      ]
+    },
+    {
+      "key": "view_reports",
+      "label": "Consultar relatórios",
+      "category": "Coordenação",
+      "sensitive": false,
+      "default_roles": [
+        "coordenadora"
+      ]
+    },
+    {
+      "key": "view_audit",
+      "label": "Visualizar auditoria",
+      "category": "Desenvolvedor",
+      "sensitive": true,
+      "default_roles": [
+        "desenvolvedor"
+      ]
+    },
+    {
+      "key": "publish_updates",
+      "label": "Publicar e editar atualizações",
+      "category": "Desenvolvedor",
+      "sensitive": true,
+      "default_roles": [
+        "desenvolvedor"
+      ]
+    },
+    {
+      "key": "send_popup",
+      "label": "Publicar avisos pop-up",
+      "category": "Desenvolvedor",
+      "sensitive": true,
+      "default_roles": [
+        "desenvolvedor"
+      ]
+    },
+    {
+      "key": "manage_users",
+      "label": "Gerenciar contas e funções",
+      "category": "Desenvolvedor",
+      "sensitive": true,
+      "default_roles": [
+        "desenvolvedor"
+      ]
+    },
+    {
+      "key": "view_developer_panel",
+      "label": "Consultar painel do desenvolvedor",
+      "category": "Desenvolvedor",
+      "sensitive": true,
+      "default_roles": [
+        "desenvolvedor"
+      ]
+    },
+    {
+      "key": "view_archives",
+      "label": "Visualizar Arquivados",
+      "category": "Desenvolvedor",
+      "sensitive": true,
+      "default_roles": [
+        "desenvolvedor"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,656 @@
+{
+  "project": "rough-tree-68971996",
+  "branch": "br-crimson-mud-bcyk3t3x",
+  "method": "SQL/RPC with rollback, not browser E2E",
+  "passed": 130,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "permission/view_scales/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_scales/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_scales/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/confirm_assignment/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/confirm_assignment/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/confirm_assignment/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/unassign_self/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/unassign_self/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/unassign_self/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/request_service/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/request_service/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/request_service/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/vote_polls/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/vote_polls/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/vote_polls/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/read_notifications/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/read_notifications/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/read_notifications/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/send_suggestions/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/send_suggestions/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/send_suggestions/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_child_scales/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_child_scales/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_child_scales/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/create_scales/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/create_scales/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/create_scales/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/edit_coroinha/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/edit_coroinha/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/edit_coroinha/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/edit_cerimoniario/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/edit_cerimoniario/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/edit_cerimoniario/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/delete_scales/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/delete_scales/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/delete_scales/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/approve_requests/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/approve_requests/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/approve_requests/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/attendance/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/attendance/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/attendance/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/send_notifications/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/send_notifications/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/send_notifications/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/manage_polls/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/manage_polls/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/manage_polls/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/manage_guides/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/manage_guides/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/manage_guides/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/manage_fixed_rules/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/manage_fixed_rules/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/manage_fixed_rules/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_reports/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_reports/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_reports/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_audit/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_audit/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_audit/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/publish_updates/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/publish_updates/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/publish_updates/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/send_popup/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/send_popup/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/send_popup/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/manage_users/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/manage_users/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/manage_users/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_developer_panel/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_developer_panel/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_developer_panel/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_archives/true",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_archives/false",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/view_archives/expiry",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "automation/auto_approval_3h/switch",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "automation/notify_assignment_events/switch",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "automation/notify_service_requests/switch",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "automation/notify_profile_pending/switch",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "automation/notify_profile_approved/switch",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "automation/notify_coordinator_messages/switch",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "automation/poll_dispatch/switch",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "automation/push_queue/switch",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "automation/archive_retention/switch",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/common-user-cannot-grant",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/confirmation-required",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "permission/early-revocation",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archives/default-denial/2",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archives/default-denial/3",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archives/default-denial/4",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archives/default-denial/5",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archives/default-denial/6",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archives/default-denial/7",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archives/default-denial/8",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archives/developer-access",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "support/developer-channel/2",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "support/developer-channel/3",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "support/developer-channel/6",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "support/pending-user-blocked",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "support/ceremonial-coordinator-create",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "support/cross-group-list-denied",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "support/cross-group-messages-denied",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "support/cross-group-send-denied",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "support/cross-group-close-denied",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "support/matching-coordinator-reply",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "assignment/coroinha/wrong-day-denied",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "assignment/coroinha/reason-required",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "assignment/coroinha/withdraw",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "assignment/cerimoniario/wrong-day-denied",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "assignment/cerimoniario/reason-required",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "assignment/cerimoniario/withdraw",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "assignment/ceremonial-withdrawal-no-cross-group-notice",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archive/mass-23h",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archive/mass-25h",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archive/switch-off",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archive/permanent-delete-after-30-days",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archive/retain-before-30-days",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archive/notice-29d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archive/notice-31d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archive/closed-support",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archive/open-support-preserved",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "autoapproval/2h/True",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "autoapproval/4h/True",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "autoapproval/2h/False",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "parent/link-request-confirm-unlink",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "poll/create-vote-coroinha",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "poll/ceremonial-default-vote",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "archives/private-popup-other-user-blocked",
+      "passed": true
+    },
+    {
+      "name": "archives/private-popup-recipient-allowed",
+      "passed": true
+    },
+    {
+      "name": "archives/private-popup-developer-allowed",
+      "passed": true
+    }
+  ]
+}
