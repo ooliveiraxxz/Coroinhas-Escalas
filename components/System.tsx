@@ -324,7 +324,7 @@ export default function System(){
   await execute(async()=>{
    const dateISO=new Date(`${massForm.date}T${massForm.time}:00-03:00`).toISOString();
    const targetRoles=roles.map(r=>({...r,group:roleGroup(r)}));
-   if(targetRoles.some(r=>!canEditGroup(r.group)))return {error:{message:'Você só pode editar funções do seu grupo.'}};
+   if(targetRoles.some(r=>!(canEditGroup(r.group)||(!editId&&can('create_scales')&&r.group===myGroup))))return {error:{message:'Você só pode editar funções do seu grupo.'}};
    const assignRoles=async(massId:string,previous:AnyRow[])=>{
     for(let i=0;i<targetRoles.length;i++){
      const slot=targetRoles[i],existing=previous[i];
