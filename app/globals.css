@@ -570,3 +570,144 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
  min-width:0;
  padding:0;
 }
+
+
+/* Cerimoniários — identidade monocromática completa.
+   Escopo exclusivo do perfil .ceremony-theme; coroinhas mantêm o tema vinho. */
+body:has(.app.ceremony-theme){background:#e9e9e9}
+.app.ceremony-theme{
+ --wine:#252525;
+ --red:#424242;
+ --cream:#f5f5f5;
+ --ink:#252525;
+ --muted:#686868;
+ color:#252525;
+ background:linear-gradient(#f5f5f5,#fafafa);
+}
+.ceremony-theme .top{background:linear-gradient(145deg,#111,#292929 70%,#484848);box-shadow:0 9px 25px #11111120}
+.ceremony-theme .card,
+.ceremony-theme .item,
+.ceremony-theme .metric,
+.ceremony-theme .mass-list-card,
+.ceremony-theme .users-person-card{
+ background:#fff;
+ border-color:#dedede;
+ box-shadow:0 7px 22px #17171709;
+}
+.ceremony-theme .title,
+.ceremony-theme .content h2,
+.ceremony-theme .content h3,
+.ceremony-theme .section h3,
+.ceremony-theme .card h3,
+.ceremony-theme .itemtitle,
+.ceremony-theme .metric b,
+.ceremony-theme .welcome-banner strong,
+.ceremony-theme .profile-role,
+.ceremony-theme .drawer-role,
+.ceremony-theme .site-credit strong{color:#252525}
+.ceremony-theme .muted,
+.ceremony-theme .site-credit,
+.ceremony-theme .site-credit span+span::before,
+.ceremony-theme .welcome-banner small{color:#6b6b6b}
+.ceremony-theme .site-credit{border-color:#dadada}
+.ceremony-theme .btn:not(.alt):not(.neutral):not(.danger),
+.ceremony-theme .assignment-confirm,
+.ceremony-theme .pilltabs .selected{background:linear-gradient(135deg,#202020,#4b4b4b);border-color:#343434;color:#fff;box-shadow:none}
+.ceremony-theme .btn.alt,
+.ceremony-theme .view-close-button,
+.ceremony-theme .support-card .btn.alt,
+.ceremony-theme .poll-edit-button,
+.ceremony-theme .pdf-back{
+ background:#f1f1f1;
+ color:#292929;
+ border-color:#cecece;
+ box-shadow:none;
+}
+.ceremony-theme .btn.neutral{background:#ebebeb;color:#333}
+.ceremony-theme .btn.danger,
+.ceremony-theme .drawer .logout-danger{background:#333;color:#fff;border-color:#333}
+.ceremony-theme .btn:focus-visible,
+.ceremony-theme button:focus-visible,
+.ceremony-theme .view-close-button:focus-visible{outline:2px solid #777;outline-offset:2px}
+.ceremony-theme .field,
+.ceremony-theme .users-role-label,
+.ceremony-theme .users-person-role{color:#505050}
+.ceremony-theme .field input,
+.ceremony-theme .field select,
+.ceremony-theme .field textarea,
+.ceremony-theme .users-role-label select,
+.ceremony-theme .users-person-role select{
+ border-color:#cecece;
+ background:#fff;
+ color:#242424;
+}
+.ceremony-theme .field input:focus,
+.ceremony-theme .field select:focus,
+.ceremony-theme .field textarea:focus{outline:2px solid #858585}
+.ceremony-theme input[type="checkbox"],
+.ceremony-theme input[type="radio"]{accent-color:#353535}
+.ceremony-theme .chip,
+.ceremony-theme .datebox,
+.ceremony-theme .ceremony-slot{
+ background:#e8e8e8;
+ color:#303030;
+ border-color:#d5d5d5;
+}
+.ceremony-theme .chip.red,
+.ceremony-theme .chip.gold{background:#dedede;color:#333}
+.ceremony-theme .chip.green{background:#e2e9e4;color:#355144}
+.ceremony-theme .bottom{
+ background:#fff;
+ border-top-color:#d6d6d6;
+ box-shadow:0 -5px 20px #1111110b;
+ color:#333;
+}
+.ceremony-theme .bottom button,
+.ceremony-theme .bottom button:active{color:#383838}
+.ceremony-theme .drawer{background:#fff;color:#292929}
+.ceremony-theme .drawer h2{color:#252525}
+.ceremony-theme .drawer button:not(.logout-danger){
+ color:#303030;
+ border-bottom-color:#e4e4e4;
+}
+.ceremony-theme .drawer button:active{background:#ededed}
+.ceremony-theme .welcome-banner{
+ background:linear-gradient(130deg,#fff,#ededed);
+ border-color:#d7d7d7;
+}
+.ceremony-theme .welcome-emblem{background:#dedede;color:#333}
+.ceremony-theme .support-link{
+ background:#f4f4f4;
+ border-color:#d6d6d6;
+ color:#303030;
+}
+.ceremony-theme .divider{background:#dedede}
+.ceremony-theme .pilltabs button{background:#ebebeb;color:#484848}
+.ceremony-theme .calendar .selected{background:#333;color:#fff}
+.ceremony-theme .notice:not(.error){background:#f0f0f0;color:#444}
+.ceremony-theme .view-close-button:active{background:#e6e6e6}
+.ceremony-theme .notification-section-tabs button{
+ background:#f6f6f6;
+ border-color:#d4d4d4;
+ color:#393939;
+}
+.ceremony-theme .notification-section-tabs button.active{
+ background:linear-gradient(135deg,#272727,#555);
+ border-color:#444;
+ color:#fff;
+}
+.ceremony-theme .notification-section-tabs button:focus-visible{outline-color:#888}
+.ceremony-theme .notification-subheading{color:#303030}
+.ceremony-theme .poll-voter-list li{
+ background:#eee;
+ border-color:#d6d6d6;
+ color:#444;
+}
+.ceremony-theme .poll-edit-button:focus-visible{outline-color:#8a8a8a}
+.ceremony-theme .users-person-name,
+.ceremony-theme .users-person-meta,
+.ceremony-theme .users-filter-card>strong{color:#333}
+.ceremony-theme .users-person-actions .btn.alt{background:#f1f1f1;color:#292929;border-color:#ccc}
+.ceremony-theme .support-card,
+.ceremony-theme .mass-list-card{border-color:#dedede}
+.ceremony-theme .site-credit{color:#686868}
