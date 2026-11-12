@@ -62,7 +62,7 @@ export function groupAuditEntries(rows:AuditEntry[]):AuditEntry[]{
      data.subject_user||data.subject_role||'',revoked]);
    const permission={key:clean(data.permission_key),allowed:data.allowed===true,revoked};
    const previous=groups.get(key);
-   if(previous){previous.permission_details=[...(previous.permission_details||[]),permission];previous.permission_count=(previous.permission_count||1)+1;}
+   if(previous){if(!(previous.permission_details||[]).some(x=>x.key===permission.key)){previous.permission_details=[...(previous.permission_details||[]),permission];previous.permission_count=(previous.permission_count||1)+1;}}
    else groups.set(key,{...row,permission_details:[permission],permission_count:1});
    continue;
   }
