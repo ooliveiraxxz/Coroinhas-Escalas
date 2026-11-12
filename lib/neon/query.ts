@@ -54,6 +54,8 @@ const rpcs: Record<string, Record<string, string>> = {
  create_mass_with_assignments:{p_title:'text',p_starts_at:'timestamptz',p_location:'text',p_celebrant:'text',p_notes:'text',p_roles:'jsonb'},
  support_create:{p_category:'text',p_message:'text'},
  support_send:{p_ticket:'uuid',p_message:'text'},
+ support_send_image:{p_ticket:'uuid',p_data:'text'},
+ support_image_get:{p_message:'uuid'},
  support_close:{p_ticket:'uuid'},
  support_list:{},
  support_messages:{p_ticket:'uuid'},
