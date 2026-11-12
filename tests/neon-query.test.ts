@@ -10,6 +10,19 @@ test('no unfiltered destructive operation',()=>{assert.throws(()=>q('profiles','
 test('parameter numbers remain correct with PATCH filters',()=>{const r=q('profiles','PATCH','id=eq.abc&select=id',{name:'Lucas'},'return=representation');assert.deepEqual(r.values,['abc','Lucas']);assert.equal(r.text,'UPDATE public."profiles" SET "name"=$2 WHERE "id" = $1 RETURNING "id"');});
 test('upsert uses explicit known columns and conflict keys',()=>{const r=q('screen_announcement_dismissals','POST','on_conflict=announcement_id,user_id',{announcement_id:'a',user_id:'u'},'resolution=merge-duplicates');assert.match(r.text,/ON CONFLICT \("announcement_id","user_id"\) DO NOTHING/);assert.throws(()=>q('guides','POST','on_conflict=bad',{function_name:'x'},'resolution=merge-duplicates'));});
 test('RPC arguments are cast and parameterized',()=>{const r=q('rpc/respond_assignment','POST','',{p_id:'id',p_action:'confirmar',p_reason:''});assert.match(r.text,/\$1::uuid/);assert.deepEqual(r.values,['id','confirmar','']);assert.throws(()=>q('rpc/respond_assignment','POST','',{p_sql:'SELECT 1'}));});
+test('JSONB arrays for permission and automation RPCs are serialized as JSON, not PostgreSQL arrays',()=>{
+ const changes=[{key:'view_archives',allowed:true}];
+ const a=q('rpc/developer_apply_permissions','POST','',{p_user:'user-id',p_changes:changes,p_until:null,p_confirmation:'DESENVOLVEDOR'});
+ assert.match(a.text,/"p_changes" => \$2::jsonb/);
+ assert.equal(a.values[1],JSON.stringify(changes));
+ const automations=[{key:'push_queue',enabled:true}];
+ const b=q('rpc/developer_apply_automations','POST','',{p_changes:automations,p_confirmation:'DESENVOLVEDOR'});
+ assert.equal(b.values[0],JSON.stringify(automations));
+ const poll=q('rpc/poll_create','POST','',{p_question:'Teste',p_options:[{label:'Sim'}]});
+ assert.equal(poll.values[1],JSON.stringify([{label:'Sim'}]));
+ const response=q('rpc/poll_vote','POST','',{p_poll:'poll-id',p_options:['option-id']});
+ assert.deepEqual(response.values,['poll-id',['option-id']]);
+});
 test('order and pagination reject SQL or excessive result sizes',()=>{assert.throws(()=>q('masses','GET','limit=1001'));assert.throws(()=>q('masses','GET','order=starts_at.desc%3BDROP'));const r=q('masses','GET','order=starts_at.asc&limit=80');assert.match(r.text,/ORDER BY "starts_at" ASC LIMIT \$1/);assert.deepEqual(r.values,[80]);});
 test('batch insert shape cannot silently omit supplied fields',()=>{assert.throws(()=>q('messages','POST','',[{body:'a'},{body:'b',user_id:'u'}]));});
 test('JSON preferences remain structured bound values',()=>{const prefs={enabled:true};const r=q('profiles','PATCH','id=eq.id',{notification_preferences:prefs});assert.deepEqual(r.values,['id',prefs]);});
