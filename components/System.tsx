@@ -31,6 +31,7 @@ const notificationOptions:Record<string,NotificationOption[]>={
  coroinha:[
   {key:'server_assignments',label:'Quando eu for escalado em uma missa'},
   {key:'server_substitutes',label:'Solicitações de substituto'},
+  {key:'server_open_slots',label:'Vagas abertas para servir'},
   {key:'server_approval',label:'Meu cadastro aprovado'},
   {key:'polls',label:'Enquetes e lembretes de encerramento'},
   {key:'general',label:'Avisos gerais do aplicativo'},
@@ -46,6 +47,7 @@ const notificationOptions:Record<string,NotificationOption[]>={
  cerimoniario:[
   {key:'ceremony_assignments',label:'Quando eu for escalado'},
   {key:'ceremony_substitutes',label:'Solicitações de substituto'},
+  {key:'ceremony_open_slots',label:'Vagas abertas para cerimoniários'},
   {key:'ceremony_approval',label:'Meu cadastro aprovado'},
   {key:'general',label:'Avisos gerais do aplicativo'},
   {key:'support_replies',label:'Respostas do chat de suporte'}
