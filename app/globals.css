@@ -774,3 +774,10 @@ body:has(.app.ceremony-theme) .support-floating-count{color:#292929;border-color
 .open-question-answer{padding:12px;border-radius:12px;background:#f1e8eb;margin:0;overflow-wrap:anywhere}
 .ceremony-theme .open-question-answer{background:#ededed;color:#333}
 .ceremony-theme .open-question-card textarea,.ceremony-theme .open-questions .field textarea{border-color:#bbb}
+
+/* Auditoria: responsabilização clara e leitura simples em celulares. */
+.audit-readable-actor-name{margin:-5px 0 0;font-size:13px;color:var(--ink);font-weight:650;overflow-wrap:anywhere}
+.audit-readable-title{text-transform:uppercase;letter-spacing:.015em}
+.audit-readable-details{border-top:1px solid #e8d9dd;margin-top:2px}
+.ceremony-theme .audit-readable-title{color:#292929}
+.ceremony-theme .audit-readable-date{background:#ebebeb;color:#333}
