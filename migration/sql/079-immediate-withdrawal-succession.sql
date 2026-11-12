@@ -23,6 +23,10 @@ BEGIN
  WHERE m.id=NEW.mass_id AND m.published AND m.archived_at IS NULL;
  IF v_starts_at IS NULL OR v_starts_at<=now() THEN RETURN NEW; END IF;
 
+ -- Serialize automatic succession for all slots of the same Mass.
+ -- Existing unique partial index remains the final double-assignment safeguard.
+ PERFORM pg_advisory_xact_lock(hashtextextended(NEW.mass_id::text,0));
+
  SELECT r.* INTO v_candidate
  FROM public.requests r
  JOIN public.profiles p ON p.id=r.user_id
