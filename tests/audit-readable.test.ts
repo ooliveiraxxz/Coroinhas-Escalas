@@ -34,3 +34,23 @@ test('reading a notification is described explicitly',()=>{
  const info=formatAuditEntry({...base,action:'UPDATE',before_data:{title:'Lembrete',seen:false},after_data:{title:'Lembrete',seen:true}});
  assert.match(info.detail,/marcou a notificação “Lembrete” como lida/);
 });
+
+test('one permission grant operation is displayed as one audit item',()=>{
+ const at='2026-11-12T04:12:22.000Z';
+ const a:AuditEntry={id:1,happened_at:at,actor_id:'dev',actor_name:'DESENVOLVEDOR',table_name:'permission_rules',action:'INSERT',after_data:{permission_key:'view_archives',subject_user:'u',batch_id:'batch-1',allowed:true,expires_at:'2026-11-13T04:00:00.000Z'}};
+ const result=groupAuditEntries([a,{...a,id:2,after_data:{...a.after_data,permission_key:'view_reports'}},{...a,id:3,after_data:{...a.after_data,permission_key:'manage_users'}}]);
+ assert.equal(result.length,1);
+ assert.equal(result[0].permission_count,3);
+ const readable=formatAuditEntry(result[0]);
+ assert.match(readable.title,/3 PERMISSÕES/);
+ assert.match(readable.detail,/Visualizar Arquivados/);
+ assert.match(readable.detail,/Gerenciar usuários/);
+});
+test('bulk revocation is a single event but separate operations remain separate',()=>{
+ const before={permission_key:'view_archives',subject_user:'u',expires_at:'2026-11-13T04:00:00.000Z'};
+ const a:AuditEntry={id:10,happened_at:'2026-11-12T05:00:00.000Z',actor_id:'dev',actor_name:'DEV',table_name:'permission_rules',action:'UPDATE',before_data:before,after_data:{...before,expires_at:'2026-11-12T05:00:00.000Z',batch_id:'rev-batch'}};
+ const grouped=groupAuditEntries([a,{...a,id:11,before_data:{...before,permission_key:'send_notifications'},after_data:{...a.after_data,permission_key:'send_notifications'}}]);
+ assert.equal(grouped.length,1);
+ assert.match(formatAuditEntry(grouped[0]).title,/REVOGADAS — 2 PERMISSÕES/);
+ assert.equal(groupAuditEntries([a,{...a,id:11,after_data:{...a.after_data,batch_id:'another-batch'}}]).length,2);
+});
