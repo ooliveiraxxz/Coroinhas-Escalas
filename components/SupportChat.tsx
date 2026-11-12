@@ -187,10 +187,12 @@ export default function SupportChat({db,userId,manager,channel,open,onOpenChange
       {!chatMessages.length&&<p className="support-chat-empty">Carregando mensagens…</p>}
      </div>
      {selectedTicket.status==='aberto'?<div className="support-chat-compose">
-      <textarea aria-label="Sua mensagem" placeholder="Digite sua resposta…" value={draft} maxLength={2000} rows={2} onChange={e=>setDraft(e.target.value)}/>
       <input ref={fileInput} type="file" accept="image/*" aria-label="Escolher imagem para o chat" style={{display:'none'}} onChange={e=>{const file=e.target.files?.[0];e.target.value='';void sendImage(file)}}/>
-      <button type="button" className="btn alt" disabled={busy} onClick={()=>fileInput.current?.click()} aria-label="Anexar imagem ao chat"><ImagePlus size={17}/> Foto</button>
-      <button type="button" className="btn" disabled={busy||!draft.trim()} onClick={()=>void send()}><Send size={17}/> Enviar</button>
+      <div className="support-chat-input-bar">
+       <button type="button" className="support-chat-attach" disabled={busy} onClick={()=>fileInput.current?.click()} aria-label="Anexar imagem ao chat" title="Anexar foto"><ImagePlus size={21}/></button>
+       <textarea aria-label="Sua mensagem" placeholder="Mensagem…" value={draft} maxLength={2000} rows={1} onChange={e=>setDraft(e.target.value)}/>
+       <button type="button" className="support-chat-send" disabled={busy||!draft.trim()} onClick={()=>void send()} aria-label="Enviar mensagem" title="Enviar"><Send size={20}/></button>
+      </div>
       {manager&&<button type="button" className="support-chat-end" disabled={busy} onClick={()=>void closeTicket()}>Encerrar e arquivar atendimento</button>}
      </div>:<div className="support-chat-closed"><CheckCircle2 size={17}/> Atendimento encerrado e arquivado.</div>}
     </>:<div className="support-chat-main">
