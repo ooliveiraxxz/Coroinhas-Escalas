@@ -30,7 +30,7 @@ BEGIN
  WHERE r.id=ANY(p_ids) AND r.subject_user=p_user AND r.expires_at>now();
  IF (SELECT count(*) FROM public.permission_rules r WHERE r.id=ANY(p_ids) AND r.subject_user=p_user AND r.expires_at>now())<>cardinality(p_ids) THEN RAISE EXCEPTION 'Uma permissão selecionada já expirou ou não pertence a este usuário' USING ERRCODE='22023'; END IF;
  UPDATE public.permission_rules
- SET expires_at=now(),batch_id=v_batch,created_by=auth.uid()
+ SET expires_at=now(),batch_id=v_batch
  WHERE subject_user=p_user AND permission_key=ANY(v_keys) AND expires_at>now();
  GET DIAGNOSTICS v_count=ROW_COUNT;
  RETURN v_count;
