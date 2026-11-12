@@ -328,7 +328,7 @@ export default function System(){
  const massCreator=(m:AnyRow)=>profiles.find(p=>p.id===m.created_by)?.name||'outro(a) coordenador(a)';
  useEffect(()=>{
   if(!db||!selected||view!=='Detalhes da missa'||!profile?.approved)return;
-  void db.rpc('record_mass_view',{p_mass:selected}).then(()=>{
+  void Promise.resolve(db.rpc('record_mass_view',{p_mass:selected})).then(()=>{
    if(can('edit_coroinha')||can('edit_cerimoniario'))
     return db.rpc('mass_viewers',{p_mass:selected}).then(({data,error})=>{if(!error&&Array.isArray(data))setMassViewers(data)});
    setMassViewers([]);
