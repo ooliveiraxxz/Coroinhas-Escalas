@@ -756,3 +756,12 @@ body:has(.app.ceremony-theme) .support-floating-count{color:#292929;border-color
 .mass-duplicate-row{border-top:1px solid #e8d1ad;padding-top:9px}
 .mass-duplicate-row .btnrow{margin-top:8px}
 .mass-viewers p{font-size:13px;margin:9px 0;color:var(--ink)}
+
+/* Ações de notificações recebidas: arquivamento individual imediato. */
+.notification-item-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.notification-item-heading b{min-width:0;flex:1;overflow-wrap:anywhere}
+.notification-archive-button{flex-shrink:0;display:grid;place-items:center;width:38px;height:38px;border:1px solid #e5cad2;border-radius:10px;background:#fff6f6;color:#7c243d;cursor:pointer}
+.notification-archive-button:active{background:#f0d9df}
+.notification-archive-button:disabled{opacity:.5;cursor:not-allowed}
+.ceremony-theme .notification-archive-button{background:#f0f0f0;border-color:#ccc;color:#353535}
+.ceremony-theme .notification-archive-button:active{background:#e0e0e0}
