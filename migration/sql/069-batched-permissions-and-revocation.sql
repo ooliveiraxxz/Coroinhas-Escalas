@@ -9,7 +9,7 @@ BEGIN
  IF NOT EXISTS(SELECT 1 FROM public.profiles WHERE id=p_user AND role<>'desenvolvedor') THEN RAISE EXCEPTION 'Conta protegida' USING ERRCODE='42501'; END IF;
  IF jsonb_typeof(p_changes)<>'array' OR jsonb_array_length(p_changes) NOT BETWEEN 1 AND 50 THEN RAISE EXCEPTION 'Alterações inválidas' USING ERRCODE='22023'; END IF;
  IF p_until IS NOT NULL AND (p_until<=now() OR p_until>now()+interval '365 days') THEN RAISE EXCEPTION 'Prazo inválido' USING ERRCODE='22023'; END IF;
- IF (SELECT count(DISTINCT x->>'key') FROM jsonb_array_elements(p_changes) x)<>jsonb_array_length(p_changes) THEN RAISE EXCEPTION 'Permissão repetida na mesma operação' USING ERRCODE='22023'; END IF;
+ IF (SELECT count(DISTINCT item.value->>'key') FROM jsonb_array_elements(p_changes) AS item(value))<>jsonb_array_length(p_changes) THEN RAISE EXCEPTION 'Permissão repetida na mesma operação' USING ERRCODE='22023'; END IF;
  FOR x IN SELECT value FROM jsonb_array_elements(p_changes) LOOP
   IF jsonb_typeof(x)<>'object' OR jsonb_typeof(x->'allowed')<>'boolean' OR NOT EXISTS(SELECT 1 FROM public.permission_catalog WHERE key=x->>'key') THEN RAISE EXCEPTION 'Função desconhecida' USING ERRCODE='22023'; END IF;
   INSERT INTO public.permission_rules(subject_user,permission_key,allowed,expires_at,created_by,batch_id)
