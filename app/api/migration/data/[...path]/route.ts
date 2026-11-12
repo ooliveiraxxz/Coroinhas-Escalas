@@ -36,6 +36,16 @@ async function handle(req:NextRequest,context:{params:Promise<{path:string[]}>})
   const singular=req.headers.get('accept')?.includes('application/vnd.pgrst.object+json');
   if(singular&&!query.rpc&&result.rows.length!==1){await client.query('ROLLBACK');return error(`JSON object requested, ${result.rows.length} rows returned`,406,'PGRST116')}
   await client.query('COMMIT');
+  // Dispatch new notifications after durable commit. A push outage must never
+  // roll back a user's successful scale, approval or message action.
+  if(req.method!=='GET'){
+   try{
+    const {dispatchNeonPush}=await import('@/lib/neon/push-runtime');
+    await dispatchNeonPush(20);
+   }catch(e){
+    console.warn('Neon push delivery temporarily unavailable:',e instanceof Error?e.name:'UnknownError');
+   }
+  }
   if(!query.returning)return new NextResponse(null,{status:204,headers:{'Cache-Control':'no-store'}});
   return NextResponse.json(query.rpc?result.rows[0]?.result??null:singular?result.rows[0]:result.rows,{headers:{'Cache-Control':'no-store'}});
  }catch(e){
