@@ -388,11 +388,11 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
 .support-chat-message small{font-size:10px;opacity:.8}
 .support-chat-message p{font-size:14px;white-space:pre-wrap;line-height:1.5;margin:6px 0 0;overflow-wrap:anywhere}
 .support-chat-compose{flex-shrink:0;border-top:1px solid #ead9dc;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;background:#fff}
-.support-chat-input-bar{display:flex;align-items:flex-end;gap:6px;min-width:0;padding:5px 6px;border:1px solid #e4cdd4;border-radius:24px;background:#fff}
+.support-chat-input-bar{display:flex;align-items:center;gap:7px;min-width:0;padding:5px 6px;border:1px solid #e4cdd4;border-radius:18px;background:#fff;box-shadow:0 2px 10px #6720340b}
 .support-chat-compose .support-chat-input-bar textarea{flex:1;min-width:0;min-height:39px;max-height:110px;height:39px;padding:9px 2px;border:0;box-shadow:none;outline:none;background:transparent;border-radius:0;resize:vertical;line-height:20px;font-size:16px}
-.support-chat-attach,.support-chat-send{flex:0 0 40px;width:40px;height:40px;border:0;border-radius:50%;display:flex;justify-content:center;align-items:center;cursor:pointer}
-.support-chat-attach{background:transparent;color:#87263d}
-.support-chat-send{background:#87263d;color:#fff}
+.support-chat-attach,.support-chat-send{flex:0 0 42px;width:42px;height:42px;border:0;border-radius:12px;display:flex;justify-content:center;align-items:center;cursor:pointer;transition:background .18s ease,opacity .18s ease;align-self:center}
+.support-chat-compose .support-chat-attach{background:#87263d;color:#fff}
+.support-chat-compose .support-chat-send{background:#87263d;color:#fff}
 .support-chat-send:disabled{opacity:.43;cursor:not-allowed}
 .support-chat-attach:disabled{opacity:.43;cursor:not-allowed}
 .support-chat-attach:focus-visible,.support-chat-send:focus-visible{outline:2px solid #87263d;outline-offset:2px}
@@ -408,7 +408,7 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
 @media (max-width:360px){
  .support-chat-compose{padding-left:8px;padding-right:8px}
  .support-chat-input-bar{gap:3px;padding:4px}
- .support-chat-attach,.support-chat-send{flex-basis:36px;width:36px;height:36px}
+ .support-chat-attach,.support-chat-send{flex-basis:38px;width:38px;height:38px;border-radius:10px}
  .support-chat-compose .support-chat-input-bar textarea{min-height:36px;height:36px;padding:7px 1px}
 }
 @media (min-width:720px){
@@ -866,3 +866,10 @@ body:has(.app.ceremony-theme) .support-floating-count{color:#292929;border-color
     }
   }
 }
+
+/* Keep chat media and send actions visible in the active site theme. */
+body:has(.app.ceremony-theme) .support-chat-compose .support-chat-attach,
+body:has(.app.ceremony-theme) .support-chat-compose .support-chat-send{background:#303030;color:#fff}
+.support-chat-compose .support-chat-send:disabled{background:#87263d;opacity:.5}
+.support-chat-compose .support-chat-attach:disabled{opacity:.5}
+body:has(.app.ceremony-theme) .support-chat-compose .support-chat-send:disabled{background:#303030}
