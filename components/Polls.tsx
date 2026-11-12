@@ -5,8 +5,8 @@ import type {SupabaseClient} from '@supabase/supabase-js';
 
 type Option={id:string;label:string;position:number};
 type Result={id:string;label:string;votes:number;voters:{name:string;voted_at:string}[]};
-type Poll={id:string;question:string;starts_at:string;ends_at:string;multiple_answers:boolean;priority:boolean;state:'agendada'|'aberta'|'encerrada';voted:boolean;my_options:string[];options:Option[];results:Result[];respondents:number};
-type Props={db:SupabaseClient|null;coordinator:boolean;userRole:string;};
+type Poll={id:string;created_by:string;question:string;starts_at:string;ends_at:string;multiple_answers:boolean;priority:boolean;state:'agendada'|'aberta'|'encerrada';voted:boolean;my_options:string[];options:Option[];results:Result[];respondents:number};
+type Props={db:SupabaseClient|null;coordinator:boolean;userRole:string;userId:string;isDeveloper:boolean;};
 const dateTime=(v:string)=>new Date(v).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'});
 const toDatetimeLocal=(v:string)=>{
  const d=new Date(v);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);
@@ -14,7 +14,7 @@ const toDatetimeLocal=(v:string)=>{
 function localNow(){
  const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);
 }
-export default function Polls({db,coordinator,userRole}:Props){
+export default function Polls({db,coordinator,userRole,userId,isDeveloper}:Props){
  const [polls,setPolls]=useState<Poll[]>([]),[loading,setLoading]=useState(false),[saving,setSaving]=useState(false),[message,setMessage]=useState('');
  const [question,setQuestion]=useState(''),[options,setOptions]=useState(['','']),[start,setStart]=useState(localNow),[end,setEnd]=useState(''),[multiple,setMultiple]=useState(false),[priority,setPriority]=useState(false);
  const [choices,setChoices]=useState<Record<string,string[]>>({});
@@ -77,6 +77,19 @@ export default function Polls({db,coordinator,userRole}:Props){
   catch(e:any){setMessage(e?.message||'Não foi possível registrar a resposta.')}
   finally{setSaving(false)}
  };
+ const manage=async(poll:Poll,action:'close'|'archive')=>{
+  if(saving||!coordinator)return;
+  if(!confirm(action==='close'?'Encerrar esta enquete agora? Os votos já recebidos serão preservados.':'Apagar esta enquete da lista? Ela ficará arquivada até a exclusão automática.'))return;
+  setSaving(true);setMessage('');
+  try{
+   const result=await rpc(action==='close'?'poll_close':'poll_archive',{p_poll:poll.id});
+   if(result!==true)throw Error('Esta enquete não está disponível para a ação.');
+   if(editingId===poll.id)resetForm();
+   setMessage(action==='close'?'Enquete encerrada.':'Enquete arquivada.');
+   await load();
+  }catch(e:any){setMessage(e?.message||'Não foi possível concluir a operação.')}
+  finally{setSaving(false)}
+ };
  const display=coordinator?polls:userRole==='coroinha'?polls:[];
  return <div className="polls-root">
   {coordinator&&<section className="card poll-create">
@@ -100,7 +113,11 @@ export default function Polls({db,coordinator,userRole}:Props){
   {(display.length>0||coordinator)&&<h3 className="poll-list-heading">{coordinator?'Enquetes e resultados':'Enquetes'}</h3>}
   {display.map(p=><section className="card poll-card" key={p.id}>
    <div className="poll-heading"><strong>{p.question}</strong><span>{p.state==='aberta'?'Aberta':p.state==='agendada'?'Agendada':'Encerrada'}</span></div>
-   {coordinator&&<button type="button" className="poll-edit-button" onClick={()=>{editPoll(p);window.scrollTo({top:0,behavior:'smooth'})}}>Editar enquete</button>}
+   {coordinator&&(p.created_by===userId||isDeveloper)&&<div className="btnrow">
+    {p.state!=='encerrada'&&<button type="button" className="poll-edit-button" disabled={saving} onClick={()=>{editPoll(p);window.scrollTo({top:0,behavior:'smooth'})}}>Editar enquete</button>}
+    {p.state!=='encerrada'&&<button type="button" className="btn alt" disabled={saving} onClick={()=>void manage(p,'close')}>Encerrar</button>}
+    {p.state==='encerrada'&&<button type="button" className="btn danger" disabled={saving} onClick={()=>void manage(p,'archive')}><Trash2 size={17}/> Apagar</button>}
+   </div>}
    {p.state==='encerrada'&&!coordinator?<p className="poll-closed"><CheckCircle2 size={17}/> Enquete encerrada. A votação não está mais disponível.</p>:<>
     <p className="muted poll-dates"><Clock size={14}/> {dateTime(p.starts_at)} até {dateTime(p.ends_at)}</p>
     {coordinator?<div className="poll-results">
