@@ -57,7 +57,7 @@ export default function DeveloperHealth({db}: {db:SupabaseClient|null}) {
  const trend=health?.previous_bytes!=null?Number(health.db_bytes)-Number(health.previous_bytes):null;
  return <section className="card" style={{minWidth:0}}>
   <h3 style={{display:'flex',alignItems:'center',gap:8}}><Activity size={19}/> Saúde do sistema</h3>
-  <p className="muted">Armazenamento do Neon e problemas identificados por serviço.</p>
+  <p className="muted">Neon, GitHub e Vercel em um só lugar.</p>
   <div className="btnrow">
    <button type="button" className="btn alt" onClick={()=>void load()} disabled={loading}><RefreshCw size={15}/>{loading?' Consultando…':' Atualizar Neon'}</button>
    <button type="button" className="btn alt" onClick={()=>{void loadGithub();void loadVercel();void load()}} disabled={issueLoading}>{issueLoading?'Consultando…':'Atualizar problemas'}</button>
@@ -68,24 +68,24 @@ export default function DeveloperHealth({db}: {db:SupabaseClient|null}) {
    <p className="muted">Leitura: {dateTime(health.sampled_at)}</p>
    <div className="developer-metrics">
     <div className="metric"><strong>{mb(health.db_bytes)}</strong><small>Tamanho PostgreSQL</small></div>
-    <div className="metric"><strong>{mb(health.reference_limit_bytes)}</strong><small>Limite lógico informado</small></div>
-    <div className="metric"><strong>{Number(health.capacity_score).toFixed(1)} / 100</strong><small>Índice estimado de espaço livre</small></div>
+    <div className="metric"><strong>{mb(health.reference_limit_bytes)}</strong><small>Referência de espaço</small></div>
+    <div className="metric"><strong>{Number(health.capacity_score).toFixed(1)} / 100</strong><small>Espaço disponível (índice)</small></div>
     <div className="metric"><strong>{health.connections}</strong><small>Conexões no momento</small></div>
    </div>
    <div style={{marginTop:14}}>
     <div style={{display:'flex',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}>
-     <strong>Referência de armazenamento</strong><span>{pct.toFixed(2)}% · {status}</span>
+     <strong>Uso do espaço</strong><span>{pct.toFixed(2)}% · {status}</span>
     </div>
     <div role="progressbar" aria-label="Consumo estimado em relação ao limite de armazenamento" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} style={{height:11,background:'#f3e3e7',borderRadius:20,overflow:'hidden',marginTop:7}}>
      <div style={{height:'100%',width:pct+'%',background:pct>=85?'#b42318':pct>=65?'#be7b18':'#87263d'}}/>
     </div>
-    <p className="muted" style={{fontSize:12}}>Uso estimado em relação ao limite de referência de 1 GB.</p>
+    
    </div>
    <div style={{marginTop:12}}>
-    <strong>Crescimento e sinais de alerta</strong>
-    <p className="muted">{trend===null?'Ainda não há amostras com 24 horas de diferença para prever crescimento.':`Variação desde ${dateTime(health.previous_date!)}: ${trend>=0?'+':''}${mb(Math.abs(trend))}${trend<0?' (redução)':''}.`}</p>
-    <p className="muted">{health.estimated_days_to_limit!=null?`Projeção matemática até a referência: aproximadamente ${health.estimated_days_to_limit} dias, se o crescimento observado continuar.`:'Sem dados suficientes para prever quando o espaço será preenchido.'}</p>
-    <p className="muted">Deadlocks registrados desde o último reset das estatísticas: {health.deadlocks_total}. Não há medição de CPU/temperatura neste painel.</p>
+    <strong>Crescimento e alertas</strong>
+    <p className="muted">{trend===null?'Crescimento: aguardando dados.':`Variação: ${trend<0?'-':'+'}${mb(Math.abs(trend))}.`}</p>
+    <p className="muted">{health.estimated_days_to_limit!=null?`Estimativa até o limite: ${health.estimated_days_to_limit} dias, se o ritmo continuar.`:'Previsão de limite: indisponível.'}</p>
+    <p className="muted">Deadlocks acumulados: {health.deadlocks_total}.</p>
    </div>
    <h4 style={{display:'flex',gap:8,alignItems:'center',marginTop:18}}><HardDrive size={17}/> Tabelas que mais ocupam espaço</h4>
    <div style={{display:'grid',gap:9}}>
@@ -96,14 +96,14 @@ export default function DeveloperHealth({db}: {db:SupabaseClient|null}) {
      <div style={{background:'#f3e3e7',height:6,borderRadius:8,overflow:'hidden',marginTop:4}}><div style={{background:'#87263d',height:'100%',width:Math.min(100,100*t.bytes/Math.max(1,health.top_tables[0]?.bytes||1))+'%'}}/></div>
     </div>)}
    </div>
-   <p className="muted" style={{fontSize:12}}>Inclui dados, índices e overhead por tabela. O tamanho total do banco inclui também componentes internos do PostgreSQL.</p>
+   
    <h4 style={{display:'flex',alignItems:'center',gap:8}}><History size={17}/> Histórico de armazenamento</h4>
-   {last.length<=1?<p className="muted">A primeira amostra foi registrada. Novos pontos serão coletados diariamente.</p>:<div style={{display:'flex',alignItems:'flex-end',gap:3,height:76}}>
+   {last.length<=1?<p className="muted">Histórico em formação.</p>:<div style={{display:'flex',alignItems:'flex-end',gap:3,height:76}}>
     {[...last].reverse().map((s,i)=><div key={i} title={dateTime(s.date)+' — '+mb(s.bytes)} style={{flex:1,background:'#87263d',borderRadius:'3px 3px 0 0',height:Math.max(3,100*s.bytes/Math.max(1,...last.map(x=>x.bytes)))+'%'}}/>)}
    </div>}
   </>}
   <h4 style={{display:'flex',gap:8,alignItems:'center',marginTop:18}}><AlertTriangle size={17}/> Problemas do sistema</h4>
-  <p className="muted">GitHub, Vercel e Neon no mesmo lugar. Cada ocorrência indica sua origem.</p>
+  
   <div style={{display:'grid',gap:9}}>
    <div style={{border:'1px solid #ead9dc',padding:12,borderRadius:12,minWidth:0}}>
     <strong>GitHub</strong>
@@ -126,12 +126,12 @@ export default function DeveloperHealth({db}: {db:SupabaseClient|null}) {
    <div style={{border:'1px solid #ead9dc',padding:12,borderRadius:12,minWidth:0}}>
     <strong>Neon</strong>
     {!health?<p className="muted">{error||'Aguardando consulta ao banco…'}</p>:<>
-     <p className="muted">{pct>=85?'Alerta: armazenamento próximo do limite.':pct>=65?'Atenção ao uso de armazenamento.':'Armazenamento dentro da faixa de referência.'}</p>
-     <p className="muted">{Number(health.deadlocks_total)>0?'Histórico de deadlocks: '+health.deadlocks_total+' (contador acumulado; não indica falha atual).':'Nenhum deadlock acumulado informado.'}</p>
+     <p className="muted">{pct>=85?'Alerta: armazenamento próximo do limite.':pct>=65?'Atenção ao uso de armazenamento.':'Espaço dentro da referência.'}</p>
+     <p className="muted">{Number(health.deadlocks_total)>0?'Deadlocks acumulados: '+health.deadlocks_total+'.':'Sem deadlocks acumulados.'}</p>
      <p className="muted">Última leitura: {dateTime(health.sampled_at)}</p>
     </>}
    </div>
   </div>
-  <p className="muted" style={{fontSize:12}}>Os registros disponíveis não representam todos os erros de interface ou de execução. Uma consulta pendente não significa que o serviço esteja sem problemas.</p>
+  <p className="muted" style={{fontSize:12}}>Exibe apenas os problemas disponíveis nas consultas.</p>
  </section>;
 }
