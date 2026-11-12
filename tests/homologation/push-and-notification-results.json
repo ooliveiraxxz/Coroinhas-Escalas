@@ -1,0 +1,105 @@
+{
+  "date": "2026-11-11",
+  "environment": "rough-tree-68971996/br-crimson-mud-bcyk3t3x",
+  "realPushDelivery": "NOT EXECUTED: zero device subscriptions; preview dispatcher disabled",
+  "push": [
+    {
+      "name": "eligible/new-approved",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "eligible/global-disabled",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "eligible/event-disabled",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "eligible/archived",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "eligible/unapproved",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "eligible/runtime-disabled",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "eligible/old-notification",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "eligible/old-subscription",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "eligible/withdrawal-disabled",
+      "error": null,
+      "passed": true
+    }
+  ],
+  "read": [
+    {
+      "name": "notice/2/mark-own",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "notice/2/other-user-isolated",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "notice/2/repeat-preserves-date",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "notice/3/mark-own",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "notice/3/other-user-isolated",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "notice/3/repeat-preserves-date",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "notice/6/mark-own",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "notice/6/other-user-isolated",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "notice/6/repeat-preserves-date",
+      "error": null,
+      "passed": true
+    }
+  ],
+  "deliveryRollback": "passed (simulation, no external transport)",
+  "transportRegression": {
+    "passed": 14,
+    "failed": 0,
+    "mockedTransport": true
+  }
+}

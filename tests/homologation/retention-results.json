@@ -1,0 +1,110 @@
+{
+  "date": "2026-11-10",
+  "environment": {
+    "project": "rough-tree-68971996",
+    "branch": "br-crimson-mud-bcyk3t3x"
+  },
+  "kind": "SQL/RPC rollback (not browser E2E)",
+  "results": [
+    {
+      "name": "retention/messages/archive-29d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/messages/archive-30d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/messages/archive-31d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/screen_announcements/archive-29d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/screen_announcements/archive-30d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/screen_announcements/archive-31d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/polls/archive-29d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/polls/archive-30d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/polls/archive-31d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/messages/purge-29d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/messages/purge-30d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/screen_announcements/purge-29d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/screen_announcements/purge-30d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/polls/purge-29d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/polls/purge-30d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/notifications/purge-29d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/notifications/purge-30d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/support_tickets/purge-29d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/support_tickets/purge-30d",
+      "error": null,
+      "passed": true
+    },
+    {
+      "name": "retention/poll-open-preserved",
+      "error": null,
+      "passed": true
+    }
+  ]
+}
