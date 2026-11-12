@@ -54,6 +54,7 @@ const rpcs: Record<string, Record<string, string>> = {
  approve_service_request:{p_request_id:'uuid',p_assignment_id:'uuid'},
  delete_notification:{p_group:'uuid'}, developer_usage_summary:{},
  edit_notification:{p_group:'uuid',p_title:'text',p_body:'text'},
+ archive_my_notification:{p_id:'uuid'},
  mark_coordinator_message_seen:{p_id:'uuid'}, mark_notification_seen:{p_id:'uuid'},
  reassign_legacy_function:{p_old_assignment_id:'uuid',p_open_assignment_id:'uuid'},
  record_site_access:{p_login:'boolean'},respond_assignment:{p_id:'uuid',p_action:'text',p_reason:'text'},
