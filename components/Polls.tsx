@@ -45,22 +45,22 @@ export default function Polls({db,coordinator,userRole,userId,isDeveloper}:Props
  },[db,rpc]);
  useEffect(()=>{if(!db)return;void load();const timer=setInterval(()=>void load(),20000);return()=>clearInterval(timer)},[db,load]);
  const create=async()=>{
-  if(!question.trim()||options.some(o=>!o.trim())||options.length<2){setMessage('Informe a pergunta e ao menos duas opções.');return;}
+  if(question.trim().length<5||options.some(o=>!o.trim())||options.length<2){setMessage('A pergunta deve ter pelo menos 5 caracteres e todas as opções precisam estar preenchidas.');return;}
   if(!start||!end||new Date(end)<=new Date(start)||(!editingId&&new Date(end)<=new Date())){setMessage('Confira as datas de início e encerramento.');return;}
   setSaving(true);setMessage('');
   try{
    if(editingId){
     await rpc('poll_update',{p_poll:editingId,p_question:question.trim(),
-     p_options:JSON.stringify(options.map((label,i)=>({id:optionIds[i],label:label.trim()}))),
+     p_options:options.map((label,i)=>({id:optionIds[i],label:label.trim()})),
      p_starts_at:new Date(start).toISOString(),p_ends_at:new Date(end).toISOString(),
      p_multiple:multiple,p_priority:priority});
     setMessage('Enquete atualizada. Os votos já registrados foram preservados.');
    }else{
-    await rpc('poll_create',{p_question:question.trim(),p_options:JSON.stringify(options.map(o=>o.trim())),p_starts_at:new Date(start).toISOString(),p_ends_at:new Date(end).toISOString(),p_multiple:multiple,p_priority:priority});
+    await rpc('poll_create',{p_question:question.trim(),p_options:options.map(o=>o.trim()),p_starts_at:new Date(start).toISOString(),p_ends_at:new Date(end).toISOString(),p_multiple:multiple,p_priority:priority});
     setMessage('Enquete criada! A abertura e os avisos serão realizados no horário programado.');
    }
    resetForm();await load();
-  }catch(e:any){setMessage(e?.message&&/^[^A-Za-z]*[A-Za-zÀ-ú ]{5,100}$/.test(e.message)?e.message:'Não foi possível criar a enquete. Confira os campos.')}
+  }catch(e:any){const detail=String(e?.message||'');setMessage(/^(A pergunta precisa|Verifique as datas|Informe de 2 a 10 opções|Sem permissão|Acesso negado)/i.test(detail)?detail:'Não foi possível salvar a enquete. Verifique os campos ou tente novamente.')}
   finally{setSaving(false)}
  };
  const vote=async(poll:Poll)=>{
