@@ -21,8 +21,8 @@ type NotificationOption={key:string;label:string;future?:boolean};
 const notificationOptions:Record<string,NotificationOption[]>={
  coordenadora:[
   {key:'coord_new_accounts',label:'Novo cadastro aguardando aprovação'},
-  {key:'coord_messages',label:'Mensagens enviadas por coroinhas'},
-  {key:'coord_support',label:'Chats e respostas dos coroinhas'},
+  {key:'coord_messages',label:'Mensagens enviadas por integrantes'},
+  {key:'coord_support',label:'Chats e respostas dos integrantes'},
   {key:'coord_requests',label:'Pedidos para servir ou substituir'},
   {key:'coord_responses',label:'Confirmações e desmarcações de escala'},
   {key:'general',label:'Avisos gerais do aplicativo'},
@@ -37,16 +37,16 @@ const notificationOptions:Record<string,NotificationOption[]>={
   {key:'support_replies',label:'Respostas do chat de suporte'}
  ],
  pai:[
-  {key:'parent_assignments',label:'Meu filho entrar em uma escala',future:true},
-  {key:'parent_withdrawals',label:'Meu filho desmarcar uma escala',future:true},
-  {key:'parent_confirmations',label:'Meu filho confirmar uma escala',future:true},
+  {key:'parent_assignments',label:'Meu filho entrar em uma escala'},
+  {key:'parent_withdrawals',label:'Meu filho desmarcar uma escala'},
+  {key:'parent_confirmations',label:'Meu filho confirmar uma escala'},
   {key:'general',label:'Avisos gerais do aplicativo'},
   {key:'support_replies',label:'Respostas do chat de suporte'}
  ],
  cerimoniario:[
-  {key:'ceremony_assignments',label:'Quando eu for escalado',future:true},
-  {key:'ceremony_substitutes',label:'Solicitações de substituto',future:true},
-  {key:'ceremony_approval',label:'Meu cadastro aprovado',future:true},
+  {key:'ceremony_assignments',label:'Quando eu for escalado'},
+  {key:'ceremony_substitutes',label:'Solicitações de substituto'},
+  {key:'ceremony_approval',label:'Meu cadastro aprovado'},
   {key:'general',label:'Avisos gerais do aplicativo'},
   {key:'support_replies',label:'Respostas do chat de suporte'}
  ],
@@ -54,7 +54,7 @@ const notificationOptions:Record<string,NotificationOption[]>={
   {key:'general',label:'Avisos gerais do aplicativo'},
   {key:'support_replies',label:'Respostas do chat de suporte'},
   {key:'developer_support',label:'Novas solicitações e respostas do chat de suporte'},
-  {key:'developer_system',label:'Alertas administrativos e do sistema',future:true}
+  {key:'developer_system',label:'Alertas administrativos e do sistema'}
  ]
 };
 
@@ -268,7 +268,7 @@ export default function System(){
  async function auth(){if(!db)return setError('Supabase não configurado. Configure as variáveis na Vercel.');setBusy(true);setError('');try{if(register){const {data,error}=await db.auth.signUp({email,password,options:{data:{name,requested_role:requestedRole}}});if(error)throw error;alert(data.session?'Cadastro enviado para aprovação.':'Cadastro criado! Confira seu e-mail se for solicitada confirmação.');setRegister(false)}else{const {error}=await db.auth.signInWithPassword({email,password});if(error)throw error;await db.rpc('record_site_access',{p_login:true})}}catch(e:any){setError(friendlyAppError(e))}finally{setBusy(false)}}
  async function sendNotice(){
   if(!noticeTitle.trim()||!noticeBody.trim())return setError('Informe título e mensagem.');
-  const categories:Record<string,string>={coroinha:'coroinhas',pai:'pais e responsáveis',coordenadora:'coordenadores',todos:'usuários'};
+  const categories:Record<string,string>={coroinha:'coroinhas',cerimoniario:'cerimoniários',pai:'pais e responsáveis',coordenadora:'coordenadores',todos:'usuários'};
   const selected=noticeTarget.startsWith('user:')?noticeTarget.slice(5):null;
   const target=selected?'individual':noticeTarget;
   const recipients=profiles.filter(p=>p.approved===true&&(target==='todos'||(target==='individual'?p.id===selected:p.role===target)));
@@ -702,7 +702,7 @@ export default function System(){
  {coord&&notificationSection==='inbox'&&<h3 className="notification-subheading">Minhas notificações</h3>}
  {can('approve_requests')&&notificationSection==='requests'&&requests.every(r=>r.status!=='pendente')&&<div className="card"><p className="muted">Nenhuma solicitação pendente.</p></div>}
  {coord&&notificationSection==='history'&&campaigns.length===0&&!developer&&<div className="card"><p className="muted">Nenhuma notificação enviada até o momento.</p></div>}
- {(can('send_notifications')||can('send_popup'))&&notificationSection==='compose'&&notificationPanel==='notification'&&<div className="card"><h3>{noticeEditor?'Editar mensagem':'Enviar nova notificação'}</h3>{can('send_popup')&&!noticeEditor&&<label className="field">Formato<select value={screenKind} onChange={e=>{setScreenKind(e.target.value);setNoticeTitle('');setNoticeBody('')}}><option value="message">Mensagem normal (notificações)</option><option value="popup">Aviso na tela (pop-up)</option></select></label>}{field('Título',noticeTitle,setNoticeTitle)}<label className="field">Mensagem<textarea value={noticeBody} onChange={e=>setNoticeBody(e.target.value)}/></label>{!noticeEditor&&(screenKind==='popup'&&can('send_popup')?<><label className="field">Quem verá o aviso<select value={screenRole} onChange={e=>{setScreenRole(e.target.value);setScreenTarget('')}}><option value="all">Todos os perfis aprovados</option><option value="coroinha">Coroinhas</option><option value="pai">Pais e responsáveis</option><option value="coordenadora">Coordenadores(as)</option><option value="desenvolvedor">Desenvolvedores</option><option value="individual">Uma pessoa específica</option></select></label>{screenRole==='individual'&&<label className="field">Usuário<select value={screenTarget} onChange={e=>setScreenTarget(e.target.value)}><option value="">Selecione um usuário</option>{profiles.filter(p=>p.approved).map(p=><option key={p.id} value={p.id}>{p.name||p.email}</option>)}</select></label>}<label className="field">Quando parar de mostrar<select value={screenRepeat} onChange={e=>setScreenRepeat(e.target.value)}><option value="optional">Permitir “Não mostrar novamente”</option><option value="once">Mostrar uma única vez por usuário</option><option value="always">Mostrar a cada nova entrada enquanto ativo</option></select></label><p className="muted">O aviso aparece ao entrar no sistema. Não é uma notificação push.</p></>:<label className="field">Destinatários<select value={noticeTarget} onChange={e=>setNoticeTarget(e.target.value)}><option value="coroinha">Todos os coroinhas aprovados</option><option value="pai">Pais e responsáveis aprovados</option><option value="coordenadora">Coordenadores aprovados</option><option value="todos">Todos os usuários aprovados</option><optgroup label="Enviar para uma pessoa">{profiles.filter(p=>p.approved).map(p=><option value={'user:'+p.id} key={p.id}>{p.name||p.email} · {p.role}</option>)}</optgroup></select></label>)}{!noticeEditor&&screenKind!=='popup'&&<div className="notification-priority-controls">
+ {(can('send_notifications')||can('send_popup'))&&notificationSection==='compose'&&notificationPanel==='notification'&&<div className="card"><h3>{noticeEditor?'Editar mensagem':'Enviar nova notificação'}</h3>{can('send_popup')&&!noticeEditor&&<label className="field">Formato<select value={screenKind} onChange={e=>{setScreenKind(e.target.value);setNoticeTitle('');setNoticeBody('')}}><option value="message">Mensagem normal (notificações)</option><option value="popup">Aviso na tela (pop-up)</option></select></label>}{field('Título',noticeTitle,setNoticeTitle)}<label className="field">Mensagem<textarea value={noticeBody} onChange={e=>setNoticeBody(e.target.value)}/></label>{!noticeEditor&&(screenKind==='popup'&&can('send_popup')?<><label className="field">Quem verá o aviso<select value={screenRole} onChange={e=>{setScreenRole(e.target.value);setScreenTarget('')}}><option value="all">Todos os perfis aprovados</option><option value="coroinha">Coroinhas</option><option value="cerimoniario">Cerimoniários</option><option value="pai">Pais e responsáveis</option><option value="coordenadora">Coordenadores(as)</option><option value="desenvolvedor">Desenvolvedores</option><option value="individual">Uma pessoa específica</option></select></label>{screenRole==='individual'&&<label className="field">Usuário<select value={screenTarget} onChange={e=>setScreenTarget(e.target.value)}><option value="">Selecione um usuário</option>{profiles.filter(p=>p.approved).map(p=><option key={p.id} value={p.id}>{p.name||p.email}</option>)}</select></label>}<label className="field">Quando parar de mostrar<select value={screenRepeat} onChange={e=>setScreenRepeat(e.target.value)}><option value="optional">Permitir “Não mostrar novamente”</option><option value="once">Mostrar uma única vez por usuário</option><option value="always">Mostrar a cada nova entrada enquanto ativo</option></select></label><p className="muted">O aviso aparece ao entrar no sistema. Não é uma notificação push.</p></>:<label className="field">Destinatários<select value={noticeTarget} onChange={e=>setNoticeTarget(e.target.value)}><option value="coroinha">Todos os coroinhas aprovados</option><option value="cerimoniario">Todos os cerimoniários aprovados</option><option value="pai">Pais e responsáveis aprovados</option><option value="coordenadora">Coordenadores aprovados</option><option value="todos">Todos os usuários aprovados</option><optgroup label="Enviar para uma pessoa">{profiles.filter(p=>p.approved).map(p=><option value={'user:'+p.id} key={p.id}>{p.name||p.email} · {p.role}</option>)}</optgroup></select></label>)}{!noticeEditor&&screenKind!=='popup'&&<div className="notification-priority-controls">
   <label className="pref-line"><span>Priorizar notificação</span><input type="checkbox" checked={noticePriority} onChange={e=>setNoticePriority(e.target.checked)}/></label>
   {noticePriority&&<label className="field">Priorizar até<input type="datetime-local" value={noticePriorityEnd} onChange={e=>setNoticePriorityEnd(e.target.value)}/></label>}
   <p className="muted">A prioridade termina quando o destinatário marcar como visto ou quando o prazo acabar.</p>
