@@ -3,9 +3,9 @@ import {useCallback,useEffect,useState} from 'react';
 import type {SupabaseClient} from '@supabase/supabase-js';
 type Question={id:string;question:string;ends_at:string;created_at:string;target_role:string;created_by:string;creator_name:string;answer:string|null;answer_count:number|null};
 type Response={name:string;answer:string;created_at:string};
-type Props={db:SupabaseClient|null;canPublish:boolean;isDeveloper:boolean;group:string;showComposer:boolean};
+type Props={db:SupabaseClient|null;canPublish:boolean;isDeveloper:boolean;group:string;showComposer:boolean;userId:string};
 const dateLabel=(v:string)=>new Date(v).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'});
-export default function OpenQuestions({db,canPublish,isDeveloper,group,showComposer}:Props){
+export default function OpenQuestions({db,canPublish,isDeveloper,group,showComposer,userId}:Props){
  const [items,setItems]=useState<Question[]>([]);
  const [question,setQuestion]=useState('');
  const [target,setTarget]=useState(group);
@@ -32,6 +32,19 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
   try{const r=await db.rpc('open_question_answer',{p_question:id,p_answer:value});if(r.error)throw r.error;setDrafts(v=>({...v,[id]:''}));setSuccess('Sua resposta foi enviada.');await reload()}
   catch(e:any){setError(e?.message||'Não foi possível enviar.')}finally{setBusy(false)}
  };
+ const manage=async(id:string,action:'close'|'archive')=>{
+  if(!db||busy)return;
+  if(!confirm(action==='close'?'Encerrar esta pergunta agora? Não será mais possível responder.':'Apagar esta pergunta da lista? Ela ficará arquivada até a limpeza automática.'))return;
+  setBusy(true);setError('');setSuccess('');
+  try{
+   const r=await db.rpc(action==='close'?'open_question_close':'open_question_archive',{p_question:id});
+   if(r.error)throw r.error;
+   if(r.data!==true)throw new Error('Esta pergunta não está disponível para esta ação.');
+   setSuccess(action==='close'?'Pergunta encerrada.':'Pergunta arquivada.');
+   if(selected===id)setSelected('');
+   await reload();
+  }catch(e:any){setError(e?.message||'Não foi possível concluir a ação.')}finally{setBusy(false)}
+ };
  const read=async(id:string)=>{
   if(!db||busy)return;setBusy(true);setError('');
   try{const r=await db.rpc('open_question_responses',{p_question:id});if(r.error)throw r.error;setAnswers(Array.isArray(r.data)?r.data as Response[]:[]);setSelected(id)}
@@ -45,11 +58,21 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
    <button className="btn full" type="button" disabled={busy||question.trim().length<5||!expires} onClick={()=>void publish()}>{busy?'Publicando…':'Enviar pergunta'}</button>
   </div>}
   {error&&<div className="notice error" role="alert">{error}</div>}{success&&<p className="muted" role="status">{success}</p>}
-  {items.map(q=><div className="card open-question-card" key={q.id}>
-   <small className="muted">Pergunta de {q.creator_name} · até {dateLabel(q.ends_at)}</small><h3>{q.question}</h3>
-   {q.answer?<p className="open-question-answer">Sua resposta: {q.answer}</p>:new Date(q.ends_at)>new Date()&&<><textarea rows={3} maxLength={2000} placeholder="Escreva sua resposta…" aria-label={'Responder: '+q.question} value={drafts[q.id]||''} onChange={e=>setDrafts(prev=>({...prev,[q.id]:e.target.value}))}/><button type="button" className="btn" disabled={busy||!(drafts[q.id]||'').trim()} onClick={()=>void send(q.id)}>Enviar resposta</button></>}
-   {canPublish&&(q.created_by||isDeveloper)&&q.answer_count!==null&&<button type="button" className="btn alt" disabled={busy} onClick={()=>void read(q.id)}>Ver respostas ({q.answer_count})</button>}
-  </div>)}
+  {items.map(q=>{
+   const owner=q.created_by===userId;
+   const canManage=canPublish&&(owner||isDeveloper);
+   const ended=new Date(q.ends_at)<=new Date();
+   const canAnswer=!owner&&!isDeveloper&&!ended;
+   return <div className="card open-question-card" key={q.id}>
+    <small className="muted">Pergunta de {q.creator_name} · {ended?'Encerrada':'Até '+dateLabel(q.ends_at)}</small>
+    <h3>{q.question}</h3>
+    {canManage?<div className="btnrow">
+      <button type="button" className="btn alt" disabled={busy} onClick={()=>void read(q.id)}>Ver respostas ({q.answer_count??0})</button>
+      {!ended&&<button type="button" className="btn alt" disabled={busy} onClick={()=>void manage(q.id,'close')}>Encerrar</button>}
+      {ended&&<button type="button" className="btn danger" disabled={busy} onClick={()=>void manage(q.id,'archive')}>Apagar</button>}
+    </div>:q.answer?<p className="open-question-answer">Sua resposta: {q.answer}</p>:canAnswer?<><textarea rows={3} maxLength={2000} placeholder="Escreva sua resposta…" aria-label={'Responder: '+q.question} value={drafts[q.id]||''} onChange={e=>setDrafts(prev=>({...prev,[q.id]:e.target.value}))}/><button type="button" className="btn" disabled={busy||!(drafts[q.id]||'').trim()} onClick={()=>void send(q.id)}>Enviar resposta</button></>:<p className="muted">Esta pergunta está encerrada.</p>}
+   </div>;
+  })}
   {selected&&<div className="card"><div className="line"><h3>Respostas recebidas</h3><button type="button" className="btn alt" onClick={()=>setSelected('')}>Fechar</button></div>{answers.length===0?<p className="muted">Ainda não há respostas.</p>:answers.map((a,i)=><div className="item" key={i}><strong>{a.name}</strong><p>{a.answer}</p><small className="muted">{dateLabel(a.created_at)}</small></div>)}</div>}
   {items.length===0&&<p className="muted">Nenhuma pergunta disponível no momento.</p>}
  </div>;
