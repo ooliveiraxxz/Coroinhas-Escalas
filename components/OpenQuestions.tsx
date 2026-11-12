@@ -41,7 +41,7 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
   {showComposer&&canPublish&&<div className="card"><h3>Caixinha de perguntas</h3><p className="muted">Como nos Stories: publique uma pergunta e receba respostas escritas individualmente.</p>
    <label className="field">Pergunta<textarea rows={3} maxLength={500} placeholder="Ex.: O que podemos melhorar nas escalas?" value={question} onChange={e=>setQuestion(e.target.value)}/></label>
    {isDeveloper&&<label className="field">Público<select value={target} onChange={e=>setTarget(e.target.value)}><option value="todos">Todos os perfis</option><option value="coroinha">Coroinhas</option><option value="cerimoniario">Cerimoniários</option><option value="pai">Pais e responsáveis</option><option value="coordenadora">Coordenadores</option></select></label>}
-   <label className="field">Receber respostas até<input type="datetime-local" value={expires} onChange={e=>setExpires(e.target.value)}/></label>
+   <label className="field open-question-date-field">Receber respostas até<input className="open-question-date-input" type="datetime-local" value={expires} onChange={e=>setExpires(e.target.value)}/></label>
    <button className="btn full" type="button" disabled={busy||question.trim().length<5||!expires} onClick={()=>void publish()}>{busy?'Publicando…':'Enviar pergunta'}</button>
   </div>}
   {error&&<div className="notice error" role="alert">{error}</div>}{success&&<p className="muted" role="status">{success}</p>}
