@@ -13,26 +13,31 @@ test('migration endpoint defaults to disabled and cannot be enabled in productio
  assert.equal((await GET(req(),context)).status,404);
  delete process.env.VERCEL_ENV;delete process.env.NEON_MIGRATION_ENABLED;
 });
-test('production cutover only activates when deployment SHA equals explicitly approved commit',()=>{
- const old=Object.fromEntries(['NEON_MIGRATION_ENABLED','NEXT_PUBLIC_DATA_BACKEND','VERCEL_ENV','NEON_PRODUCTION_CUTOVER_ENABLED','NEON_PRODUCTION_APPROVED_COMMIT','VERCEL_GIT_COMMIT_SHA'].map(k=>[k,process.env[k]]));
- const commit='a'.repeat(40);
+test('production cutover requires the explicit private activation switch',()=>{
+ const keys=['NEON_MIGRATION_ENABLED','NEXT_PUBLIC_DATA_BACKEND','VERCEL_ENV',
+  'NEON_PRODUCTION_CUTOVER_ENABLED','NEON_PRODUCTION_APPROVED_COMMIT','VERCEL_GIT_COMMIT_SHA'];
+ const old=Object.fromEntries(keys.map(k=>[k,process.env[k]]));
  try{
-  Object.assign(process.env,{NEON_MIGRATION_ENABLED:'true',NEXT_PUBLIC_DATA_BACKEND:'neon-migration',VERCEL_ENV:'production',VERCEL_GIT_COMMIT_SHA:commit});
+  Object.assign(process.env,{NEON_MIGRATION_ENABLED:'true',NEXT_PUBLIC_DATA_BACKEND:'neon-migration',VERCEL_ENV:'production'});
   delete process.env.NEON_PRODUCTION_CUTOVER_ENABLED;
-  delete process.env.NEON_PRODUCTION_APPROVED_COMMIT;
+  assert.equal(migrationEnabled(),false);
+  process.env.NEON_PRODUCTION_CUTOVER_ENABLED='false';
   assert.equal(migrationEnabled(),false);
   process.env.NEON_PRODUCTION_CUTOVER_ENABLED='true';
-  assert.equal(migrationEnabled(),false);
-  process.env.NEON_PRODUCTION_APPROVED_COMMIT='b'.repeat(40);
-  assert.equal(migrationEnabled(),false);
-  process.env.NEON_PRODUCTION_APPROVED_COMMIT='not-a-git-sha';
-  assert.equal(migrationEnabled(),false);
-  process.env.NEON_PRODUCTION_APPROVED_COMMIT=commit;
   assert.equal(migrationEnabled(),true);
-  process.env.NEON_PRODUCTION_CUTOVER_ENABLED='false';
+  // Commit SHAs are deliberately not a cutover gate: routine deploys must not
+  // unexpectedly disable authentication once production cutover is approved.
+  process.env.NEON_PRODUCTION_APPROVED_COMMIT='b'.repeat(40);
+  process.env.VERCEL_GIT_COMMIT_SHA='a'.repeat(40);
+  assert.equal(migrationEnabled(),true);
+  process.env.NEXT_PUBLIC_DATA_BACKEND='supabase';
+  assert.equal(migrationEnabled(),false);
+  process.env.NEXT_PUBLIC_DATA_BACKEND='neon-migration';
+  process.env.NEON_MIGRATION_ENABLED='false';
   assert.equal(migrationEnabled(),false);
  }finally{for(const [k,v] of Object.entries(old)){if(v===undefined)delete process.env[k];else process.env[k]=v}}
 });
+
 test('missing environment and missing token fail before any database connection',async()=>{
  process.env.NEON_MIGRATION_ENABLED='true';process.env.NEXT_PUBLIC_DATA_BACKEND='neon-migration';
  assert.equal((await GET(req(),context)).status,503);
