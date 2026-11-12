@@ -10,7 +10,7 @@
   "crons": [
     {
       "path": "/api/polls/dispatch",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 12 * * *"
     }
   ]
 }
