@@ -53,6 +53,19 @@ async function handle(req:NextRequest,context:{params:Promise<{path:string[]}>})
   const code=typeof e==='object'&&e!==null&&'code'in e?String(e.code):'';
   // Mensagens de domínio explicitamente permitidas; nunca exponha SQL, detalhes de conexão ou erros internos.
   const detail=typeof e==='object'&&e!==null&&'message' in e?String(e.message):'';
+  // Expose only explicitly allowlisted business errors; never SQL or private database details.
+  const safeMassMessages=new Set([
+   'Sem permissão para esta ação','Informe o nome, a data e o horário da missa',
+   'Funções inválidas','Formato de funções inválido','Função inválida',
+   'Há funções demais nesta missa','Grupo de função não autorizado',
+   'Preencha todas as funções','Coroinha selecionado inválido',
+   'O coroinha selecionado não está aprovado',
+   'Esta missa já foi cadastrada. Abra a escala para editar as funções do seu grupo.'
+  ]);
+  if((await context.params).path.join('/')==='rpc/create_mass_with_assignments'&&safeMassMessages.has(detail))
+   return error(detail,code==='42501'?403:422,'MASS_VALIDATION');
+  if(req.method!=='GET')
+   console.warn('Neon operation failed',{action:(await context.params).path.join('/'),sqlstate:code||'unknown'});
   if(code==='42501')return error('Acesso negado.',403);
   if(code==='P0001'&&detail==='Nenhum destinatario encontrado')return error('Não há coroinhas aprovados para receber esta notificação.',422,'NO_RECIPIENTS');
   if(code==='P0001'&&detail==='Nenhum destinatário aprovado encontrado para o grupo selecionado.')return error(detail,422,'NO_RECIPIENTS');
