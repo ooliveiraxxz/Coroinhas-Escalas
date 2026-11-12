@@ -7,6 +7,7 @@ import Polls from './Polls';
 import OpenQuestions from './OpenQuestions';
 import PermissionCenter from './PermissionCenter';
 import Archives from './Archives';
+import {groupAuditEntries,formatAuditEntry,type AuditEntry} from '@/lib/audit/format';
 import {getSupabase} from '@/lib/supabase';
 import {Home,CalendarDays,Users,ChartColumn,Menu,Bell,LogOut,X,Plus,Download,BookOpen,Settings,MessageCircle,UserCircle,Church,CalendarCheck,ChevronRight,Heart,ShieldCheck,Eye,EyeOff,Trash2} from 'lucide-react';
 import type {SupabaseClient} from '@supabase/supabase-js';
@@ -630,18 +631,15 @@ export default function System(){
  <h2 className="title">Auditoria</h2>
  <p className="muted">Histórico das 250 alterações mais recentes, explicado em português. Somente usuários autorizados podem consultar.</p>
  <div className="card"><div className="btnrow"><button type="button" className="btn" onClick={()=>void loadAudit()} disabled={auditLoading}>{auditLoading?'Carregando registros…':'Atualizar registros'}</button><select aria-label="Filtrar auditoria" value={auditFilter} onChange={e=>setAuditFilter(e.target.value)}><option value="todos">Todos</option><option value="INSERT">Criações</option><option value="UPDATE">Alterações</option><option value="DELETE">Exclusões</option></select></div></div>
- {auditRows.filter(a=>auditFilter==='todos'||a.action===auditFilter).map(a=>{
-  const info=summarizeAudit(a);
-  return <article className="card audit-item audit-readable" key={a.id} style={{display:'flex',flexDirection:'column',alignItems:'stretch',gap:13,minWidth:0,overflow:'hidden',padding:18}}>
-   <div style={{display:'block',minWidth:0,width:'100%'}}>
-    <strong className="audit-readable-title" style={{display:'block',width:'100%',fontSize:16,lineHeight:1.45,overflowWrap:'anywhere'}}>{info.title}</strong>
-   </div>
-   <div style={{display:'block',width:'100%'}}>
-    <span className="audit-readable-date" style={{display:'inline-block',borderRadius:10,padding:'7px 10px',background:'#f9ecee',color:'#81324a',fontSize:12,fontWeight:700}}>{new Date(a.happened_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}</span>
-   </div>
-   <p className="muted audit-readable-actor" style={{display:'block',margin:0,overflowWrap:'anywhere'}}>Responsável: {a.actor_email||'Sistema / operação administrativa'}</p>
-   <div className="audit-readable-details" style={{display:'flex',flexDirection:'column',gap:9,width:'100%',borderTop:'1px solid #f0e3e4',paddingTop:12}}>{info.details.map((detail,i)=><p key={i} style={{display:'block',margin:0,lineHeight:1.55,overflowWrap:'anywhere'}}>{detail}</p>)}</div>
-  </article>
+ {groupAuditEntries(auditRows as AuditEntry[]).filter(a=>auditFilter==='todos'||a.action===auditFilter).map(a=>{
+  const info=formatAuditEntry(a);
+  return <article className="card audit-item audit-readable" key={a.id}>
+   <strong className="audit-readable-title">{info.title}</strong>
+   <span className="audit-readable-date">{info.when}</span>
+   <p className="audit-readable-actor">Responsável: {a.actor_email||'Sistema / operação administrativa'}</p>
+   {a.actor_name&&<p className="audit-readable-actor-name">Nome: {a.actor_name}</p>}
+   <div className="audit-readable-details"><p>{info.detail}</p></div>
+  </article>;
  })}
  {auditError&&<div className="card notice error" role="alert">{auditError}</div>}
  {auditRows.length===0&&!auditError&&<div className="card">{auditLoading?'Carregando registros…':auditLoaded?'Nenhuma alteração foi registrada até o momento.':'Toque em Atualizar registros para carregar a auditoria.'}</div>}
