@@ -781,3 +781,44 @@ body:has(.app.ceremony-theme) .support-floating-count{color:#292929;border-color
 .audit-readable-details{border-top:1px solid #e8d9dd;margin-top:2px}
 .ceremony-theme .audit-readable-title{color:#292929}
 .ceremony-theme .audit-readable-date{background:#ebebeb;color:#333}
+
+
+/* iPhone Safari: the native datetime picker must remain inside the question card. */
+.open-questions,
+.open-questions>.card,
+.open-questions .open-question-date-field{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.open-questions .open-question-date-field{display:block;overflow:hidden}
+.open-questions .open-question-date-input[type="datetime-local"]{
+ display:block;
+ box-sizing:border-box;
+ width:100%;
+ min-width:0;
+ max-width:100%;
+ height:50px;
+ min-height:50px;
+ margin:6px 0 0;
+ padding:8px 12px;
+ border:1px solid #e1d3d0;
+ border-radius:13px;
+ background:#fff;
+ color:var(--ink);
+ font-size:16px;
+ -webkit-appearance:none;
+ appearance:none;
+ overflow:hidden;
+}
+.open-questions .open-question-date-input[type="datetime-local"]::-webkit-date-and-time-value{
+ min-width:0;
+ max-width:100%;
+ text-align:left;
+}
+.open-questions .open-question-date-input[type="datetime-local"]::-webkit-datetime-edit{
+ min-width:0;
+ max-width:100%;
+ padding:0;
+}
+.open-questions .open-question-date-input[type="datetime-local"]::-webkit-calendar-picker-indicator{
+ margin-left:auto;
+ flex-shrink:0;
+}
+.ceremony-theme .open-question-date-input[type="datetime-local"]{border-color:#aaa;color:#303030}
