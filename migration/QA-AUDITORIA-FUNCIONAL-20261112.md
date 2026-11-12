@@ -29,10 +29,12 @@
 - Desmarcação via RPC com sucessor disponível: vaga preenchida, pedido aprovado, nenhuma notificação falsa de `Vaga para substituição`.
 - Desmarcação via RPC sem sucessor: vaga aberta, notificações de substituição registradas.
 - Regressão após inclusão de lock por missa: A→B permaneceu funcional, pedido persistiu `aprovado`.
+- Concorrência real: duas atualizações simultâneas em posições da mesma missa e um único candidato; somente uma posição recebeu o candidato, a outra ficou desmarcada e houve apenas uma solicitação aprovada.
 
 ## GitHub CI e Vercel
 - GitHub Actions no commit `815b6434f7e008220e9ffedd08f861c0a5c2ade9`: 63/63 testes `npm test` aprovados; TypeScript, build e auditoria de dependências aprovados.
-- Testes posteriores da branch requerem resultado final de CI novamente.
+- GitHub Actions no commit `bef91afc3d0eb43d5f9ac56eb79c4ab774b7cfe5`: CI **SUCCESS**, incluindo `npm test`, TypeScript e build.
+- Vercel preview desse commit: **READY**. Os testes no banco isolado não foram executados pela preview; foram realizados diretamente via SQL.
 - Experimento `*/5 * * * *` no Vercel: falhou — plano Hobby limita agendamentos a uma vez por dia. Configuração foi revertida para `0 12 * * *`; a preview voltou a READY.
 - Produção: Neon schedule `Aprovar solicitações 3 horas antes` segue desativado. **A correção de agendamento recorrente não foi concluída**. Requer implementação/ativação de um agendador compatível em ocasião aprovada e verificação observável de execução.
 
