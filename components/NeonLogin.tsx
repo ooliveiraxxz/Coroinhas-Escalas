@@ -67,7 +67,7 @@ export default function NeonLogin(){
    {notice&&<p role="status" className="auth-help">{notice}</p>}
    {mode==='signup'&&<p className="auth-approval-note">Seu cadastro será analisado pela coordenação antes da liberação.</p>}
   </section>
-  <a className="auth-quick-support" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:10,backgroundColor:'#ffffff',color:'#741d33',border:'1px solid #ead7dc',borderRadius:14,marginTop:32,padding:'13px 20px',minHeight:52,width:'min(100%, 430px)',fontSize:16,fontWeight:750,textDecoration:'none',boxShadow:'0 8px 24px rgba(30,0,10,.18)'}} href={"https://wa.me/5511915988001?text=Ol%C3%A1!%20Vim%20atrav%C3%A9s%20do%20aplicativo%20Escalas%20de%20Coroinhas%20e%20n%C3%A3o%20estou%20conseguindo%20efetuar%20login.%20Poderia%20me%20ajudar%2C%20por%20favor%3F"} target="_blank" rel="noopener noreferrer" aria-label="Suporte pelo WhatsApp para problemas de login">
+  <a className="auth-quick-support"  href={"https://wa.me/5511915988001?text=Ol%C3%A1!%20Vim%20atrav%C3%A9s%20do%20aplicativo%20Escalas%20de%20Coroinhas%20e%20n%C3%A3o%20estou%20conseguindo%20efetuar%20login.%20Poderia%20me%20ajudar%2C%20por%20favor%3F"} target="_blank" rel="noopener noreferrer" aria-label="Suporte pelo WhatsApp para problemas de login">
    <MessageCircle size={20} strokeWidth={2.2} aria-hidden="true"/><span>Suporte</span>
   </a>
  </div>;
