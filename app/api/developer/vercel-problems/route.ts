@@ -29,8 +29,8 @@ export async function GET(req:NextRequest){
   if(client)await client.query('ROLLBACK').catch(()=>{});
   return reply({connected:false,issues:[],reason:'Permissão não confirmada.'},403);
  }finally{client?.release()}
- const token=process.env.VERCEL_READ_TOKEN;
- if(!token)return reply({connected:false,issues:[],reason:'Falta configurar VERCEL_READ_TOKEN na Vercel.'});
+ const token=process.env.VERCEL_TOKEN||process.env.VERCEL_READ_TOKEN;
+ if(!token)return reply({connected:false,issues:[],reason:'Falta configurar VERCEL_TOKEN na Vercel.'});
  try{
   const params=new URLSearchParams({projectId:'prj_lgQXYScz7B7VS44nV4KPblczb0lB',teamId:'team_I0HebfxifQDMS9ReReEEMZLg',limit:'30'});
   const response=await fetch('https://api.vercel.com/v6/deployments?'+params.toString(),{
