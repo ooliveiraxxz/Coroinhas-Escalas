@@ -26,7 +26,7 @@ function SupportImage({db,messageId}: {db:SupabaseClient|null;messageId:string})
  useEffect(()=>{
   let live=true;
   if(!db)return;
-  void db.rpc('support_image_get' as never,{p_message:messageId} as never).then(({data,error})=>{
+  void Promise.resolve(db.rpc('support_image_get' as never,{p_message:messageId} as never)).then(({data,error})=>{
    if(!live)return;
    const image=data as {mime?:string;data?:string}|null;
    if(error||!image?.data||image.mime!=='image/jpeg'){setFailed(true);return;}
