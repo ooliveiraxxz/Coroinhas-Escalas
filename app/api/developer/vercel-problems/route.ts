@@ -32,8 +32,7 @@ export async function GET(req:NextRequest){
  const token=process.env.VERCEL_READ_TOKEN;
  if(!token)return reply({connected:false,issues:[],reason:'Falta configurar VERCEL_READ_TOKEN na Vercel.'});
  try{
-  const params=new URLSearchParams({projectId:'coroinhas-escalas',limit:'30'});
-  if(process.env.VERCEL_TEAM_ID)params.set('teamId',process.env.VERCEL_TEAM_ID);
+  const params=new URLSearchParams({projectId:'prj_lgQXYScz7B7VS44nV4KPblczb0lB',teamId:'team_I0HebfxifQDMS9ReReEEMZLg',limit:'30'});
   const response=await fetch('https://api.vercel.com/v6/deployments?'+params.toString(),{
    headers:{Authorization:'Bearer '+token},cache:'no-store',signal:AbortSignal.timeout(6500)
   });
@@ -43,7 +42,7 @@ export async function GET(req:NextRequest){
    id:String(d.uid||d.id||''),title:d.meta?.githubCommitMessage||'Publicação com problema',
    state:d.state==='ERROR'?'Falha na publicação':'Publicação cancelada',
    updated_at:new Date(d.created||Date.now()).toISOString(),
-   url:d.url?'https://'+d.url:'https://vercel.com'
+   url:d.url?'https://'+d.url:'https://vercel.com/dashboard'
   }));
   return reply({connected:true,issues,checked_at:new Date().toISOString()});
  }catch{return reply({connected:false,issues:[],reason:'Não foi possível consultar as publicações da Vercel.'})}
