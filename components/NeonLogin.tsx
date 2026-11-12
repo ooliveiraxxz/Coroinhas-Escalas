@@ -1,6 +1,6 @@
 'use client';
 import {useState} from 'react';
-import {Church,Eye,EyeOff} from 'lucide-react';
+import {Church,Eye,EyeOff,LifeBuoy} from 'lucide-react';
 import {neonAuth} from '@/lib/auth/client';
 import {refreshNeonSession} from '@/lib/neon/client';
 export default function NeonLogin(){
@@ -67,5 +67,8 @@ export default function NeonLogin(){
    {notice&&<p role="status" className="auth-help">{notice}</p>}
    {mode==='signup'&&<p className="auth-approval-note">Seu cadastro será analisado pela coordenação antes da liberação.</p>}
   </section>
+  <a className="auth-quick-support" href={"https://wa.me/5511915988001?text=Ol%C3%A1!%20Vim%20atrav%C3%A9s%20do%20aplicativo%20Escalas%20de%20Coroinhas%20e%20n%C3%A3o%20estou%20conseguindo%20efetuar%20login.%20Poderia%20me%20ajudar%2C%20por%20favor%3F"} target="_blank" rel="noopener noreferrer" aria-label="Suporte pelo WhatsApp para problemas de login">
+   <LifeBuoy size={19} aria-hidden="true"/><span>Suporte</span>
+  </a>
  </div>;
 }
