@@ -283,6 +283,26 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
 .auth-login .auth-back-link{display:block;margin:18px auto 0}
 .auth-login .auth-help{font-size:13px;line-height:1.5;color:#75666b;text-align:center;margin:-8px 0 20px}
 .auth-login .auth-approval-note{font-size:12px;line-height:1.5;color:#7e6c70;text-align:center;margin:18px 2px 0}
+.auth-login .auth-quick-support{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  width:min(100%,430px);
+  min-height:48px;
+  margin:20px auto 0;
+  padding:12px 18px;
+  border:1px solid #ffffff85;
+  border-radius:14px;
+  background:#fffaf8;
+  color:#741d33;
+  font-size:15px;
+  font-weight:750;
+  text-decoration:none;
+  box-shadow:0 8px 24px #24071024;
+}
+.auth-login .auth-quick-support:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.auth-login .auth-quick-support:active{background:#f2e4e5}
 @media(max-width:370px){.auth.auth-login{padding-left:14px;padding-right:14px}.auth-login .auth-login-card{padding:24px 18px 20px}.auth-login .auth-brand{margin-bottom:20px}}
 @media(max-height:720px){.auth.auth-login{justify-content:flex-start}.auth-login .auth-brand{margin-bottom:18px}.auth-login .brand-symbol{width:62px;height:62px;margin-bottom:10px}.auth-login .auth-brand h1{font-size:36px}.auth-login .auth-login-card{padding-top:23px}}
 
