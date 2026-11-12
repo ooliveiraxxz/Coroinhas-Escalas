@@ -18,6 +18,8 @@ for (const c of schema[0].inventory.columns) {
  set.add(c.column_name); columns.set(c.table_name, set);
 }
 const rpcs: Record<string, Record<string, string>> = {
+ my_phone:{},
+ update_my_phone:{p_phone:'text'},
  open_question_create:{p_question:'text',p_target:'text',p_ends_at:'timestamptz'},
  open_question_list:{},
  open_question_answer:{p_question:'uuid',p_answer:'text'},
