@@ -822,3 +822,10 @@ body:has(.app.ceremony-theme) .support-floating-count{color:#292929;border-color
  flex-shrink:0;
 }
 .ceremony-theme .open-question-date-input[type="datetime-local"]{border-color:#aaa;color:#303030}
+
+/* Audit batch: keep the overview compact and provide original event details on demand. */
+.audit-batch-details{margin-top:10px;padding:10px 12px;border:1px solid #eadde0;border-radius:12px}
+.audit-batch-details summary{cursor:pointer;font-weight:700;list-style-position:inside}
+.audit-batch-details ul{margin:10px 0 0;padding-left:18px;max-height:260px;overflow-y:auto}
+.audit-batch-details li{font-size:13px;line-height:1.55;overflow-wrap:anywhere;margin:5px 0}
+.ceremony-theme .audit-batch-details{border-color:#ccc}
