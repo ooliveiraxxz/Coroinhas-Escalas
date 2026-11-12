@@ -22,7 +22,22 @@ const permissionNames:Record<string,string>={
  manage_polls:'Gerenciar enquetes e perguntas',view_reports:'Visualizar relatórios',
  approve_requests:'Aprovar solicitações',attendance:'Registrar presença',
  request_service:'Solicitar participação',confirm_assignment:'Confirmar escala',
- unassign_self:'Desmarcar escala',read_notifications:'Ler notificações'
+ unassign_self:'Desmarcar escala',read_notifications:'Ler notificações',
+ view_scales:'Visualizar escalas',vote_polls:'Responder enquetes',view_child_scales:'Acompanhar escalas vinculadas',
+ send_suggestions:'Enviar sugestões e reclamações',manage_guides:'Gerenciar orientações e funções',
+ manage_fixed_rules:'Gerenciar escala automática',view_developer_panel:'Consultar painel do desenvolvedor',
+ publish_updates:'Publicar atualizações'
+};
+const automationNames:Record<string,string>={
+ archive_retention:'Arquivamento e exclusão automática de registros antigos',
+ auto_approval_3h:'Aprovação automática de solicitações após 3 horas',
+ notify_assignment_events:'Notificações sobre atribuições e confirmações de escalas',
+ notify_coordinator_messages:'Notificações de mensagens à coordenação',
+ notify_profile_approved:'Notificações de cadastro aprovado',
+ notify_profile_pending:'Notificações de cadastro aguardando aprovação',
+ notify_service_requests:'Notificações de pedidos para servir',
+ poll_dispatch:'Envio automático das enquetes',
+ push_queue:'Envio das notificações para os aparelhos'
 };
 const statusNames:Record<string,string>={
  escalado:'escalado',confirmado:'confirmado',desmarcado:'desmarcado',faltou:'faltou',
@@ -103,10 +118,11 @@ export function formatAuditEntry(row:AuditEntry){
   break;
  case 'guides':
   detail=who+' '+(row.action==='INSERT'?'criou':row.action==='DELETE'?'excluiu':'atualizou')+
-    ' as orientações '+quote(v.function_name)+'.'+(clean(v.instructions)?' Conteúdo: '+quote(v.instructions)+'.':'');
+    ' as orientações '+(clean(v.function_name).startsWith('__como_usar_')?'de como usar o site':quote(v.function_name))+'.'+
+    (clean(v.instructions)?' Conteúdo: '+quote(v.instructions)+'.':'');
   break;
  case 'service_settings':
-  detail=actor+' '+(row.action==='DELETE'?'removeu':'configurou')+' a automação '+quote(v.key)+
+  detail=actor+' '+(row.action==='DELETE'?'removeu':'configurou')+' a automação '+quote(automationNames[clean(v.key)]||'Configuração interna do sistema')+
    (v.enabled===undefined?'':v.enabled?' como ativada.':' como desativada.');
   break;
  case 'site_updates':
