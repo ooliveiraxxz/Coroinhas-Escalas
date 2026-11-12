@@ -12,7 +12,7 @@ const errorMessage=(err:unknown)=>{
  const text=typeof err==='object'&&err&&'message' in err?String((err as {message:unknown}).message):String(err||'');
  if(!text)return 'Não foi possível concluir a operação.';
  if(/not authenticated|not authorized|permission denied|não autorizado/i.test(text))return 'A sessão não permite esta operação. Entre novamente.';
- if(/failed to fetch|network|timeout|connection/i.test(text))return 'Sem conexão com o servidor. Tente novamente.';
+ if(/failed to fetch|load failed|network|timeout|connection/i.test(text))return 'Sem conexão com o servidor. Tente novamente.';
  if(/support_|sqlstate|pgrst|invalid input/i.test(text))return 'Não foi possível atualizar o atendimento. Tente novamente.';
  return text;
 };
@@ -36,31 +36,33 @@ export default function SupportChat({db,userId,manager,channel,open,onOpenChange
   if(result.error)throw result.error;
   return result.data;
  },[db]);
- const loadTickets=useCallback(async()=>{
+ const loadTickets=useCallback(async(silent=false)=>{
   if(!db)return;
   try{
    const data=await invoke(rpc('list'));
    setTickets(Array.isArray(data)?data as Ticket[]:[]);
    setListLoaded(true);
-  }catch(e){setError(errorMessage(e));setListLoaded(true)}
+   if(!silent)setError(previous=>previous==='Sem conexão com o servidor. Tente novamente.'?'':previous);
+  }catch(e){if(!silent)setError(errorMessage(e));setListLoaded(true)}
  },[db,invoke]);
- const loadMessages=useCallback(async(ticket:string)=>{
+ const loadMessages=useCallback(async(ticket:string,silent=false)=>{
   if(!ticket)return;
   try{
    const data=await invoke(rpc('messages'),{p_ticket:ticket});
    setChatMessages(Array.isArray(data)?data as ChatMessage[]:[]);
-  }catch(e){setError(errorMessage(e))}
+   if(!silent)setError(previous=>previous==='Sem conexão com o servidor. Tente novamente.'?'':previous);
+  }catch(e){if(!silent)setError(errorMessage(e))}
  },[invoke]);
  useEffect(()=>{
   if(!db||!userId)return;
   void loadTickets();
-  const interval=setInterval(()=>void loadTickets(),12000);
+  const interval=setInterval(()=>void loadTickets(true),12000);
   return()=>clearInterval(interval);
  },[db,userId,loadTickets]);
  useEffect(()=>{
   if(!open||!selected||!db)return;
   void loadMessages(selected);
-  const interval=setInterval(()=>void loadMessages(selected),6000);
+  const interval=setInterval(()=>void loadMessages(selected,true),6000);
   return()=>clearInterval(interval);
  },[db,open,selected,loadMessages]);
  useEffect(()=>{
