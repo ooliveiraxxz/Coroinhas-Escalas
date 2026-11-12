@@ -289,17 +289,17 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
   justify-content:center;
   gap:9px;
   width:min(100%,430px);
-  min-height:48px;
-  margin:20px auto 0;
-  padding:12px 18px;
-  border:1px solid #ffffff85;
+  min-height:52px;
+  margin:32px auto 0;
+  padding:13px 20px;
+  border:1px solid #ead7dc;
   border-radius:14px;
-  background:#fffaf8;
+  background:#fff;
   color:#741d33;
-  font-size:15px;
+  font-size:16px;
   font-weight:750;
   text-decoration:none;
-  box-shadow:0 8px 24px #24071024;
+  box-shadow:0 8px 24px #24071030;
 }
 .auth-login .auth-quick-support:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .auth-login .auth-quick-support:active{background:#f2e4e5}
