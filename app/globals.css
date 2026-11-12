@@ -400,7 +400,26 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
 .support-chat-closed{margin:0;padding:20px;text-align:center;display:flex;justify-content:center;align-items:center;gap:8px;font-size:13px;color:#736168}
 .support-chat-error{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:12px 15px;background:#ffe7e8;color:#80152e;font-size:13px;line-height:1.4}
 .support-chat-error button{border:0;background:transparent;color:inherit;font-size:22px}
-@media (min-width:720px){.support-chat-backdrop{align-items:center}.support-chat-panel{height:min(78vh,720px);border-radius:24px}}
+/* Responsive chat composer across Android, iOS, tablets and desktop. */
+.support-chat-backdrop{padding-inline:env(safe-area-inset-left,0px) env(safe-area-inset-right,0px)}
+.support-chat-panel{max-width:100%;min-width:0}
+.support-chat-input-bar{width:100%;max-width:100%;min-width:0}
+.support-chat-input-bar textarea{width:100%;overflow-x:hidden;overflow-wrap:anywhere}
+@media (max-width:360px){
+ .support-chat-compose{padding-left:8px;padding-right:8px}
+ .support-chat-input-bar{gap:3px;padding:4px}
+ .support-chat-attach,.support-chat-send{flex-basis:36px;width:36px;height:36px}
+ .support-chat-compose .support-chat-input-bar textarea{min-height:36px;height:36px;padding:7px 1px}
+}
+@media (min-width:720px){
+ .support-chat-backdrop{align-items:center;padding:24px}
+ .support-chat-panel{width:min(92vw,680px);height:min(80dvh,760px);border-radius:24px}
+ .support-chat-compose{padding-inline:18px}
+}
+@media (max-height:550px) and (orientation:landscape){
+ .support-chat-panel{height:100dvh;max-height:100dvh}
+ .support-chat-compose{padding-top:6px;padding-bottom:6px}
+}
 
 /* Botão de suporte com ícone e texto centralizados */
 .support-start-button{display:flex;align-items:center;justify-content:center;gap:10px;line-height:1.3;min-height:50px;text-align:center;flex-wrap:wrap}
