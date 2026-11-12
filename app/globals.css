@@ -288,21 +288,22 @@ body>.pdf-overlay .pdf-actions .btn{min-width:0;width:100%;min-height:48px;font-
   align-items:center;
   justify-content:center;
   gap:9px;
-  width:min(100%,430px);
-  min-height:52px;
+  width:max-content;
+  min-height:48px;
   margin:32px auto 0;
-  padding:13px 20px;
-  border:1px solid #ead7dc;
-  border-radius:14px;
-  background:#fff;
-  color:#741d33;
+  padding:10px 16px;
+  border:0;
+  background:transparent;
+  color:#fff;
   font-size:16px;
   font-weight:750;
   text-decoration:none;
-  box-shadow:0 8px 24px #24071030;
+  text-shadow:0 1px 3px #24071066;
+  box-shadow:none;
 }
-.auth-login .auth-quick-support:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.auth-login .auth-quick-support:active{background:#f2e4e5}
+.auth-login .auth-quick-support:visited{color:#fff}
+.auth-login .auth-quick-support:focus-visible{outline:2px solid #fff;outline-offset:3px;border-radius:9px}
+.auth-login .auth-quick-support:active{color:#fff;background:#ffffff12;border-radius:9px}
 @media(max-width:370px){.auth.auth-login{padding-left:14px;padding-right:14px}.auth-login .auth-login-card{padding:24px 18px 20px}.auth-login .auth-brand{margin-bottom:20px}}
 @media(max-height:720px){.auth.auth-login{justify-content:flex-start}.auth-login .auth-brand{margin-bottom:18px}.auth-login .brand-symbol{width:62px;height:62px;margin-bottom:10px}.auth-login .auth-brand h1{font-size:36px}.auth-login .auth-login-card{padding-top:23px}}
 
