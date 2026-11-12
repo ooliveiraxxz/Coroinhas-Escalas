@@ -645,7 +645,9 @@ export default function System(){
    <span className="audit-readable-date">{info.when}</span>
    <p className="audit-readable-actor">Responsável: {a.actor_email||'Sistema / operação administrativa'}</p>
    {a.actor_name&&<p className="audit-readable-actor-name">Nome: {a.actor_name}</p>}
-   <div className="audit-readable-details"><p>{info.detail}</p></div>
+   <div className="audit-readable-details"><p>{info.detail}</p>
+    {a.activity_details&&a.activity_details.length>1&&<details className="audit-batch-details"><summary>Ver todas as {a.activity_details.length} notificações</summary><ul>{a.activity_details.map((entry,i)=><li key={entry.id+'-'+i}>{new Date(entry.at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit',second:'2-digit'})} — {entry.title}</li>)}</ul></details>}
+   </div>
   </article>;
  })}
  {auditError&&<div className="card notice error" role="alert">{auditError}</div>}
