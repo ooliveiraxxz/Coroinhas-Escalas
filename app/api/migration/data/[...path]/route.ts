@@ -13,8 +13,10 @@ async function handle(req:NextRequest,context:{params:Promise<{path:string[]}>})
  if(!migrationEnabled())return error('Ambiente de migração desativado.',404);
  if(!process.env.NEON_MIGRATION_DATABASE_URL||!process.env.NEON_AUTH_BASE_URL||!process.env.NEON_AUTH_COOKIE_SECRET)return error('Ambiente de migração incompleto.',503);
  if(req.method!=='GET'&&req.headers.get('origin')!==req.nextUrl.origin)return error('Origem inválida.',403);
+ const requestPath=(await context.params).path.join('/');
+ const maxBytes=requestPath==='rpc/support_send_image'?2200000:65536;
  const length=req.headers.get('content-length');
- if(length!==null&&(!/^\d+$/.test(length)||Number(length)>65536))
+ if(length!==null&&(!/^\d+$/.test(length)||Number(length)>maxBytes))
   return error('Requisição muito grande.',413);
  if(!req.headers.get('cookie'))return error('Não autenticado.',401);
  let session;
@@ -22,7 +24,7 @@ async function handle(req:NextRequest,context:{params:Promise<{path:string[]}>})
  let query;
  try{
   const raw=['GET','DELETE'].includes(req.method)?'{}':await req.text();
-  if(raw.length>65536)return error('Requisição muito grande.',413);
+  if(raw.length>maxBytes)return error('Requisição muito grande.',413);
   query=compileQuery((await context.params).path,req.method,req.nextUrl.searchParams,JSON.parse(raw||'{}'),req.headers.get('prefer')||'');
  }catch{return error('Operação não suportada no ambiente de migração.',400)}
  let client;
@@ -67,6 +69,7 @@ async function handle(req:NextRequest,context:{params:Promise<{path:string[]}>})
   if(req.method!=='GET')
    console.warn('Neon operation failed',{action:(await context.params).path.join('/'),sqlstate:code||'unknown'});
   if(code==='42501')return error('Acesso negado.',403);
+  if(requestPath==='rpc/support_send_image' && code==='22023')return error('Imagem inválida ou maior que 1,5 MB. Tente outra foto.',422,'SUPPORT_IMAGE_INVALID');
   if(code==='P0001'&&detail==='Nenhum destinatario encontrado')return error('Não há coroinhas aprovados para receber esta notificação.',422,'NO_RECIPIENTS');
   if(code==='P0001'&&detail==='Nenhum destinatário aprovado encontrado para o grupo selecionado.')return error(detail,422,'NO_RECIPIENTS');
   return error('Não foi possível concluir a operação. Tente novamente.',400);
