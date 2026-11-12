@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - migration/neon-20261106
+      - qa/auditoria-funcional-20261112
   workflow_dispatch:
 
 permissions:
