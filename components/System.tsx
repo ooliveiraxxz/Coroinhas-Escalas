@@ -386,7 +386,7 @@ export default function System(){
     const created=await db.rpc('create_mass_with_assignments',{
      p_title:massForm.title.trim(),p_starts_at:dateISO,p_location:massForm.location,
      p_celebrant:massForm.celebrant,p_notes:massForm.notes,
-     p_roles:JSON.stringify(targetRoles.map(r=>({fn:r.fn.trim(),uid:r.uid||null,group:r.group})))
+     p_roles:targetRoles.map(r=>({fn:r.fn.trim(),uid:r.uid||null,group:r.group}))
     });
     if(created.error)return created;
    }
