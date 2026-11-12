@@ -3,6 +3,7 @@ export type AuditEntry = {
  table_name:string;action:'INSERT'|'UPDATE'|'DELETE';record_id?:string|null;
  before_data?:Record<string,unknown>|null;after_data?:Record<string,unknown>|null;
  related_mass_name?:string|null;recipient_count?:number;
+ permission_details?:{key:string;allowed:boolean;revoked:boolean}[];permission_count?:number;related_user_name?:string|null;
 };
 const kinds:Record<string,string>={
  masses:'ESCALA',assignments:'FUNÇÃO DA ESCALA',requests:'SOLICITAÇÃO PARA SERVIR',
@@ -50,8 +51,21 @@ const date=(v:unknown)=>{if(!v)return '';const d=new Date(String(v));return Numb
 export function groupAuditEntries(rows:AuditEntry[]):AuditEntry[]{
  const groups=new Map<string,AuditEntry>();
  for(const row of rows){
-  // Only combine copies of the SAME notification operation to different recipients.
-  // Other tables, including mass editing and permissions, always retain separate actions.
+  if(row.table_name==='permission_rules'){
+   const before=row.before_data||{},after=row.after_data||{};
+   const data=row.action==='DELETE'?before:after;
+   const revoked=row.action==='DELETE'||(row.action==='UPDATE'&&Boolean(before.expires_at)&&String(after.expires_at)!==String(before.expires_at)&&
+     Date.parse(String(after.expires_at))<=Date.parse(row.happened_at)+1000);
+   // Batch IDs are exact. Historical rows with no ID use identical transaction timestamps.
+   const batch=clean(after.batch_id||before.batch_id)||('legacy:'+row.happened_at);
+   const key=JSON.stringify(['permissions',batch,row.action,row.actor_id||row.actor_email||'system',
+     data.subject_user||data.subject_role||'',revoked]);
+   const permission={key:clean(data.permission_key),allowed:data.allowed===true,revoked};
+   const previous=groups.get(key);
+   if(previous){previous.permission_details=[...(previous.permission_details||[]),permission];previous.permission_count=(previous.permission_count||1)+1;}
+   else groups.set(key,{...row,permission_details:[permission],permission_count:1});
+   continue;
+  }
   if(row.table_name!=='notifications'){groups.set('id:'+row.id,{...row});continue}
   const data=row.action==='DELETE'?row.before_data||{}:row.after_data||{};
   const second=String(row.happened_at).slice(0,19);
@@ -70,7 +84,10 @@ export function formatAuditEntry(row:AuditEntry){
  const who=clean(row.actor_name)||clean(row.actor_email)||'O sistema';
  const actor=isAutomatic?'Sistema ou operação administrativa':who;
  const verb=row.action==='INSERT'?'CRIADO':row.action==='DELETE'?'EXCLUÍDO':'ATUALIZADO';
- const title=verb+' — '+(kinds[row.table_name]||'REGISTRO DO SISTEMA');
+ const permissionRevoked=row.table_name==='permission_rules'&&Boolean(row.permission_details?.[0]?.revoked);
+ const title=row.table_name==='permission_rules'&&row.permission_count&&row.permission_count>1
+  ?(permissionRevoked?'REVOGADAS':'CONFIGURADAS')+' — '+row.permission_count+' PERMISSÕES'
+  :permissionRevoked?'REVOGADA — PERMISSÃO':verb+' — '+(kinds[row.table_name]||'REGISTRO DO SISTEMA');
  const changed=(k:string)=>JSON.stringify(before[k])!==JSON.stringify(after[k]);
  const mass=quote(row.related_mass_name);
  const subject=quote(v.title||v.name||v.question||v.function_name||v.version);
@@ -105,12 +122,16 @@ export function formatAuditEntry(row:AuditEntry){
    changed('role')?who+' alterou o perfil de '+(clean(v.name)||clean(v.email)||'um usuário')+' para '+groupName(after.role)+'.':
    who+' atualizou o cadastro de '+(clean(v.name)||clean(v.email)||'um usuário')+'.';
   break;
- case 'permission_rules':
-  detail=who+' '+(row.action==='DELETE'?'revogou':row.action==='INSERT'?'definiu':'alterou')+
-    ' a permissão '+quote(permissionNames[clean(v.permission_key)]||clean(v.permission_key))+
-    ' como '+(v.allowed===true?'permitida':'bloqueada')+
-    (v.expires_at?', até '+date(v.expires_at):', sem prazo de expiração')+'.';
+ case 'permission_rules':{
+  const perms=row.permission_details||[{key:clean(v.permission_key),allowed:v.allowed===true,revoked:permissionRevoked}];
+  const count=perms.length;
+  const person=row.related_user_name?' para '+row.related_user_name:'';
+  const labels=perms.map(p=>(permissionNames[p.key]||p.key)+(p.revoked?'':p.allowed?' (permitida)':' (bloqueada)'));
+  detail=who+(permissionRevoked?' revogou ':count>1?' configurou ':' definiu ')+
+    (count>1?count+' permissões':'a permissão')+person+': '+labels.join('; ')+'.'+
+    (!permissionRevoked&&v.expires_at?' Validade até '+date(v.expires_at)+'.':'');
   break;
+ }
  case 'requests':
   detail=who+' '+(row.action==='INSERT'?'enviou':row.action==='DELETE'?'removeu':'atualizou')+
    ' uma solicitação para '+(v.type==='substituir'?'substituir':'servir')+' na escala '+mass+'.'+
