@@ -68,6 +68,7 @@ const rpcs: Record<string, Record<string, string>> = {
  delete_notification:{p_group:'uuid'},
  end_notification_campaign:{p_group:'uuid'},
  archive_screen_announcement:{p_id:'uuid'}, developer_usage_summary:{},
+ developer_neon_health:{},
  edit_notification:{p_group:'uuid',p_title:'text',p_body:'text'},
  archive_my_notification:{p_id:'uuid'},
  mark_coordinator_message_seen:{p_id:'uuid'}, mark_notification_seen:{p_id:'uuid'},
