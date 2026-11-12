@@ -15,6 +15,8 @@ export async function GET(req:NextRequest){
   const polls=await pool.query('SELECT public.poll_dispatch() AS result');
   const approvals=await pool.query('SELECT public.run_pending_auto_approvals() AS count');
   const archive=await pool.query('SELECT public.archive_maintenance() AS result');
+  // A daily, bounded snapshot supports storage-growth trends without affecting the poll schedule.
+  try{await pool.query('SELECT public.system_health_capture()')}catch{console.warn('Neon health snapshot unavailable')}
   let push:Record<string,number>|{error:string}={processed:0,sent:0,failed:0,skipped:0};
   try{
    const {dispatchNeonPush}=await import('@/lib/neon/push-runtime');
