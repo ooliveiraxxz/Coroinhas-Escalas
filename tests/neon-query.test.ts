@@ -23,6 +23,17 @@ test('JSONB arrays for permission and automation RPCs are serialized as JSON, no
  const response=q('rpc/poll_vote','POST','',{p_poll:'poll-id',p_options:['option-id']});
  assert.deepEqual(response.values,['poll-id',['option-id']]);
 });
+test('mass creation sends a real JSON array of function assignments to Neon',()=>{
+ const roles=[{fn:'Crucifixo',uid:null,group:'coroinha'},{fn:'Missal',uid:null,group:'cerimoniario'}];
+ const payload={
+  p_title:'Missa Dominical',p_starts_at:'2026-11-22T11:00:00.000Z',
+  p_location:'',p_celebrant:'',p_notes:'',p_roles:roles
+ };
+ const compiled=q('rpc/create_mass_with_assignments','POST','',payload);
+ assert.match(compiled.text,/"p_roles" => \\$6::jsonb/);
+ assert.equal(compiled.values[5],JSON.stringify(roles));
+ assert.deepEqual(JSON.parse(String(compiled.values[5])),roles);
+});
 test('order and pagination reject SQL or excessive result sizes',()=>{assert.throws(()=>q('masses','GET','limit=1001'));assert.throws(()=>q('masses','GET','order=starts_at.desc%3BDROP'));const r=q('masses','GET','order=starts_at.asc&limit=80');assert.match(r.text,/ORDER BY "starts_at" ASC LIMIT \$1/);assert.deepEqual(r.values,[80]);});
 test('batch insert shape cannot silently omit supplied fields',()=>{assert.throws(()=>q('messages','POST','',[{body:'a'},{body:'b',user_id:'u'}]));});
 test('JSON preferences remain structured bound values',()=>{const prefs={enabled:true};const r=q('profiles','PATCH','id=eq.id',{notification_preferences:prefs});assert.deepEqual(r.values,['id',prefs]);});
