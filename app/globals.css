@@ -829,3 +829,15 @@ body:has(.app.ceremony-theme) .support-floating-count{color:#292929;border-color
 .audit-batch-details ul{margin:10px 0 0;padding-left:18px;max-height:260px;overflow-y:auto}
 .audit-batch-details li{font-size:13px;line-height:1.55;overflow-wrap:anywhere;margin:5px 0}
 .ceremony-theme .audit-batch-details{border-color:#ccc}
+
+
+/* iOS Safari/PWA: prevent automatic focus zoom without disabling pinch-to-zoom. */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 749px) {
+    html body input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    html body textarea,
+    html body select {
+      font-size: 16px !important;
+    }
+  }
+}
