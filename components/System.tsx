@@ -4,6 +4,7 @@ import {createPortal} from 'react-dom';
 import NeonLogin from './NeonLogin';
 import SupportChat from './SupportChat';
 import Polls from './Polls';
+import OpenQuestions from './OpenQuestions';
 import PermissionCenter from './PermissionCenter';
 import Archives from './Archives';
 import {getSupabase} from '@/lib/supabase';
@@ -704,7 +705,8 @@ export default function System(){
   <button type="button" className={notificationPanel==='questions'?'active':''} aria-pressed={notificationPanel==='questions'} onClick={()=>setNotificationPanel('questions')}>Pergunta</button>
  </div>}
  {((!coord&&(profile?.role!=='coroinha'||coroinhaNoticeTab==='polls'))||(coord&&notificationSection==='compose'&&notificationPanel==='poll'))&&<Polls db={db} coordinator={can('manage_polls')} userRole={can('vote_polls')?'coroinha':profile?.role||''}/>}
- {coord&&notificationSection==='compose'&&notificationPanel==='questions'&&<div className="card notification-future-card"><h3>Enviar perguntas</h3><p className="muted">Essa funcionalidade será disponibilizada em uma próxima atualização.</p></div>}
+ {coord&&notificationSection==='compose'&&notificationPanel==='questions'&&<OpenQuestions db={db} canPublish={can('manage_polls')} isDeveloper={developer} group={myGroup} showComposer={true}/>}
+ {(!coord||notificationSection==='inbox')&&<OpenQuestions db={db} canPublish={can('manage_polls')} isDeveloper={developer} group={myGroup} showComposer={false}/>}
  {coord&&notificationSection==='inbox'&&<h3 className="notification-subheading">Minhas notificações</h3>}
  {can('approve_requests')&&notificationSection==='requests'&&requests.every(r=>r.status!=='pendente')&&<div className="card"><p className="muted">Nenhuma solicitação pendente.</p></div>}
  {coord&&notificationSection==='history'&&campaigns.length===0&&!developer&&<div className="card"><p className="muted">Nenhuma notificação enviada até o momento.</p></div>}
