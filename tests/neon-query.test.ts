@@ -30,7 +30,7 @@ test('mass creation sends a real JSON array of function assignments to Neon',()=
   p_location:'',p_celebrant:'',p_notes:'',p_roles:roles
  };
  const compiled=q('rpc/create_mass_with_assignments','POST','',payload);
- assert.match(compiled.text,/"p_roles" => \\$6::jsonb/);
+ assert.match(compiled.text,/"p_roles" => \$6::jsonb/);
  assert.equal(compiled.values[5],JSON.stringify(roles));
  assert.deepEqual(JSON.parse(String(compiled.values[5])),roles);
 });
