@@ -744,6 +744,7 @@ export default function System(){
   <p className="muted">Permita avisos mesmo com o aplicativo fechado. No iPhone, use o aplicativo adicionado à Tela de Início.</p>
   <button className={pushEnabled?'btn alt full':'btn full'} type="button" disabled={pushBusy} onClick={()=>pushEnabled?deactivatePush():activatePush()}>{pushBusy?'Aguarde…':pushEnabled?'Desativar notificações neste aparelho':'Ativar notificações neste aparelho'}</button>
   <p className="muted">O recebimento externo também depende da disponibilidade do serviço de notificações do aplicativo.</p>
+   <button type="button" className="btn alt full" disabled={pushBusy||busy} onClick={async()=>{if(!db)return;const ok=await execute(()=>db.rpc('send_test_notification'));if(ok)alert('Notificação de teste criada. Confira a central e aguarde o aviso no aparelho.')}}>Enviar notificação de teste</button>
  </div>
  <div className="card notification-settings-card">
   <h3>Quais avisos deseja receber?</h3>
