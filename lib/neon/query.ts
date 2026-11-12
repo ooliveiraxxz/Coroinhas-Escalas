@@ -18,6 +18,8 @@ for (const c of schema[0].inventory.columns) {
  set.add(c.column_name); columns.set(c.table_name, set);
 }
 const rpcs: Record<string, Record<string, string>> = {
+ record_mass_view:{p_mass:'uuid'},
+ mass_viewers:{p_mass:'uuid'},
  send_test_notification:{},
  archive_list:{},
  my_site_permissions:{},
