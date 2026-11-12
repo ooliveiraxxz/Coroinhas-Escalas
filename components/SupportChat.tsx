@@ -1,7 +1,7 @@
 'use client';
 
-import {useCallback,useEffect,useState} from 'react';
-import {MessageCircle,X,Send,ArrowLeft,Archive,CheckCircle2,Inbox} from 'lucide-react';
+import {useCallback,useEffect,useRef,useState} from 'react';
+import {MessageCircle,X,Send,ArrowLeft,Archive,CheckCircle2,Inbox,ImagePlus} from 'lucide-react';
 import type {SupabaseClient} from '@supabase/supabase-js';
 
 type Ticket={id:string;protocol:string;category:string;status:'aberto'|'encerrado';requester_name:string;requester_email:string;updated_at:string;created_at:string;closed_at:string|null;last_message:string;message_count:number};
@@ -16,6 +16,67 @@ const errorMessage=(err:unknown)=>{
  if(/support_|sqlstate|pgrst|invalid input/i.test(text))return 'Não foi possível atualizar o atendimento. Tente novamente.';
  return text;
 };
+
+const IMAGE_MARKER='📷 Imagem anexada';
+
+function SupportImage({db,messageId}: {db:SupabaseClient|null;messageId:string}) {
+ const [source,setSource]=useState('');
+ const [expanded,setExpanded]=useState(false);
+ const [failed,setFailed]=useState(false);
+ useEffect(()=>{
+  let live=true;
+  if(!db)return;
+  void db.rpc('support_image_get' as never,{p_message:messageId} as never).then(({data,error})=>{
+   if(!live)return;
+   const image=data as {mime?:string;data?:string}|null;
+   if(error||!image?.data||image.mime!=='image/jpeg'){setFailed(true);return;}
+   setSource('data:image/jpeg;base64,'+image.data);
+  }).catch(()=>{if(live)setFailed(true)});
+  return()=>{live=false};
+ },[db,messageId]);
+ if(failed)return <span className="muted">Não foi possível carregar esta imagem.</span>;
+ if(!source)return <span className="muted">Carregando imagem…</span>;
+ return <>
+  <button type="button" onClick={()=>setExpanded(true)} aria-label="Ampliar imagem anexada"
+   style={{display:'block',padding:0,border:0,background:'transparent',cursor:'zoom-in',marginTop:6}}>
+   <img src={source} alt="Imagem anexada ao atendimento" loading="lazy" style={{display:'block',width:'min(220px,65vw)',height:'auto',maxHeight:240,objectFit:'contain',borderRadius:10}}/>
+  </button>
+  {expanded&&<div role="dialog" aria-modal="true" aria-label="Imagem ampliada do atendimento"
+    onClick={()=>setExpanded(false)}
+    style={{position:'fixed',inset:0,zIndex:100000,background:'rgba(0,0,0,.94)',display:'flex',alignItems:'center',justifyContent:'center',padding:12}}>
+    <button type="button" aria-label="Fechar imagem ampliada" onClick={()=>setExpanded(false)}
+     style={{position:'absolute',right:16,top:16,zIndex:1,color:'#fff',background:'rgba(80,80,80,.6)',border:0,borderRadius:40,padding:12,cursor:'pointer'}}><X size={26}/></button>
+    <img src={source} alt="Imagem em tamanho ampliado" onClick={e=>e.stopPropagation()}
+     style={{maxWidth:'100%',maxHeight:'92dvh',objectFit:'contain',borderRadius:4}}/>
+   </div>}
+ </>;
+}
+
+async function compressSupportImage(file:File):Promise<string>{
+ if(!file.type.startsWith('image/'))throw Error('Selecione uma imagem da galeria.');
+ if(file.size>20*1024*1024)throw Error('Esta imagem é muito grande. Escolha outra.');
+ const url=URL.createObjectURL(file);
+ try{
+  const photo=await new Promise<HTMLImageElement>((resolve,reject)=>{
+   const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(Error('Não foi possível abrir esta imagem.'));img.src=url;
+  });
+  let factor=Math.min(1,1400/Math.max(photo.naturalWidth,photo.naturalHeight));
+  for(let attempt=0;attempt<5;attempt++){
+   const canvas=document.createElement('canvas');
+   canvas.width=Math.max(1,Math.round(photo.naturalWidth*factor));
+   canvas.height=Math.max(1,Math.round(photo.naturalHeight*factor));
+   const context=canvas.getContext('2d');
+   if(!context)throw Error('Não foi possível preparar a imagem.');
+   context.fillStyle='#fff';context.fillRect(0,0,canvas.width,canvas.height);
+   context.drawImage(photo,0,0,canvas.width,canvas.height);
+   const base64=canvas.toDataURL('image/jpeg',.78).split(',')[1];
+   if(base64&&base64.length<=2097152)return base64;
+   factor*=.72;
+  }
+  throw Error('Não foi possível reduzir a imagem. Tente outra foto.');
+ }finally{URL.revokeObjectURL(url);}
+}
+
 export default function SupportChat({db,userId,manager,channel,open,onOpenChange}:Props){
  const [tickets,setTickets]=useState<Ticket[]>([]);
  const [selected,setSelected]=useState<string|null>(null);
@@ -25,6 +86,7 @@ export default function SupportChat({db,userId,manager,channel,open,onOpenChange
  const [draft,setDraft]=useState('');
  const [initialMessage,setInitialMessage]=useState('');
  const [busy,setBusy]=useState(false);
+ const fileInput=useRef<HTMLInputElement|null>(null);
  const [error,setError]=useState('');
  const [listLoaded,setListLoaded]=useState(false);
  const rpc=(action:'create'|'send'|'close'|'list'|'messages')=>'support_'+(channel==='coordinator'?'coord_':'')+action;
@@ -84,6 +146,16 @@ export default function SupportChat({db,userId,manager,channel,open,onOpenChange
    setDraft('');await Promise.all([loadMessages(selected),loadTickets()]);
   }catch(e){setError(errorMessage(e))}finally{setBusy(false)}
  };
+ const sendImage=async(file:File|undefined)=>{
+  if(!file||!selected||busy)return;
+  setBusy(true);setError('');
+  try{
+   const data=await compressSupportImage(file);
+   await invoke('support_send_image',{p_ticket:selected,p_data:data});
+   await Promise.all([loadMessages(selected),loadTickets()]);
+  }catch(e){setError(errorMessage(e))}
+  finally{setBusy(false)}
+ };
  const closeTicket=async()=>{
   if(!selected||!manager||!confirm('Encerrar este atendimento? A conversa ficará arquivada na caixa de atendimentos.'))return;
   setBusy(true);setError('');
@@ -110,12 +182,14 @@ export default function SupportChat({db,userId,manager,channel,open,onOpenChange
      <div className="support-chat-messages">
       {chatMessages.map(m=><div className={'support-chat-message '+(m.sender_id===userId?'mine':'theirs')} key={m.id}>
        <small>{m.sender_id===userId?'Você':m.sender_name||'Suporte'} · {dateText(m.created_at)}</small>
-       <p>{m.body}</p>
+       {m.body===IMAGE_MARKER?<SupportImage db={db} messageId={m.id}/>:<p>{m.body}</p>}
       </div>)}
       {!chatMessages.length&&<p className="support-chat-empty">Carregando mensagens…</p>}
      </div>
      {selectedTicket.status==='aberto'?<div className="support-chat-compose">
       <textarea aria-label="Sua mensagem" placeholder="Digite sua resposta…" value={draft} maxLength={2000} rows={2} onChange={e=>setDraft(e.target.value)}/>
+      <input ref={fileInput} type="file" accept="image/*" aria-label="Escolher imagem para o chat" style={{display:'none'}} onChange={e=>{const file=e.target.files?.[0];e.target.value='';void sendImage(file)}}/>
+      <button type="button" className="btn alt" disabled={busy} onClick={()=>fileInput.current?.click()} aria-label="Anexar imagem ao chat"><ImagePlus size={17}/> Foto</button>
       <button type="button" className="btn" disabled={busy||!draft.trim()} onClick={()=>void send()}><Send size={17}/> Enviar</button>
       {manager&&<button type="button" className="support-chat-end" disabled={busy} onClick={()=>void closeTicket()}>Encerrar e arquivar atendimento</button>}
      </div>:<div className="support-chat-closed"><CheckCircle2 size={17}/> Atendimento encerrado e arquivado.</div>}
