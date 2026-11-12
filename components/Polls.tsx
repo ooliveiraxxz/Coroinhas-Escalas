@@ -140,6 +140,7 @@ export default function Polls({db,coordinator,userRole,userId,isDeveloper}:Props
        <span>{o.label}</span>
       </label>)}
       <button type="button" className="btn full" disabled={saving||!(choices[p.id]||[]).length} onClick={()=>void vote(p)}>{editingVote===p.id?'Salvar nova resposta':'Enviar resposta'}</button>
+      <p className="muted poll-answer-guidance">{p.multiple_answers?'Múltipla escolha: você pode selecionar várias opções.':'Escolha única: selecione apenas uma opção.'}</p>
       {editingVote===p.id&&<button type="button" className="btn alt full" disabled={saving} onClick={()=>{setEditingVote(null);setChoices(prev=>({...prev,[p.id]:[]}))}}>Cancelar alteração</button>}
      </>:null}
    </>}
