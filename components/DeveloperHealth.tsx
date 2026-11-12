@@ -13,12 +13,15 @@ type NeonHealth={
 };
 type GitHubIssue={id:number;title:string;url:string;state:string;updated_at:string;kind:string};
 type GithubResponse={connected:boolean;issues:GitHubIssue[];reason?:string;checked_at?:string};
-const mb=(bytes:number)=>bytes>=1048576?(bytes/1048576).toFixed(2)+' MiB':(bytes/1024).toFixed(1)+' KiB';
+type VercelProblem={id:string;title:string;url:string;state:string;updated_at:string};
+type VercelResponse={connected:boolean;issues:VercelProblem[];reason?:string;checked_at?:string};
+const mb=(bytes:number)=>bytes>=1073741824?(bytes/1073741824).toFixed(2)+' GB':bytes>=1048576?(bytes/1048576).toFixed(2)+' MB':(bytes/1024).toFixed(1)+' KB';
 const dateTime=(s:string)=>new Date(s).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'});
 
 export default function DeveloperHealth({db}: {db:SupabaseClient|null}) {
  const [health,setHealth]=useState<NeonHealth|null>(null);
  const [github,setGithub]=useState<GithubResponse|null>(null);
+ const [vercel,setVercel]=useState<VercelResponse|null>(null);
  const [loading,setLoading]=useState(false),[issueLoading,setIssueLoading]=useState(false);
  const [error,setError]=useState('');
  const load=useCallback(async()=>{
@@ -31,6 +34,13 @@ export default function DeveloperHealth({db}: {db:SupabaseClient|null}) {
   }catch{setError('Não foi possível consultar a saúde do Neon. Verifique a conexão ou as permissões.')}
   finally{setLoading(false)}
  },[db]);
+ const loadVercel=useCallback(async()=>{
+  try{
+   const response=await fetch('/api/developer/vercel-problems',{credentials:'same-origin',cache:'no-store'});
+   if(!response.ok)throw Error('Consulta indisponível');
+   setVercel(await response.json() as VercelResponse);
+  }catch{setVercel({connected:false,issues:[],reason:'Não foi possível consultar a Vercel.'})}
+ },[]);
  const loadGithub=useCallback(async()=>{
   setIssueLoading(true);
   try{
@@ -40,17 +50,17 @@ export default function DeveloperHealth({db}: {db:SupabaseClient|null}) {
   }catch{setGithub({connected:false,issues:[],reason:'Não foi possível consultar o GitHub.'})}
   finally{setIssueLoading(false)}
  },[]);
- useEffect(()=>{void load();void loadGithub()},[load,loadGithub]);
+ useEffect(()=>{void load();void loadGithub();void loadVercel()},[load,loadGithub,loadVercel]);
  const pct=Math.min(100,Math.max(0,Number(health?.used_pct_reference)||0));
  const status=pct>=85?'Uso alto':pct>=65?'Atenção':'Dentro da referência';
  const last=health?.history||[];
  const trend=health?.previous_bytes!=null?Number(health.db_bytes)-Number(health.previous_bytes):null;
  return <section className="card" style={{minWidth:0}}>
   <h3 style={{display:'flex',alignItems:'center',gap:8}}><Activity size={19}/> Saúde do sistema</h3>
-  <p className="muted">Indicadores reais do Neon e histórico de problemas do GitHub. A capacidade é uma estimativa, não uma medição de temperatura ou de disponibilidade.</p>
+  <p className="muted">Armazenamento do Neon e problemas identificados por serviço.</p>
   <div className="btnrow">
    <button type="button" className="btn alt" onClick={()=>void load()} disabled={loading}><RefreshCw size={15}/>{loading?' Consultando…':' Atualizar Neon'}</button>
-   <button type="button" className="btn alt" onClick={()=>void loadGithub()} disabled={issueLoading}>{issueLoading?'Consultando GitHub…':'Atualizar problemas'}</button>
+   <button type="button" className="btn alt" onClick={()=>{void loadGithub();void loadVercel();void load()}} disabled={issueLoading}>{issueLoading?'Consultando…':'Atualizar problemas'}</button>
   </div>
   {error&&<p role="alert" className="notice error">{error}</p>}
   {health&&<>
@@ -69,7 +79,7 @@ export default function DeveloperHealth({db}: {db:SupabaseClient|null}) {
     <div role="progressbar" aria-label="Consumo estimado em relação ao limite de armazenamento" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} style={{height:11,background:'#f3e3e7',borderRadius:20,overflow:'hidden',marginTop:7}}>
      <div style={{height:'100%',width:pct+'%',background:pct>=85?'#b42318':pct>=65?'#be7b18':'#87263d'}}/>
     </div>
-    <p className="muted" style={{fontSize:12}}>O tamanho retornado pelo PostgreSQL é comparado com o limite lógico de 1 GiB do projeto. A cobrança e o consumo real do Neon podem usar outra métrica; esta porcentagem é apenas indicativa.</p>
+    <p className="muted" style={{fontSize:12}}>Uso estimado em relação ao limite de referência de 1 GB.</p>
    </div>
    <div style={{marginTop:12}}>
     <strong>Crescimento e sinais de alerta</strong>
@@ -92,12 +102,36 @@ export default function DeveloperHealth({db}: {db:SupabaseClient|null}) {
     {[...last].reverse().map((s,i)=><div key={i} title={dateTime(s.date)+' — '+mb(s.bytes)} style={{flex:1,background:'#87263d',borderRadius:'3px 3px 0 0',height:Math.max(3,100*s.bytes/Math.max(1,...last.map(x=>x.bytes)))+'%'}}/>)}
    </div>}
   </>}
-  <h4 style={{display:'flex',gap:8,alignItems:'center',marginTop:18}}><AlertTriangle size={17}/> Problemas relatados — GitHub</h4>
-  {github?.connected?<>
-    <p className="muted">Issues e execuções de workflow com falha, incluindo registros já encerrados. Atualizado em {github.checked_at?dateTime(github.checked_at):'—'}.</p>
-    {github.issues.length===0?<p className="muted">Nenhum registro retornado na consulta.</p>:<div style={{display:'grid',gap:8}}>{github.issues.map(x=><a key={x.kind+x.id} href={x.url} target="_blank" rel="noopener noreferrer" style={{border:'1px solid #ead9dc',padding:9,borderRadius:10,display:'block',overflowWrap:'anywhere'}}>
-     <strong>{x.title}</strong><div className="muted" style={{fontSize:12}}>{x.kind} · {x.state} · {dateTime(x.updated_at)}</div>
-    </a>)}</div>}
-   </>:<p className="muted">{github?.reason||'Consultando problemas…'} O GitHub só aparecerá conectado quando a autenticação de leitura for configurada no servidor.</p>}
+  <h4 style={{display:'flex',gap:8,alignItems:'center',marginTop:18}}><AlertTriangle size={17}/> Problemas do sistema</h4>
+  <p className="muted">GitHub, Vercel e Neon no mesmo lugar. Cada ocorrência indica sua origem.</p>
+  <div style={{display:'grid',gap:9}}>
+   <div style={{border:'1px solid #ead9dc',padding:12,borderRadius:12,minWidth:0}}>
+    <strong>GitHub</strong>
+    {!github?<p className="muted">Consultando…</p>:github.connected?
+      github.issues.length===0?<p className="muted">Nenhum problema registrado retornado.</p>:
+      <div style={{display:'grid',gap:7,marginTop:8}}>{github.issues.map(x=><a key={x.kind+x.id} href={x.url} target="_blank" rel="noopener noreferrer" style={{display:'block',overflowWrap:'anywhere'}}>
+       <strong style={{fontSize:13}}>{x.title}</strong><div className="muted" style={{fontSize:12}}>{x.kind} · {x.state} · {dateTime(x.updated_at)}</div>
+      </a>)}</div>
+      :<p className="muted">Consulta pendente: {github.reason||'Acesso não configurado.'}</p>}
+   </div>
+   <div style={{border:'1px solid #ead9dc',padding:12,borderRadius:12,minWidth:0}}>
+    <strong>Vercel</strong>
+    {!vercel?<p className="muted">Consultando…</p>:vercel.connected?
+      vercel.issues.length===0?<p className="muted">Nenhum deploy com falha entre os últimos consultados.</p>:
+      <div style={{display:'grid',gap:7,marginTop:8}}>{vercel.issues.map(x=><a key={x.id} href={x.url} target="_blank" rel="noopener noreferrer" style={{display:'block',overflowWrap:'anywhere'}}>
+       <strong style={{fontSize:13}}>{x.title}</strong><div className="muted" style={{fontSize:12}}>{x.state} · {dateTime(x.updated_at)}</div>
+      </a>)}</div>
+      :<p className="muted">Consulta pendente: {vercel.reason||'Acesso não configurado.'}</p>}
+   </div>
+   <div style={{border:'1px solid #ead9dc',padding:12,borderRadius:12,minWidth:0}}>
+    <strong>Neon</strong>
+    {!health?<p className="muted">{error||'Aguardando consulta ao banco…'}</p>:<>
+     <p className="muted">{pct>=85?'Alerta: armazenamento próximo do limite.':pct>=65?'Atenção ao uso de armazenamento.':'Armazenamento dentro da faixa de referência.'}</p>
+     <p className="muted">{Number(health.deadlocks_total)>0?'Histórico de deadlocks: '+health.deadlocks_total+' (contador acumulado; não indica falha atual).':'Nenhum deadlock acumulado informado.'}</p>
+     <p className="muted">Última leitura: {dateTime(health.sampled_at)}</p>
+    </>}
+   </div>
+  </div>
+  <p className="muted" style={{fontSize:12}}>Os registros disponíveis não representam todos os erros de interface ou de execução. Uma consulta pendente não significa que o serviço esteja sem problemas.</p>
  </section>;
 }
