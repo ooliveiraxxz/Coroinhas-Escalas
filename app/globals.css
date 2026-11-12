@@ -765,3 +765,12 @@ body:has(.app.ceremony-theme) .support-floating-count{color:#292929;border-color
 .notification-archive-button:disabled{opacity:.5;cursor:not-allowed}
 .ceremony-theme .notification-archive-button{background:#f0f0f0;border-color:#ccc;color:#353535}
 .ceremony-theme .notification-archive-button:active{background:#e0e0e0}
+
+/* Perguntas abertas: cartão de resposta textual no estilo de caixa de perguntas. */
+.open-question-card{display:grid;gap:11px;margin:14px 0}
+.open-question-card h3{margin:0;overflow-wrap:anywhere}
+.open-question-card textarea,.open-questions .field textarea{width:100%;min-width:0;padding:12px;border-radius:12px;border:1px solid #dbcbd0;background:#fff;color:var(--ink);font:inherit;resize:vertical}
+.open-question-card .btn{justify-self:start}
+.open-question-answer{padding:12px;border-radius:12px;background:#f1e8eb;margin:0;overflow-wrap:anywhere}
+.ceremony-theme .open-question-answer{background:#ededed;color:#333}
+.ceremony-theme .open-question-card textarea,.ceremony-theme .open-questions .field textarea{border-color:#bbb}
