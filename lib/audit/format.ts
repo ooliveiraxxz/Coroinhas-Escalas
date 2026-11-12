@@ -147,7 +147,8 @@ export function formatAuditEntry(row:AuditEntry){
    const names=[...new Set(details.map(d=>d.title))];
    detail=who+' '+(row.activity_kind==='archived'?'arquivou ':'marcou como lidas ')+
      row.activity_count+' notificações entre '+date(row.activity_started_at)+' e '+date(row.activity_ended_at)+'. '+
-     'Títulos: '+names.map(n=>quote(n)).join('; ')+'.';
+     'Títulos: '+names.slice(0,4).map(n=>quote(n)).join('; ')+
+     (names.length>4?' e mais '+(names.length-4)+' título(s)':'')+'.';
    break;
   }
   const qty=row.recipient_count||1;
