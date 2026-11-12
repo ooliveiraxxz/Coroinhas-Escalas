@@ -702,7 +702,7 @@ export default function System(){
   <button type="button" className={notificationPanel==='poll'?'active':''} aria-pressed={notificationPanel==='poll'} onClick={()=>setNotificationPanel('poll')}>Enquete</button>
   <button type="button" className={notificationPanel==='questions'?'active':''} aria-pressed={notificationPanel==='questions'} onClick={()=>setNotificationPanel('questions')}>Pergunta</button>
  </div>}
- {((!coord&&(profile?.role!=='coroinha'||coroinhaNoticeTab==='polls'))||(coord&&notificationSection==='compose'&&notificationPanel==='poll'))&&<Polls db={db} coordinator={can('manage_polls')} userRole={can('vote_polls')?'coroinha':profile?.role||''}/>}
+ {((!coord&&(profile?.role!=='coroinha'||coroinhaNoticeTab==='polls'))||(coord&&notificationSection==='compose'&&notificationPanel==='poll'))&&<Polls db={db} coordinator={can('manage_polls')} userRole={can('vote_polls')?'coroinha':profile?.role||''} userId={String(user?.id||'')} isDeveloper={developer}/>}
  {coord&&notificationSection==='compose'&&notificationPanel==='questions'&&<OpenQuestions db={db} canPublish={can('manage_polls')} isDeveloper={developer} group={myGroup} showComposer={true} userId={String(user?.id||'')}/>}
  {(!coord||notificationSection==='inbox')&&<OpenQuestions db={db} canPublish={can('manage_polls')} isDeveloper={developer} group={myGroup} showComposer={false} userId={String(user?.id||'')}/>}
  {coord&&notificationSection==='inbox'&&<h3 className="notification-subheading">Minhas notificações</h3>}
