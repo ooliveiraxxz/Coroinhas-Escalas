@@ -742,3 +742,17 @@ body:has(.app.ceremony-theme) .support-chat-error{color:#343434;background:#eded
 body:has(.app.ceremony-theme) .support-floating,
 body:has(.app.ceremony-theme) .support-floating-coordinator{background:linear-gradient(135deg,#171717,#464646);color:#fff;border-color:#555}
 body:has(.app.ceremony-theme) .support-floating-count{color:#292929;border-color:#444}
+
+
+/* Escalas: distinguem o grupo da função, não o perfil que abriu a página. */
+.item.ceremony-assignment{background:#252525!important;border:1px solid #494949!important;color:#fff!important;box-shadow:none}
+.item.ceremony-assignment b,.item.ceremony-assignment .muted,.item.ceremony-assignment .field,.item.ceremony-assignment strong{color:#f8f8f8!important}
+.item.ceremony-assignment .chip{background:#474747!important;border-color:#737373!important;color:#fff!important}
+.item.ceremony-assignment .field input,.item.ceremony-assignment .field select{background:#f5f5f5!important;color:#222!important;border-color:#777!important}
+.item.ceremony-assignment .btn.alt{background:#474747!important;color:#fff!important;border-color:#777!important}
+.mass-duplicate-warning{border:1px solid #d0a169;border-radius:14px;background:#fff6e9;color:#58412b;padding:14px;margin:12px 0;display:grid;gap:10px}
+.mass-duplicate-warning strong{font-size:14px}
+.mass-duplicate-warning p{margin:5px 0;line-height:1.5}
+.mass-duplicate-row{border-top:1px solid #e8d1ad;padding-top:9px}
+.mass-duplicate-row .btnrow{margin-top:8px}
+.mass-viewers p{font-size:13px;margin:9px 0;color:var(--ink)}
