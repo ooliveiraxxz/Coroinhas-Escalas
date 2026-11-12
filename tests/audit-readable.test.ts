@@ -54,3 +54,33 @@ test('bulk revocation is a single event but separate operations remain separate'
  assert.match(formatAuditEntry(grouped[0]).title,/REVOGADAS — 2 PERMISSÕES/);
  assert.equal(groupAuditEntries([a,{...a,id:11,after_data:{...a.after_data,batch_id:'another-batch'}}]).length,2);
 });
+
+test('rapid individual notification archivals group into one readable event',()=>{
+ const t=(seconds:number)=>new Date(Date.UTC(2026,10,12,4,11,seconds)).toISOString();
+ const row=(id:number,seconds:number,title:string):AuditEntry=>({
+  id,happened_at:t(seconds),actor_id:'davi',actor_name:'Davi Iran',actor_email:'davi@exemplo.com',
+  table_name:'notifications',action:'UPDATE',record_id:'notice-'+id,
+  before_data:{title,archived_at:null,seen:false},
+  after_data:{title,archived_at:t(seconds),seen:false}
+ });
+ const grouped=groupAuditEntries([
+  row(1,4,'Vaga disponível para servir'),row(2,5,'Você foi escalado(a)'),
+  row(3,6,'Você foi escalado(a)'),row(4,8,'Cadastro aprovado')
+ ]);
+ assert.equal(grouped.length,1);
+ assert.equal(grouped[0].activity_count,4);
+ assert.match(formatAuditEntry(grouped[0]).title,/ARQUIVADAS — 4 NOTIFICAÇÕES/);
+ assert.match(formatAuditEntry(grouped[0]).detail,/Davi Iran arquivou 4 notificações/);
+ assert.match(formatAuditEntry(grouped[0]).detail,/Cadastro aprovado/);
+});
+test('separate users, actions and sessions cannot be combined',()=>{
+ const at=(minute:number)=>new Date(Date.UTC(2026,10,12,4,minute,0)).toISOString();
+ const base:AuditEntry={id:41,happened_at:at(0),actor_id:'u1',table_name:'notifications',
+  action:'UPDATE',record_id:'n1',before_data:{title:'Alerta',archived_at:null,seen:false},
+  after_data:{title:'Alerta',archived_at:at(0),seen:false}};
+ const otherUser:AuditEntry={...base,id:42,actor_id:'u2',happened_at:at(1),record_id:'n2'};
+ const later:AuditEntry={...base,id:43,happened_at:at(12),record_id:'n3'};
+ const read:AuditEntry={...base,id:44,happened_at:at(1),before_data:{title:'Leitura',seen:false},
+   after_data:{title:'Leitura',seen:true}};
+ assert.equal(groupAuditEntries([base,otherUser,later,read]).length,4);
+});
