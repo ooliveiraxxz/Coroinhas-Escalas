@@ -13,7 +13,7 @@ function authorized(actual:string|null,secret:string){
 export async function GET(req:NextRequest){
  if(!migrationEnabled()||process.env.VERCEL_ENV!=='production'||
     process.env.NEON_PUSH_DISPATCH_ENABLED!=='true')
-  return NextResponse.json({message:'Serviço de notificações desativado'},{status:404});
+  return NextResponse.json({message:'Serviço de notificações desativado'},{status:404,headers:{'Cache-Control':'no-store'}});
  if(!authorized(req.headers.get('authorization'),process.env.CRON_SECRET||''))
   return NextResponse.json({message:'Não autorizado'},{status:401});
  try{
