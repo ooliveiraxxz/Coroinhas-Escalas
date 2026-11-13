@@ -575,7 +575,7 @@ export default function System(){
   }finally{setAuditLoading(false)}
  };
  const showDeveloper=async()=>{if(!db)return;const {data,error}=await db.rpc('developer_usage_summary');if(error)setError(friendlyAppError(error));else setUsage(data)};
- const loadRecentAccess=async(role=accessRole)=>{if(!db||!developer)return;setAccessLoading(true);setAccessError('');setAccessRole(role);try{const {data,error}=await db.rpc('developer_recent_access',{p_role:role});if(error)throw error;setAccessRows(Array.isArray(data)?data:[])}catch(e:any){setAccessError('Não foi possível consultar os acessos: '+(e?.message||String(e)));setAccessRows([])}finally{setAccessLoading(false)}};
+ const loadRecentAccess=async(role=accessRole)=>{if(!db||!can('view_developer_panel'))return;setAccessLoading(true);setAccessError('');setAccessRole(role);try{const {data,error}=await db.rpc('developer_recent_access',{p_role:role});if(error)throw error;setAccessRows(Array.isArray(data)?data:[])}catch(e:any){setAccessError('Não foi possível consultar os acessos: '+(e?.message||String(e)));setAccessRows([])}finally{setAccessLoading(false)}};
  const parentAssigned=(m:AnyRow)=>parentLinks.filter(link=>assignments.some(a=>a.mass_id===m.id&&a.server_id===link.child_id&&a.status!=='desmarcado')).map(link=>link.child_name);
 
  async function requestParentCode(){
