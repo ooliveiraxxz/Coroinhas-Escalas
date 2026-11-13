@@ -22,11 +22,27 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-      - name: Install locked dependencies
-        run: npm ci
-      - name: Run unit tests
-        run: npm test
-      - name: Check types
+      - run: npm ci
+      - name: Permission regression tests
+        run: node --import tsx --test tests/permission-isolation.test.ts
+      - name: TypeScript check
         run: npx tsc --noEmit
       - name: Build without production credentials
         run: npm run build
+
+  general-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEON_MIGRATION_ENABLED: "false"
+      NEXT_PUBLIC_DATA_BACKEND: "supabase"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Complete existing test suite
+        run: npm test
