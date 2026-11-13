@@ -62,3 +62,13 @@ test('all app-facing RPCs compile only parameterized calls',()=>{
   assert.match(q('rpc/'+name,'POST').text,/^SELECT public\./);
  }
 });
+
+test('screen popup accepts an optional image and still parameterizes its contents',()=>{
+ const jpg='data:image/jpeg;base64,AAAA';
+ const compiled=q('screen_announcements','POST','',{title:'Novo aviso',body:'',image_url:jpg,target_role:'all',target_user_id:null,display_mode:'optional',created_by:'user'});
+ assert.match(compiled.text,/"image_url"/);
+ assert.ok(compiled.values.includes(jpg));
+ assert.ok(!compiled.text.includes(jpg));
+ const legacy=q('screen_announcements','POST','',{title:'Aviso antigo',body:'Texto',target_role:'all',created_by:'user'});
+ assert.ok(!legacy.text.includes('image_url'));
+});
