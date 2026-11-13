@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - qa/permission-isolation-20261113
+      - qa/permission-catalog-audit-20261113
   workflow_dispatch:
 
 permissions:
