@@ -12,7 +12,7 @@ for(const c of schema[0].inventory.constraints){
  set.add([...names].sort().join(','));
  conflictTargets.set(c.table_name,set);
 }
-for (const [table,names] of Object.entries({profiles:['coordination_group'],assignments:['service_group'],requests:['service_group'],service_settings:['key','enabled','updated_at']})) {const set=columns.get(table)||new Set<string>();for(const name of names)set.add(name);columns.set(table,set);}
+for (const [table,names] of Object.entries({profiles:['coordination_group'],assignments:['service_group'],screen_announcements:['image_url'],requests:['service_group'],service_settings:['key','enabled','updated_at']})) {const set=columns.get(table)||new Set<string>();for(const name of names)set.add(name);columns.set(table,set);}
 for (const c of schema[0].inventory.columns) {
  const set = columns.get(c.table_name) || new Set<string>();
  set.add(c.column_name); columns.set(c.table_name, set);

@@ -14,7 +14,7 @@ async function handle(req:NextRequest,context:{params:Promise<{path:string[]}>})
  if(!process.env.NEON_MIGRATION_DATABASE_URL||!process.env.NEON_AUTH_BASE_URL||!process.env.NEON_AUTH_COOKIE_SECRET)return error('Ambiente de migração incompleto.',503);
  if(req.method!=='GET'&&req.headers.get('origin')!==req.nextUrl.origin)return error('Origem inválida.',403);
  const requestPath=(await context.params).path.join('/');
- const maxBytes=requestPath==='rpc/support_send_image'?2200000:65536;
+ const maxBytes=requestPath==='rpc/support_send_image'?2200000:(requestPath==='screen_announcements'&&req.method==='POST'?280000:65536);
  const length=req.headers.get('content-length');
  if(length!==null&&(!/^\d+$/.test(length)||Number(length)>maxBytes))
   return error('Requisição muito grande.',413);
