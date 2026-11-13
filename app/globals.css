@@ -949,3 +949,12 @@ body:has(.app.ceremony-theme) .screen-popup-heading h2{color:#222!important}
 body:has(.app.ceremony-theme) .screen-popup-check input{accent-color:#303030}
 .app.ceremony-theme .screen-popup-card .btn:not(.alt),
 body:has(.app.ceremony-theme) .screen-popup-card .btn:not(.alt){background:linear-gradient(125deg,#202020,#4c4c4c);color:#fff}
+
+/* Explicit role class: independent of selector :has support or layout nesting. */
+.screen-popup-overlay.screen-popup-ceremony .screen-popup-card{background:#fafafa;color:#252525}
+.screen-popup-overlay.screen-popup-ceremony .screen-popup-heading,
+.screen-popup-overlay.screen-popup-ceremony .screen-popup-heading h2,
+.screen-popup-overlay.screen-popup-ceremony .screen-popup-heading svg{color:#202020!important;stroke:#202020}
+.screen-popup-overlay.screen-popup-ceremony .screen-popup-check input{accent-color:#303030}
+.screen-popup-overlay.screen-popup-ceremony .screen-popup-card .btn:not(.alt){background:linear-gradient(125deg,#202020,#4c4c4c);color:white}
+.screen-popup-overlay.screen-popup-ceremony .screen-popup-image{background:transparent!important;box-shadow:none!important;border:0!important}
