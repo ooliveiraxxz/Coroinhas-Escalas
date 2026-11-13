@@ -938,3 +938,14 @@ body:has(.app.ceremony-theme) .support-chat-compose .support-chat-send:disabled{
 
 /* Título na cor vinho segue o tema; imagem não recebe moldura visual. */
 @media(max-width:420px){.screen-popup-heading h2{font-size:clamp(17px,4.6vw,21px);line-height:1.22}}
+
+/* O aviso acompanha o perfil que está visualizando: Cerimoniário = preto/cinza.
+   Mantém vinho nos demais perfis; inclui pop-ups renderizados em portal. */
+.app.ceremony-theme .screen-popup-heading,
+body:has(.app.ceremony-theme) .screen-popup-heading{color:#222!important}
+.app.ceremony-theme .screen-popup-heading h2,
+body:has(.app.ceremony-theme) .screen-popup-heading h2{color:#222!important}
+.app.ceremony-theme .screen-popup-check input,
+body:has(.app.ceremony-theme) .screen-popup-check input{accent-color:#303030}
+.app.ceremony-theme .screen-popup-card .btn:not(.alt),
+body:has(.app.ceremony-theme) .screen-popup-card .btn:not(.alt){background:linear-gradient(125deg,#202020,#4c4c4c);color:#fff}
