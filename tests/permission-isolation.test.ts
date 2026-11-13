@@ -52,7 +52,7 @@ test('each isolated permission does not grant unrelated create/edit permissions'
  for(const selected of permissionKeys){
   const grants=Object.fromEntries(permissionKeys.map(k=>[k,k===selected]));
   const role='cerimoniario';
-  const isCoordinator=role==='coordenadora'||role==='desenvolvedor';
+  const isCoordinator=['coordenadora','desenvolvedor'].includes(role);
   assert.equal(isCoordinator,false,'wrong role elevation for '+selected);
   assert.equal(grants.create_scales,selected==='create_scales');
   assert.equal(Boolean(grants.edit_coroinha),selected==='edit_coroinha');
