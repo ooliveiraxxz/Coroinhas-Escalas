@@ -1,7 +1,7 @@
 -- 087: Flexibilidade somente quando existe permissão no catálogo.
 -- Cargos permanecem inalterados; o Desenvolvedor concede explicitamente direitos de servir.
 INSERT INTO public.permission_catalog(key,category,label,default_roles,sensitive)
-VALUES ('eligible_to_serve','Coroinhas e cerimoniários','Ser selecionado e escalado para servir',ARRAY['coroinha','cerimoniario']::text[],false)
+VALUES ('eligible_to_serve','Coroinhas e cerimoniários','Permitir escalação direta fora do perfil padrão',ARRAY[]::text[],false)
 ON CONFLICT(key) DO UPDATE SET category=excluded.category,label=excluded.label,default_roles=excluded.default_roles;
 
 CREATE OR REPLACE FUNCTION public.user_has_catalog_permission(p_user uuid,p_key text)
