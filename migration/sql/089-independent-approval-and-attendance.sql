@@ -69,6 +69,10 @@ BEGIN
       AND m.published AND m.starts_at>now() AND m.starts_at<=now()+interval '3 hours')))
  AND (OLD.server_id IS NULL OR OLD.status='desmarcado')
  AND NEW.server_id IS NOT NULL AND NEW.status='escalado' AND NEW.reason IS NULL
+ AND NEW.id IS NOT DISTINCT FROM OLD.id AND NEW.mass_id IS NOT DISTINCT FROM OLD.mass_id
+ AND NEW.function_name IS NOT DISTINCT FROM OLD.function_name
+ AND NEW.service_group IS NOT DISTINCT FROM OLD.service_group
+ AND NEW.created_at IS NOT DISTINCT FROM OLD.created_at
  AND EXISTS(SELECT 1 FROM public.requests r WHERE r.mass_id=OLD.mass_id
   AND r.user_id=NEW.server_id AND r.service_group=OLD.service_group AND r.status='pendente'
   AND ((r.type='servir' AND r.assignment_id IS NULL)
