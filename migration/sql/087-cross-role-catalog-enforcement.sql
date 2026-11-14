@@ -57,7 +57,8 @@ AS $function$
 BEGIN
  IF p_group NOT IN ('coroinha','cerimoniario') THEN RAISE EXCEPTION 'Grupo inválido' USING ERRCODE='22023'; END IF;
  IF NOT (public.has_site_permission('create_scales') OR public.can_manage_service_group(p_group)
-  OR public.has_site_permission('approve_requests')) THEN RAISE EXCEPTION 'Sem permissão para consultar integrantes' USING ERRCODE='42501'; END IF;
+  OR public.has_site_permission('approve_requests')
+  OR (p_group='coroinha' AND public.has_site_permission('manage_fixed_rules'))) THEN RAISE EXCEPTION 'Sem permissão para consultar integrantes' USING ERRCODE='42501'; END IF;
  RETURN coalesce((SELECT jsonb_agg(p.id ORDER BY p.name) FROM public.profiles p
  WHERE p.approved AND public.is_eligible_service_member(p.id,p_group)),'[]'::jsonb);
 END $function$;
