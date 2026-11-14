@@ -26,7 +26,7 @@ export default function PermissionCenter({db,users}:Props){
  const [error,setError]=useState('');
  const [success,setSuccess]=useState('');
  const [expanded,setExpanded]=useState('Coroinhas e cerimoniários');
- const eligible=users.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
+ const eligible=[...users].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
  useEffect(()=>{if(!eligible.some(u=>u.id===userId))setUserId(eligible[0]?.id||'')},[users,userId]);
  const fetchAll=async()=>{
   if(!db)return;
