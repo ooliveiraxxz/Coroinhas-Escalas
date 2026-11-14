@@ -20,7 +20,7 @@ export async function GET(req:NextRequest){
   const identity=await client.query('SELECT migration_private.resolve_neon_identity($1::uuid,$2::uuid,NULL) AS profile_id',[session.user.id,session.session.id]);
   await client.query("SELECT set_config('app.user_id',$1,true)",[identity.rows[0].profile_id]);
   await client.query('SET LOCAL ROLE coroinhas_app');
-  const role=await client.query('SELECT public.has_site_permission('view_developer_panel') AS allowed');
+  const role=await client.query("SELECT public.has_site_permission('view_developer_panel') AS allowed");
   await client.query('ROLLBACK');
   if(!role.rows[0]?.allowed)return reply({reason:'Sem permissão para visualizar o Painel do Desenvolvedor.',connected:false,issues:[]},403);
  }catch{
