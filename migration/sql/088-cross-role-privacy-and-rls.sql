@@ -25,6 +25,11 @@ DECLARE p public.profiles%rowtype;v_override boolean;
 BEGIN
  SELECT * INTO p FROM public.profiles WHERE id=auth.uid() AND approved;
  IF NOT FOUND THEN RETURN false; END IF;
+ -- Every independently delegated operation must be able to read the masses it acts on.
+ IF public.has_site_permission('attendance') OR public.has_site_permission('approve_requests')
+ OR public.has_site_permission('create_scales') OR public.has_site_permission('delete_scales')
+ OR public.has_site_permission('edit_coroinha') OR public.has_site_permission('edit_cerimoniario')
+ OR public.has_site_permission('view_reports') THEN RETURN true; END IF;
  IF public.has_site_permission('request_service') AND EXISTS(
   SELECT 1 FROM public.assignments a WHERE a.mass_id=p_mass AND (a.server_id IS NULL OR a.status='desmarcado')
   AND public.is_eligible_service_member(p.id,a.service_group)
@@ -57,6 +62,10 @@ BEGIN
  IF NOT public.can_read_mass_for_user(p_mass) THEN RETURN false; END IF;
  SELECT * INTO p FROM public.profiles WHERE id=auth.uid() AND approved;
  IF NOT FOUND THEN RETURN false; END IF;
+ IF public.has_site_permission('attendance') OR public.has_site_permission('approve_requests')
+ OR public.has_site_permission('create_scales') OR public.has_site_permission('delete_scales')
+ OR public.has_site_permission('edit_coroinha') OR public.has_site_permission('edit_cerimoniario')
+ OR public.has_site_permission('view_reports') THEN RETURN true; END IF;
  IF p.role='pai' THEN
   SELECT allowed INTO v_override FROM public.permission_rules WHERE subject_user=p.id
   AND permission_key='view_scales' AND (expires_at IS NULL OR expires_at>now())
@@ -107,4 +116,11 @@ CREATE POLICY mass_update ON public.masses FOR UPDATE TO coroinhas_app USING (
  archived_at IS NULL AND starts_at>now()-interval '24 hours' AND public.can_update_mass_as_actor(id)
 ) WITH CHECK (
  archived_at IS NULL AND starts_at>now()-interval '24 hours' AND public.can_update_mass_as_actor(id)
+);
+
+-- A separately granted delete_scales right does not silently require edit_coroinha/edit_cerimoniario.
+DROP POLICY IF EXISTS mass_delete ON public.masses;
+CREATE POLICY mass_delete ON public.masses FOR DELETE TO coroinhas_app USING (
+ archived_at IS NULL AND starts_at>now()-interval '24 hours'
+ AND public.has_site_permission('delete_scales')
 );
