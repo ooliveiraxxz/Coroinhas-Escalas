@@ -34,6 +34,6 @@ test('permission exists but is disabled for all by default, developer may only d
  assert.ok(migration.indexOf("IF p_key='choose_theme'")<migration.indexOf("IF p.role='desenvolvedor'"));
  assert.match(migration,/c\.key<>'choose_theme'/);
  assert.match(migration,/AND x->>'key'<>'choose_theme' THEN/);
- assert.match(center,/const eligible=users\.sort/);
+ assert.match(center,/const eligible=\[\.\.\.users\]\.sort/);
  assert.match(center,/current\?\.role!=='desenvolvedor'\|\|r\.key==='choose_theme'/);
 });
