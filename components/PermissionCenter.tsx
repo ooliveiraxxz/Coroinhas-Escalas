@@ -2,7 +2,7 @@
 import {useEffect,useMemo,useState} from 'react';
 import type {SupabaseClient} from '@supabase/supabase-js';
 type Row=Record<string,any>;
-type Props={db:SupabaseClient|null;users:Row[]};
+type Props={db:SupabaseClient|null;users:Row[];viewerId:string};
 type Section='automacoes'|'gerenciamento'|'temporarias';
 const groupOrder=['Coroinhas e cerimoniários','Pais e responsáveis','Coordenação','Desenvolvedor'];
 const localDate=(v:string)=>new Date(v).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'});
@@ -12,7 +12,7 @@ function Toggle({enabled,onChange,label}:{enabled:boolean;onChange:(v:boolean)=>
  <span style={{width:25,height:25,background:'#fff',borderRadius:'50%',boxShadow:'0 1px 4px #4445'}}/>
  </button>;
 }
-export default function PermissionCenter({db,users}:Props){
+export default function PermissionCenter({db,users,viewerId}:Props){
  const [section,setSection]=useState<Section>('automacoes');
  const [userId,setUserId]=useState('');
  const [autoRows,setAutoRows]=useState<Row[]>([]);
@@ -97,13 +97,13 @@ export default function PermissionCenter({db,users}:Props){
   <h2 className="title">Permissões</h2>
   <p className="muted">Controle por pessoa, com chaves liga/desliga. Nada muda até você confirmar e salvar.</p>
   <div className="card"><label className="field">Selecionar seção<select value={section} onChange={e=>{setSection(e.target.value as Section);setChanges({});setSelectedRevokes({});setConfirmName('');setSuccess('')}}><option value="automacoes">Automações</option><option value="gerenciamento">Gerenciamento</option><option value="temporarias">Permissões temporárias</option></select></label></div>
-  {section!=='automacoes'&&<div className="card"><label className="field">Selecionar pessoa<select value={userId} onChange={e=>setUserId(e.target.value)}>{eligible.map(u=><option key={u.id} value={u.id}>{u.name||u.email} — {u.role}{u.approved?'':' (aguardando aprovação)'}</option>)}</select></label><p className="muted">As opções habilitadas indicam o que {current?.name||'esta pessoa'} pode fazer. Alterações individuais têm prioridade sobre o perfil padrão.</p></div>}
+  {section!=='automacoes'&&<div className="card"><label className="field">Selecionar pessoa<select value={userId} onChange={e=>setUserId(e.target.value)}>{eligible.map(u=><option key={u.id} value={u.id}>{u.name||u.email} — {u.role}{u.approved?'':' (aguardando aprovação)'}</option>)}</select></label><p className="muted">As opções habilitadas indicam o que {current?.name||'esta pessoa'} pode fazer. Alterações individuais têm prioridade sobre o perfil padrão.</p>{current?.role==='desenvolvedor'&&current?.id===viewerId&&<p className="muted">Você pode desligar suas próprias funções, mas o acesso a Permissões permanece disponível para reativá-las. Funções internas do cargo Desenvolvedor podem exigir proteções adicionais.</p>}</div>}
   {section==='automacoes'?<div className="card"><h3>Automações identificadas no sistema</h3>{autoRows.map(row=><div className="item" key={row.key} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><div style={{flex:1,minWidth:0}}><strong>{row.label}</strong><p className="muted" style={{margin:'4px 0'}}>{row.description}</p></div><Toggle enabled={getState(row.key,Boolean(row.enabled))} onChange={()=>toggle(row.key,Boolean(row.enabled))} label={row.label}/></div>)}</div>
   :<>
   {section==='temporarias'&&<div className="card"><label className="field">Acesso permitido até<input className="permission-expiry-input" type="datetime-local" value={expires} onChange={e=>setExpires(e.target.value)}/></label><p className="muted">Após o prazo, cada função retorna automaticamente à permissão anterior. Você também pode revogar antes.</p></div>}
   {groupOrder.map(group=><div className="card" key={group}>
    <button type="button" className="btn alt full" aria-expanded={expanded===group} onClick={()=>setExpanded(expanded===group?'':group)}>{group} {expanded===group?'−':'+'}</button>
-   {expanded===group&&permRows.filter(r=>r.category===group&&(current?.role!=='desenvolvedor'||r.key==='choose_theme')).map(row=><div className="item" key={row.key} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><div style={{flex:1}}><strong>{row.label}</strong><p className="muted" style={{margin:'2px 0'}}>Padrão do perfil: {row.default?'permitido':'bloqueado'}</p></div><Toggle enabled={getState(row.key,Boolean(row.enabled))} onChange={()=>toggle(row.key,Boolean(row.enabled))} label={row.label}/></div>)}
+   {expanded===group&&permRows.filter(r=>r.category===group&&(current?.role!=='desenvolvedor'||current.id===viewerId||r.key==='choose_theme')).map(row=><div className="item" key={row.key} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><div style={{flex:1}}><strong>{row.label}</strong><p className="muted" style={{margin:'2px 0'}}>Padrão do perfil: {row.default?'permitido':'bloqueado'}</p></div><Toggle enabled={getState(row.key,Boolean(row.enabled))} onChange={()=>toggle(row.key,Boolean(row.enabled))} label={row.label}/></div>)}
   </div>)}
   {section==='temporarias'&&<div className="card"><h3>Permissões temporárias ativas</h3>
    {validRules.length===0?<p className="muted">Nenhuma concessão temporária ativa para este usuário.</p>:<>
