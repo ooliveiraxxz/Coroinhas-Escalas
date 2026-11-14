@@ -646,7 +646,7 @@ export default function System(){
    <p className="muted">Ativos: contas que acessaram o site nas últimas 24 horas. Logins: registros coletados desde a ativação do histórico.</p>
    {usage?<div className="developer-metrics">{([
     ['Usuários',usage.total_users],['Aprovados',usage.approved_users],['Pendentes',usage.pending_users],
-    ['Coroinhas',usage.servers],['Responsáveis',usage.parents],['Coordenadores(as)',usage.coordinators],
+    ['Coroinhas',usage.servers],['Cerimoniários',usage.ceremoniaries],['Responsáveis',usage.parents],['Coordenadores(as)',usage.coordinators],
     ['Desenvolvedores',usage.developers],['Ativos (24h)',usage.active_24h],['Logins registrados',usage.logins_recorded],
     ['Missas',usage.masses],['Notificações',usage.notifications],['Banco em MB',((Number(usage.db_size_bytes)||0)/1048576).toFixed(2)]
    ] as [string,string|number][]).map(([label,value])=><div className="metric" key={label}><strong>{value??0}</strong><small>{label}</small></div>)}</div>
@@ -683,7 +683,7 @@ export default function System(){
    <p className="muted">Gerencie comunicados, orientações e atualizações do aplicativo.</p>
    <div className="developer-content-grid" style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:10,marginTop:16}}>
     {([['Atualizações','Atualizações'],['Notificações','Notificações'],['Como servir','Como servir'],['Como usar o site','Como usar o site']] as [string,string][]).map(([label,target])=>
-     <button className="btn" type="button" key={target} onClick={()=>setView(target)} style={{display:'flex',alignItems:'center',justifyContent:'center',minWidth:0,width:'100%',minHeight:52,padding:'11px 7px',borderRadius:12,color:'#fff',background:'linear-gradient(130deg,#801b34,#a83450)',border:0,fontSize:13,fontWeight:700,lineHeight:1.3,textAlign:'center',whiteSpace:'normal'}}>{label}</button>
+     <button className="btn" type="button" key={target} onClick={()=>setView(target)} style={{display:'flex',alignItems:'center',justifyContent:'center',minWidth:0,width:'100%',minHeight:52,padding:'11px 7px',borderRadius:12,border:0,fontSize:13,fontWeight:700,lineHeight:1.3,textAlign:'center',whiteSpace:'normal'}}>{label}</button>
     )}
    </div>
   </div>
