@@ -33,6 +33,8 @@ const rpcs: Record<string, Record<string, string>> = {
  send_test_notification:{},
  archive_list:{},
  my_site_permissions:{},
+ my_service_groups:{},
+ service_candidate_list:{p_group:'text'},
  set_my_theme:{p_theme:'text'},
  automation_enabled:{p_key:'text'},
  developer_permission_snapshot:{p_user:'uuid'},
