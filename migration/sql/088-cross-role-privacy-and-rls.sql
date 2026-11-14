@@ -28,7 +28,7 @@ BEGIN
  -- A delegated servant may always access their OWN assignment to confirm or unassign.
  IF (public.has_site_permission('confirm_assignment') OR public.has_site_permission('unassign_self'))
  AND EXISTS(SELECT 1 FROM public.assignments a WHERE a.mass_id=p_mass AND a.server_id=p.id
-   AND a.status IN ('escalado','confirmado')) THEN RETURN true; END IF;
+   AND a.status IN ('escalado','confirmado','desmarcado')) THEN RETURN true; END IF;
  -- Every independently delegated operation must be able to read the masses it acts on.
  IF public.has_site_permission('attendance') OR public.has_site_permission('approve_requests')
  OR public.has_site_permission('create_scales') OR public.has_site_permission('delete_scales')
