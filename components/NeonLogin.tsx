@@ -3,6 +3,14 @@ import {useState} from 'react';
 import {Church,Eye,EyeOff,MessageCircle} from 'lucide-react';
 import {neonAuth} from '@/lib/auth/client';
 import {refreshNeonSession} from '@/lib/neon/client';
+
+function friendlyAuthError(message:string){
+ if(/already exists|already registered|user already|email.*taken|duplicate|unique constraint/i.test(message))return 'Este e-mail já possui uma conta. Entre com sua senha ou use “Esqueci minha senha”.';
+ if(/invalid (email or password|credentials|password)|incorrect password|invalid login/i.test(message))return 'E-mail ou senha incorretos.';
+ if(/rate limit|too many requests|too many attempts/i.test(message))return 'Muitas tentativas. Tente novamente mais tarde.';
+ if(/network|failed to fetch|fetch failed/i.test(message))return 'Não foi possível conectar. Verifique sua internet e tente novamente.';
+ return 'Não foi possível concluir o acesso. Tente novamente ou procure o suporte.';
+}
 export default function NeonLogin(){
  const [mode,setMode]=useState<'login'|'signup'|'reset'|'reset-code'>('login');
  const [email,setEmail]=useState(''),[name,setName]=useState(''),[password,setPassword]=useState(''),[otp,setOtp]=useState(''),[role,setRole]=useState('coroinha'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[visible,setVisible]=useState(false),[notice,setNotice]=useState('');
@@ -51,8 +59,9 @@ export default function NeonLogin(){
     setMode('login');setPassword('');setOtp('');setNotice('Senha definida. Entre na sua conta.');return;
    }
    result=await neonAuth.signIn.email({email,password});if(result.error)throw new Error(result.error.message);
-   await refreshNeonSession(role);await recordLogin();
-  }catch(e){setError(e instanceof Error?e.message:'Não foi possível concluir.')}finally{setBusy(false)}
+   // Never propose a new registration role while signing in an existing account.
+   await refreshNeonSession();await recordLogin();
+  }catch(e){setError(friendlyAuthError(e instanceof Error?e.message:''))}finally{setBusy(false)}
  }
  const title={login:'Entrar',signup:'Criar conta',reset:'Esqueci minha senha','reset-code':'Definir senha'}[mode];
  return <div className="auth auth-login">
@@ -73,7 +82,7 @@ export default function NeonLogin(){
     <label className="field">E-mail<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/></label>
     {mode==='reset-code'&&<label className="field">Código recebido<input required inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e=>setOtp(e.target.value)}/></label>}
     {mode!=='reset'&&<label className="field">{mode==='reset-code'?'Nova senha':'Senha'}
-     <div className="password-field"><input required minLength={8} type={visible?'text':'password'} autoComplete={mode==='login'?'current-password':'new-password'} value={password} onChange={e=>setPassword(e.target.value)}/><button type="button" className="password-toggle" aria-label={visible?'Ocultar senha':'Mostrar senha'} onClick={()=>setVisible(!visible)}>{visible?<EyeOff size={21}/>:<Eye size={21}/>}</button></div>
+     <div className="password-field"><input required minLength={mode==='login'?1:8} type={visible?'text':'password'} autoComplete={mode==='login'?'current-password':'new-password'} value={password} onChange={e=>setPassword(e.target.value)}/><button type="button" className="password-toggle" aria-label={visible?'Ocultar senha':'Mostrar senha'} onClick={()=>setVisible(!visible)}>{visible?<EyeOff size={21}/>:<Eye size={21}/>}</button></div>
     </label>}
     {mode==='login'&&<div className="auth-forgot-row"><button type="button" className="auth-forgot-link" onClick={()=>{setMode('reset');setError('');setNotice('');setPassword('')}}>Esqueci minha senha</button></div>}
     <button type="submit" className="btn full auth-primary" disabled={busy}>{busy?'Aguarde…':mode==='reset'?'Enviar código':mode==='reset-code'?'Redefinir senha':title}</button>
