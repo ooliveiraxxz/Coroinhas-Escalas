@@ -958,3 +958,134 @@ body:has(.app.ceremony-theme) .screen-popup-card .btn:not(.alt){background:linea
 .screen-popup-overlay.screen-popup-ceremony .screen-popup-check input{accent-color:#303030}
 .screen-popup-overlay.screen-popup-ceremony .screen-popup-card .btn:not(.alt){background:linear-gradient(125deg,#202020,#4c4c4c);color:white}
 .screen-popup-overlay.screen-popup-ceremony .screen-popup-image{background:transparent!important;box-shadow:none!important;border:0!important}
+
+
+/* ===============================================================
+   Tema por perfil — ponte central para permissões delegadas.
+   A identidade visual depende de .ceremony-theme, NUNCA da função
+   administrativa concedida. Novas áreas reutilizam os tokens abaixo.
+   Erros e estados de segurança continuam com semântica própria.
+   =============================================================== */
+.app.ceremony-theme{
+  --role-accent:#292929;
+  --role-accent-strong:#1d1d1d;
+  --role-accent-soft:#f0f0f0;
+  --role-accent-muted:#666;
+  --role-accent-border:#d2d2d2;
+  --role-accent-focus:#777;
+  --role-accent-contrast:#fff;
+  color-scheme:light;
+}
+/* Fontes fixas vinho: atualização, painel desenvolvedor,
+   auditoria, gerenciamento de usuários e notificações. */
+.app.ceremony-theme :is(
+  .developer-content-grid button,
+  .developer-access-item strong,
+  .developer-access-email,
+  .developer-access-last,
+  .users-person-name,
+  .users-person-meta,
+  .users-person-email,
+  .users-empty,
+  .audit-readable-title,
+  .audit-readable-date,
+  .notification-subheading,
+  .notification-future-card h3,
+  .poll-create h3,
+  .poll-list-heading,
+  .poll-heading strong,
+  .poll-heading span,
+  .poll-result strong,
+  .poll-status,
+  .poll-voter-list li,
+  .poll-edit-button,
+  .poll-option-editor button,
+  .notification-central-tabs button,
+  .notification-section-tabs button,
+  .site-credit,
+  .chip,
+  .itemtitle
+){color:var(--role-accent)}
+/* Fundos, bordas e controles que eram rosados por valores hexadecimais. */
+.app.ceremony-theme :is(
+  .developer-content-grid button,
+  .developer-access-item,
+  .poll-heading span,
+  .poll-voter-list li,
+  .poll-status,
+  .poll-edit-button,
+  .poll-option-editor button,
+  .notification-central-tabs button,
+  .notification-section-tabs button,
+  .notification-future-card,
+  .notice-prioritized,
+  .audit-readable-date,
+  .notification-archive-button,
+  .audit-batch-details,
+  .mass-duplicate-warning
+){
+  background:var(--role-accent-soft);
+  border-color:var(--role-accent-border);
+  box-shadow:none;
+}
+.app.ceremony-theme :is(
+  .developer-content-grid button,
+  .poll-edit-button,
+  .poll-option-editor button,
+  .notification-central-tabs button,
+  .notification-section-tabs button
+):is(:hover,:focus-visible){border-color:var(--role-accent-focus)}
+.app.ceremony-theme :is(
+  .notification-central-tabs button.active,
+  .notification-section-tabs button.active,
+  .support-chat-tabs button.selected
+){
+  color:var(--role-accent-contrast);
+  background:linear-gradient(135deg,var(--role-accent-strong),#505050);
+  border-color:var(--role-accent-strong);
+  box-shadow:none;
+}
+.app.ceremony-theme :is(
+  .poll-check input,
+  .poll-vote-option input,
+  .notification-priority-controls input[type="checkbox"],
+  .notification-settings-card .notification-pref input,
+  .screen-popup-check input,
+  .pref-line input[type="checkbox"]
+){accent-color:var(--role-accent)}
+.app.ceremony-theme :is(
+  .notification-archive-button,
+  .poll-edit-button,
+  .poll-option-editor button,
+  .developer-content-grid button
+):focus-visible{outline:2px solid var(--role-accent-focus);outline-offset:2px}
+/* As ações básicas do chat são portais fora de .app; herdam o tema
+   pelo perfil em exibição, não por possuir permissão de desenvolver. */
+body:has(.app.ceremony-theme) :is(
+  .support-chat-compose .support-chat-attach,
+  .support-chat-compose .support-chat-send,
+  .support-chat-new .btn,
+  .support-chat-tabs button.selected,
+  .support-floating,
+  .support-floating-coordinator
+){
+  background:linear-gradient(135deg,#202020,#505050);
+  border-color:#454545;
+  color:#fff;
+}
+body:has(.app.ceremony-theme) :is(
+  .support-chat-ticket strong,
+  .support-chat-new h3,
+  .support-chat-end,
+  .support-floating-count
+){color:#292929!important}
+body:has(.app.ceremony-theme) :is(
+  .support-chat-end,
+  .support-chat-error,
+  .support-floating-count
+){background:#eee;border-color:#ccc}
+/* Portal de aviso com classe explícita, mesmo sem suporte a :has(). */
+.screen-popup-overlay.screen-popup-ceremony :is(
+  .screen-popup-heading,
+  .screen-popup-heading h2
+){color:var(--role-accent,#252525)!important}
