@@ -105,3 +105,29 @@ CREATE POLICY assignment_attendance_update ON public.assignments FOR UPDATE TO c
  AND EXISTS(SELECT 1 FROM public.masses m WHERE m.id=assignments.mass_id AND m.archived_at IS NULL
  AND m.starts_at>now()-interval '24 hours')
 );
+
+-- Approval permission can change request STATUS, never requester, group, mass or assignment.
+CREATE OR REPLACE FUNCTION public.guard_delegated_request_update()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO ''
+AS $function$
+BEGIN
+ IF TG_OP<>'UPDATE' OR auth.uid() IS NULL THEN RETURN NEW; END IF;
+ IF NEW.id IS DISTINCT FROM OLD.id OR NEW.user_id IS DISTINCT FROM OLD.user_id
+ OR NEW.mass_id IS DISTINCT FROM OLD.mass_id OR NEW.service_group IS DISTINCT FROM OLD.service_group
+ OR NEW.assignment_id IS DISTINCT FROM OLD.assignment_id OR NEW.type IS DISTINCT FROM OLD.type
+ OR NEW.created_at IS DISTINCT FROM OLD.created_at THEN
+  RAISE EXCEPTION 'A permissão de aprovar solicitações não autoriza alterar o pedido' USING ERRCODE='42501';
+ END IF;
+ IF NEW.status IS DISTINCT FROM OLD.status THEN
+  IF NOT public.has_site_permission('approve_requests') THEN
+   RAISE EXCEPTION 'Sem permissão para decidir solicitações' USING ERRCODE='42501';
+  END IF;
+  IF OLD.status<>'pendente' OR NEW.status NOT IN ('aprovado','recusado') THEN
+   RAISE EXCEPTION 'Transição de solicitação inválida' USING ERRCODE='42501';
+  END IF;
+ END IF;
+ RETURN NEW;
+END $function$;
+DROP TRIGGER IF EXISTS guard_delegated_request_update_trg ON public.requests;
+CREATE TRIGGER guard_delegated_request_update_trg BEFORE UPDATE ON public.requests
+FOR EACH ROW EXECUTE FUNCTION public.guard_delegated_request_update();
