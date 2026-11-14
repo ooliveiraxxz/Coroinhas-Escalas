@@ -102,9 +102,10 @@ CREATE OR REPLACE FUNCTION public.can_update_mass_as_actor(p_mass uuid)
 RETURNS boolean LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO ''
 AS $function$
 BEGIN
- IF NOT (public.has_site_permission('create_scales') OR public.has_site_permission('edit_coroinha')
+ IF NOT (public.has_site_permission('edit_coroinha')
  OR public.has_site_permission('edit_cerimoniario')) THEN RETURN false; END IF;
- IF public.is_developer() THEN RETURN true; END IF;
+ -- Creating scales alone does not give editing rights for existing scales.
+ -- Developer role may not bypass an individual deny on either service group.
  RETURN NOT EXISTS(SELECT 1 FROM public.assignments a WHERE a.mass_id=p_mass
  AND NOT public.can_manage_service_group(a.service_group));
 END $function$;
