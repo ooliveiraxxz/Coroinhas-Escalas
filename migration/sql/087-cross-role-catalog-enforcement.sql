@@ -63,7 +63,8 @@ BEGIN
 END $function$;
 
 REVOKE ALL ON FUNCTION public.user_has_catalog_permission(uuid,text) FROM PUBLIC,coroinhas_app;
-REVOKE ALL ON FUNCTION public.is_eligible_service_member(uuid,text) FROM PUBLIC,coroinhas_app;
+REVOKE ALL ON FUNCTION public.is_eligible_service_member(uuid,text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.is_eligible_service_member(uuid,text) TO coroinhas_app;
 REVOKE ALL ON FUNCTION public.service_candidate_list(text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.service_candidate_list(text) TO coroinhas_app;
 
