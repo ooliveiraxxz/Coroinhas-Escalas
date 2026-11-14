@@ -184,7 +184,7 @@ export default function System(){
  useEffect(()=>{
   if(!db||!profile?.approved)return;
   if(!['Missas','Cadastrar missa','Detalhes da missa','Coroinhas','Cerimoniários','Escala automática'].includes(view))return;
-  if(!['create_scales','edit_coroinha','edit_cerimoniario','approve_requests'].some(key=>can(key)))return;
+  if(!['create_scales','edit_coroinha','edit_cerimoniario','approve_requests','manage_fixed_rules'].some(key=>can(key)))return;
   let active=true;
   Promise.all(['coroinha','cerimoniario'].map(g=>db.rpc('service_candidate_list',{p_group:g}))).then(results=>{
    if(!active)return;
@@ -193,7 +193,7 @@ export default function System(){
    )}));
   });
   return()=>{active=false};
- },[db,user?.id,profile?.approved,view,runtimePermissions.create_scales,runtimePermissions.edit_coroinha,runtimePermissions.edit_cerimoniario,runtimePermissions.approve_requests]);
+ },[db,user?.id,profile?.approved,view,runtimePermissions.create_scales,runtimePermissions.edit_coroinha,runtimePermissions.edit_cerimoniario,runtimePermissions.approve_requests,runtimePermissions.manage_fixed_rules]);
  useEffect(()=>{if(!developer||!db)return;let valid=true;db.from('service_settings').select('enabled').eq('key','auto_approval_3h').maybeSingle().then(({data,error})=>{if(valid&&!error&&data)setAutoApprovalEnabled(Boolean(data.enabled));});return()=>{valid=false}},[developer,db]);
  const loadPerms=async()=>{if(!developer||!db)return;const {data,error}=await db.rpc('developer_list_permission_rules');if(error)setError(friendlyAppError(error));else setPermRules(Array.isArray(data)?data:[]);};
   useEffect(()=>{if(view==='Permissões'&&developer)void loadPerms()},[view,developer,db]);
