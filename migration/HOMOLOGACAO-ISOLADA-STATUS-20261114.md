@@ -21,7 +21,7 @@
 
 ## Pendências antes de liberar a homologação
 1. **Gateway restrito:** o código exige usuário Postgres `coroinhas_gateway` com senha. A tentativa de configurar a senha foi bloqueada pelo serviço, e a alternativa de reset retornou que a função não aceita reset para papel sem senha. A variável `NEON_MIGRATION_DATABASE_URL` da Vercel de homologação foi deixada deliberadamente em um valor inválido, sem credencial proprietária.
-2. **Cookie de autenticação:** falta configurar `NEON_AUTH_COOKIE_SECRET` próprio da homologação.
+2. **Cookie de autenticação:** `NEON_AUTH_COOKIE_SECRET` próprio da homologação já configurado na Vercel, armazenado como variável criptografada.
 3. **Acesso:** `NEON_MIGRATION_ENABLED=false` deve permanecer até os testes de segurança e autenticação; não habilitar no projeto oficial.
 4. **Diferença histórica de dados fictícios:** cinco perfis antigos em QA têm `coordination_group` nulo; não preencher automaticamente com o grupo errado.
 5. **Paridade em runtime:** conferir regras de permissão, notificações, anexos, jobs, tela de login, variáveis de push e fluxo de inscrições.
