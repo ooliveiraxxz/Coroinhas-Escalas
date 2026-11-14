@@ -66,8 +66,7 @@ async function handle(req:NextRequest,context:{params:Promise<{path:string[]}>})
   ]);
   if((await context.params).path.join('/')==='rpc/create_mass_with_assignments'&&safeMassMessages.has(detail))
    return error(detail,code==='42501'?403:422,'MASS_VALIDATION');
-  if(req.method!=='GET')
-   console.warn('Neon operation failed',{action:(await context.params).path.join('/'),sqlstate:code||'unknown'});
+  console.warn('Neon operation failed',{action:(await context.params).path.join('/'),method:req.method,sqlstate:code||'unknown'});
   if(code==='42501')return error('Acesso negado.',403);
   if(requestPath==='rpc/support_send_image' && code==='22023')return error('Imagem inválida ou maior que 1,5 MB. Tente outra foto.',422,'SUPPORT_IMAGE_INVALID');
   if(code==='P0001'&&detail==='Nenhum destinatario encontrado')return error('Não há coroinhas aprovados para receber esta notificação.',422,'NO_RECIPIENTS');
