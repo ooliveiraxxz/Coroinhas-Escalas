@@ -62,7 +62,11 @@ BEGIN
  END IF;
  -- Approval permission authorizes exactly a pending request's open slot, not arbitrary reassignment.
  IF OLD.server_id IS DISTINCT FROM NEW.server_id
- AND public.has_site_permission('approve_requests')
+ AND (public.has_site_permission('approve_requests')
+  OR (pg_trigger_depth()>1
+   AND EXISTS(SELECT 1 FROM public.service_settings WHERE key='auto_approval_3h' AND enabled)
+   AND EXISTS(SELECT 1 FROM public.masses m WHERE m.id=OLD.mass_id
+      AND m.published AND m.starts_at>now() AND m.starts_at<=now()+interval '3 hours')))
  AND (OLD.server_id IS NULL OR OLD.status='desmarcado')
  AND NEW.server_id IS NOT NULL AND NEW.status='escalado' AND NEW.reason IS NULL
  AND EXISTS(SELECT 1 FROM public.requests r WHERE r.mass_id=OLD.mass_id
