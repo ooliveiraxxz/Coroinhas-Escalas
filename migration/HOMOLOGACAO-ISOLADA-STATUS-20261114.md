@@ -1,44 +1,32 @@
-# Escalas São Bento — homologação isolada (14/11/2026)
+# Escalas São Bento — Homologação Isolada
 
-## Identificação e isolamento
-- Aplicativo oficial: projeto Vercel `coroinhas-escalas`, banco Neon `noisy-hill-07078359`. **Não escrever na produção sem autorização específica.**
-- Homologação: projeto Vercel `escala-sao-bento-homologacao`.
-- Banco independente: Neon `falling-dawn-14662789`, branch `br-silent-firefly-be780j5s`, database `coroinhas`.
-- Neon Auth independente provisionado neste banco de testes.
-- Não houve cópia de contas, credenciais, escalas, mensagens ou outros registros reais.
+**Data:** 14/11/2026
+**URL:** https://escala-sao-bento-homologacao.vercel.app
+**Vercel:** `escala-sao-bento-homologacao` (projeto separado do oficial).
+**GitHub:** `teste/quero-servir-funcao-automatica-20261114` (base em `main`, sem commits pendentes do oficial na comparação).
+**Neon QA:** `falling-dawn-14662789`, branch `br-silent-firefly-be780j5s`, banco `coroinhas`.
+**Neon oficial:** `noisy-hill-07078359` — consultado somente em modo de leitura.
 
-## Clonagem de estrutura executada apenas no banco de homologação
-- 31 tabelas de aplicação equivalentes às do oficial, além da tabela própria `qa_test_results`.
-- 105 funções públicas do oficial copiadas; permanece 1 função própria de QA.
-- 37 políticas RLS copiadas e RLS habilitado nas tabelas.
-- 30 gatilhos oficiais equivalentes, além de 1 gatilho próprio de QA.
-- 72 índices oficiais equivalentes, além de índice próprio de QA.
-- 1 visualização pública (`profile_directory`).
-- Constraints de PK, UNIQUE, CHECK e FK, além dos grants de tabelas e funções.
-- 6 tabelas do schema privado copiadas estruturalmente, sem dados.
-- Função `auth.uid()` alinhada ao contexto `app.user_id`.
-- A função privada `resolve_neon_identity` recebeu o branch ID isolado.
+## Estrutura e isolamento
+- Reprodução das 31 tabelas públicas, 105 funções públicas, 37 políticas de acesso, 30 gatilhos, 72 índices e view `profile_directory`; QA mantém objetos de teste adicionais.
+- `permission_catalog` (27 linhas), `automation_catalog` (9 linhas) e `guides` (5 linhas) copiados como configuração pública, sem dados pessoais.
+- Neon Auth exclusivo; conta gateway restrita `coroinhas_qa_gateway` sem superuser e sem BYPASSRLS; autorização SQL por `coroinhas_app`.
+- Autenticação independente; chave de cookie própria. Push externo desabilitado em QA.
+- Credenciais e cadastros reais NÃO foram copiados; os usuários e missas existentes em QA são fictícios.
 
-## Atualização — homologação publicada e login disponível
-- Deploy de homologação Vercel pronto: https://escala-sao-bento-homologacao.vercel.app
-- Projeto Neon QA: `falling-dawn-14662789`, banco `coroinhas`, branch `br-silent-firefly-be780j5s`.
-- Gateway QA `coroinhas_qa_gateway` provisionado com acesso restrito ao banco QA, associado ao papel `coroinhas_app`; sem superuser ou bypass RLS.
-- Variáveis de homologação configuradas, incluindo URL restrita do banco, Neon Auth independente, cookie secret, `NEON_MIGRATION_ENABLED=true`, `NEON_PRODUCTION_CUTOVER_ENABLED=true` apenas no projeto QA; envio de push externo desabilitado.
-- SQL `093-direct-self-service-claim.sql` aplicado somente ao Neon QA. RPC `claim_service_slot` liberada na lista explícita de chamadas do backend de QA.
-- Build do commit `24827e5` concluído em READY. Login/cadastro visualizado em navegador, API de perfis respondeu 401 sem sessão (controle esperado).
-- A Vercel mantém a proteção de autenticação nas prévias; endereço principal de homologação pode ser aberto normalmente.
-- Existem cinco perfis fictícios, 10 missas, 11 vagas no banco QA; **nenhuma conta Neon Auth criada** até a validação. Cadastro cria usuário pendente, sujeito a aprovação (igual ao original).
-- Pendências: realizar cadastro/login real de teste e fluxo completo de coordenação, corrigir diferenças de perfis QA, validar notificações e todos os papéis. Não afirmar paridade funcional completa ainda.
-- Banco oficial, produção Vercel e `main` não foram modificados.
+## Testes concluídos com navegador real
+- Login/cadastro de coroinha e aprovação: aprovado.
+- Painel de coroinha, missas mensais e escolhas de função: aprovado.
+- Inscrição automática em missa fictícia `Sem candidato`, função `Altar`: concluída sem aprovação da coordenação; status SQL `escalado` e escala visível no início.
+- Desenvolvedor: login, métricas, gerenciamento de usuários e controles de permissões: abertura aprovada.
+- Coordenadora: login, cadastro de escala (formulário), listagem de coroinhas, missas, PDFs e notificações: abertura aprovada, sem gravações para essas operações.
+- Cerimoniário: login, tema preto/cinza/branco, escalas mensais, Quero servir: aprovado.
+- Pai/responsável: login, painel próprio, opção de vínculo de coroinha e consulta de escalas: aprovado.
+- Corrigidos privilégios de `migration_private.resolve_neon_identity` e SELECT em `public.profile_directory` após testes reproduzirem falhas 403. Confirmado login aprovado após correção.
+- Cinco perfis fictícios antigos tiveram `coordination_group` preenchido pelo tipo, e coluna alinhada como NOT NULL ao original.
 
-## Pendências antes de liberar a homologação
-1. **Gateway restrito:** o código exige usuário Postgres `coroinhas_gateway` com senha. A tentativa de configurar a senha foi bloqueada pelo serviço, e a alternativa de reset retornou que a função não aceita reset para papel sem senha. A variável `NEON_MIGRATION_DATABASE_URL` da Vercel de homologação foi deixada deliberadamente em um valor inválido, sem credencial proprietária.
-2. **Cookie de autenticação:** `NEON_AUTH_COOKIE_SECRET` próprio da homologação já configurado na Vercel, armazenado como variável criptografada.
-3. **Acesso:** `NEON_MIGRATION_ENABLED=false` deve permanecer até os testes de segurança e autenticação; não habilitar no projeto oficial.
-4. **Diferença histórica de dados fictícios:** cinco perfis antigos em QA têm `coordination_group` nulo; não preencher automaticamente com o grupo errado.
-5. **Paridade em runtime:** conferir regras de permissão, notificações, anexos, jobs, tela de login, variáveis de push e fluxo de inscrições.
-6. **Nova funcionalidade:** branch de `Quero servir` implementada, mas SQL `093` ainda requer teste de integração no banco isolado.
-7. **Dados:** usar usuários e missas exclusivamente fictícios.
-
-## Regra de publicação
-Nada da homologação entra na `main` ou nos serviços oficiais sem aprovação explícita e específica do responsável. Verificar banco, projeto e branch antes de qualquer operação.
+## Diferenças intencionais e pendências
+- Dados, contas e segredos são próprios do ambiente QA; não são nem devem ser iguais aos registros oficiais.
+- Código QA contém além do código da main a mudança experimental no `Quero servir`, o gateway QA e diagnósticos de erros de backend. Nada disso foi aplicado ao oficial.
+- Não foi concluída auditoria de TODOS os botões, envio de push real, anexos, concorrência nem todos os fluxos de coordenação e desenvolvedor; só os caminhos descritos acima foram efetivamente testados.
+- A homologação usa config QA e permite experimentar sem afetar produção. Atualizações de código para publicação oficial dependem de autorização EXPRESSA.
