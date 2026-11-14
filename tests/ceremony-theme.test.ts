@@ -7,7 +7,8 @@ const sys=readFileSync(new URL('../components/System.tsx',import.meta.url),'utf8
 
 test('Cerimoniário appearance is tied to role, not granted permissions',()=>{
  assert.match(sys,/const ceremony=profile\?\.approved===true&&profile\?\.role==='cerimoniario'/);
- assert.match(sys,/const ceremonyTheme=ceremony\|\|\(developer&&profile\?\.theme_preference==='cerimoniario'\)/);
+ assert.match(sys,/const nativeCeremonyTheme=ceremony\|\|/);
+ assert.match(sys,/const ceremonyTheme=canChooseTheme&&/);
  assert.match(sys,/profile\?\.role==='coordenadora'&&profile\?\.coordination_group==='cerimoniario'/);
  assert.match(sys,/ceremony-theme/);
 });
