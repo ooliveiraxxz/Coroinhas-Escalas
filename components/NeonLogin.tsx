@@ -18,12 +18,29 @@ export default function NeonLogin(){
    let result;
    if(mode==='signup'){
     result=await neonAuth.signUp.email({email,password,name});if(result.error)throw new Error(result.error.message);
-    const current=await neonAuth.getSession();
-    if(!current.data?.user?.id||current.data.user.id!==result.data?.user?.id){
-     const signed=await neonAuth.signIn.email({email,password});
-     if(signed.error){setMode('login');setNotice('Conta criada. Entre com sua senha para solicitar aprovação.');return;}
+    // Sign up may create a user before the browser receives a usable session.
+    // Explicit sign-in ensures that the session cookie is established before
+    // the profile-linking endpoint is called.
+    const signed=await neonAuth.signIn.email({email,password});
+    if(signed.error){
+     setMode('login');
+     setNotice('Conta criada. Entre com seu e-mail e senha para finalizar o cadastro.');
+     return;
     }
-    await refreshNeonSession(role);await recordLogin();return;
+    try{
+     await refreshNeonSession(role);
+    }catch(linkError){
+     // Keep the account intact. A second sign-in will refresh the auth cookie.
+     const retry=await neonAuth.signIn.email({email,password});
+     if(retry.error)throw linkError;
+     try{await refreshNeonSession(role);}
+     catch{
+      setMode('login');
+      setNotice('Conta criada, mas o perfil ainda não foi vinculado. Entre com a mesma senha ou procure o suporte. Não crie outra conta.');
+      return;
+     }
+    }
+    await recordLogin();return;
    }
    if(mode==='reset'){
     result=await neonAuth.emailOtp.sendVerificationOtp({email,type:'forget-password'});if(result.error)throw new Error(result.error.message);
