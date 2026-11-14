@@ -78,3 +78,17 @@ test('obsolete Mensagens permissions do not appear in management',()=>{
  assert.match(legacy,/WHERE c\.key NOT IN \('view_messages','mark_messages_seen'\)/);
  assert.doesNotMatch(ui,/'Notificações','Mensagens','Suporte'/);
 });
+
+const independent=readFileSync(new URL('../migration/sql/089-independent-approval-and-attendance.sql',import.meta.url),'utf8');
+test('independent attendance can change presence but cannot change service identity',()=>{
+ assert.match(independent,/has_site_permission\('attendance'\)/);
+ assert.match(independent,/NEW\.server_id IS DISTINCT FROM OLD\.server_id/);
+ assert.match(independent,/NEW\.function_name IS DISTINCT FROM OLD\.function_name/);
+ assert.match(independent,/Sem permissão para editar integrantes ou funções da escala/); 
+});
+test('requests can be approved only after a real same-group assignment, preserving auto approvals',()=>{
+ assert.match(independent,/NEW\.status='aprovado' AND NOT EXISTS/);
+ assert.match(independent,/a\.server_id=OLD\.user_id AND a\.service_group=OLD\.service_group/);
+ assert.match(independent,/pg_trigger_depth\(\)>1/);
+ assert.match(independent,/guard_delegated_request_update_trg/);
+});
