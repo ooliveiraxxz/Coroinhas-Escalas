@@ -58,8 +58,8 @@ BEGIN
      AND p_user<>auth.uid() AND x->>'key'<>'choose_theme' THEN
    RAISE EXCEPTION 'As permissões administrativas só podem ser ajustadas pelo próprio Desenvolvedor' USING ERRCODE='42501';
   END IF;
-  INSERT INTO public.permission_rules(subject_user,permission_key,allowed,expires_at,created_by,batch_id)
-  VALUES(p_user,x->>'key',(x->>'allowed')::boolean,p_until,auth.uid(),v_batch);
+  INSERT INTO public.permission_rules(subject_user,permission_key,allowed,expires_at,created_by,batch_id,created_at)
+  VALUES(p_user,x->>'key',(x->>'allowed')::boolean,p_until,auth.uid(),v_batch,clock_timestamp());
   v_count:=v_count+1;
  END LOOP;
  RETURN v_count;
