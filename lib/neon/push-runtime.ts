@@ -24,10 +24,15 @@ export async function dispatchNeonPush(limit=10){
    throw new Error('Push connection must use the restricted Neon role over TLS');
  pool??=new Pool({connectionString:uri,max:1,connectionTimeoutMillis:5000,idleTimeoutMillis:10000});
  webpush.setVapidDetails(subject()!,publicKey()!,privateKey()!);
- return dispatchPushBatch({query:(sql,values)=>pool!.query(sql,values)} as PushDatabase,
+ const result=await dispatchPushBatch({query:(sql,values)=>pool!.query(sql,values)} as PushDatabase,
    claim=>webpush.sendNotification(
      {endpoint:claim.endpoint,keys:{p256dh:claim.p256dh,auth:claim.auth}},
      JSON.stringify({title:claim.title,body:claim.body,tag:claim.notification_id}),
      {TTL:3600,timeout:7000}
    ),limit);
+ // Rotina opcional: o envio nao deve falhar se a migracao ainda nao estiver instalada.
+ // Nunca apaga notificacoes em public.notifications.
+ try{await pool.query('SELECT * FROM migration_private.push_finalize_outbox($1)',[100]);}
+ catch{console.warn('Push outbox finalization unavailable');}
+ return result;
 }
