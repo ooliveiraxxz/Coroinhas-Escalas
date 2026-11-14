@@ -135,6 +135,13 @@ BEGIN
   IF OLD.status<>'pendente' OR NEW.status NOT IN ('aprovado','recusado') THEN
    RAISE EXCEPTION 'Transição de solicitação inválida' USING ERRCODE='42501';
   END IF;
+  -- Aprovar exige atribuição efetiva na mesma missa e no grupo correto.
+  -- Apenas alterar o texto do status não pode produzir uma falsa aprovação.
+  IF NEW.status='aprovado' AND NOT EXISTS(
+   SELECT 1 FROM public.assignments a WHERE a.mass_id=OLD.mass_id
+    AND a.server_id=OLD.user_id AND a.service_group=OLD.service_group
+    AND a.status='escalado'
+  ) THEN RAISE EXCEPTION 'É necessário atribuir uma vaga antes de aprovar' USING ERRCODE='42501'; END IF;
  END IF;
  RETURN NEW;
 END $function$;
