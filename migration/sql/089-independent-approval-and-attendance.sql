@@ -60,6 +60,17 @@ BEGIN
  IF TG_OP<>'UPDATE' OR auth.uid() IS NULL OR public.can_manage_service_group(OLD.service_group) THEN
   RETURN NEW;
  END IF;
+ -- Approval permission authorizes exactly a pending request's open slot, not arbitrary reassignment.
+ IF OLD.server_id IS DISTINCT FROM NEW.server_id
+ AND public.has_site_permission('approve_requests')
+ AND (OLD.server_id IS NULL OR OLD.status='desmarcado')
+ AND NEW.server_id IS NOT NULL AND NEW.status='escalado' AND NEW.reason IS NULL
+ AND EXISTS(SELECT 1 FROM public.requests r WHERE r.mass_id=OLD.mass_id
+  AND r.user_id=NEW.server_id AND r.service_group=OLD.service_group AND r.status='pendente'
+  AND ((r.type='servir' AND r.assignment_id IS NULL)
+    OR (r.type='substituir' AND r.assignment_id=OLD.id))) THEN
+  RETURN NEW;
+ END IF;
  IF NEW.id IS DISTINCT FROM OLD.id OR NEW.mass_id IS DISTINCT FROM OLD.mass_id
  OR NEW.server_id IS DISTINCT FROM OLD.server_id OR NEW.function_name IS DISTINCT FROM OLD.function_name
  OR NEW.service_group IS DISTINCT FROM OLD.service_group OR NEW.created_at IS DISTINCT FROM OLD.created_at THEN
