@@ -11,6 +11,7 @@ on:
       - fix/developer-self-permissions-theme-rpc-20261114
       - fix/cross-role-permission-enforcement-20261114
       - fix/delegated-role-change-guard-20261114
+      - fix/quick-nav-coordinator-developer-20261114
   workflow_dispatch:
 
 permissions:
@@ -32,7 +33,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Permission regression tests
-        run: node --import tsx --test tests/permission-isolation.test.ts tests/ceremony-theme.test.ts tests/delegated-developer-health.test.ts tests/ceremony-panel-metrics.test.ts tests/developer-theme-preference.test.ts tests/developer-self-permission-rpc.test.ts tests/cross-role-delegated-permissions.test.ts tests/delegated-role-change-guard.test.ts
+        run: node --import tsx --test tests/permission-isolation.test.ts tests/ceremony-theme.test.ts tests/delegated-developer-health.test.ts tests/ceremony-panel-metrics.test.ts tests/developer-theme-preference.test.ts tests/developer-self-permission-rpc.test.ts tests/cross-role-delegated-permissions.test.ts tests/delegated-role-change-guard.test.ts tests/quick-navigation-role-shortcuts.test.ts
       - name: TypeScript check
         run: npx tsc --noEmit
       - name: Build without production credentials
