@@ -5,6 +5,8 @@ import {compileQuery} from '../lib/neon/query';
 const ui=readFileSync(new URL('../components/System.tsx',import.meta.url),'utf8');
 const service=readFileSync(new URL('../migration/sql/087-cross-role-catalog-enforcement.sql',import.meta.url),'utf8');
 const policies=readFileSync(new URL('../migration/sql/088-cross-role-privacy-and-rls.sql',import.meta.url),'utf8');
+const operations=readFileSync(new URL('../migration/sql/089-independent-approval-and-attendance.sql',import.meta.url),'utf8');
+const legacy=readFileSync(new URL('../migration/sql/090-hide-obsolete-message-toggles.sql',import.meta.url),'utf8');
 
 test('only catalogued functions can enable service eligibility, including non-native profiles',()=>{
  assert.match(service,/INSERT INTO public\.permission_catalog\(key,category,label,default_roles,sensitive\)/);
@@ -49,4 +51,30 @@ test('strict RPC gateway allows only the two audited service RPCs with parameter
  assert.match(b.text,/public\."service_candidate_list"/);
  assert.deepEqual(b.values,['cerimoniario']);
  assert.throws(()=>compileQuery(['rpc','service_candidate_list'],'POST',new URLSearchParams(),{p_group:'cerimoniario',evil:true}));
+});
+
+test('attendance can update presence but cannot arbitrarily change another member',()=>{
+ assert.match(operations,/CREATE POLICY assignment_attendance_update/);
+ assert.match(operations,/public\.has_site_permission\('attendance'\)/);
+ assert.match(operations,/guard_delegated_assignment_update/);
+ assert.match(operations,/NEW\.server_id IS DISTINCT FROM OLD\.server_id/);
+ assert.match(ui,/delegatedAttendance=can\('attendance'\)/);
+ assert.match(ui,/canEditGroup\(serviceGroup\(a\)\)\|\|can\('attendance'\)/);
+});
+test('requests can be approved without editing all functions of another group',()=>{
+ assert.match(operations,/CREATE POLICY requests_manage/);
+ assert.match(operations,/public\.has_site_permission\('approve_requests'\)/);
+ assert.doesNotMatch(operations,/IF NOT public\.can_manage_service_group\(r\.service_group\)/);
+ assert.match(operations,/r\.user_id=NEW\.server_id/);
+ assert.match(operations,/pg_trigger_depth\(\)>1/);
+});
+test('native roles remain unchanged and explicit cross-role group selection is allowed',()=>{
+ assert.match(service,/ARRAY\[\]::text\[\],false/);
+ assert.match(ui,/const canOfferServiceGroup=/);
+ assert.match(ui,/disabled=\{!canOfferServiceGroup\('cerimoniario'\)\}/);
+ assert.match(ui,/disabled=\{!canOfferServiceGroup\('coroinha'\)\}/);
+});
+test('obsolete Mensagens permissions do not appear in management',()=>{
+ assert.match(legacy,/WHERE c\.key NOT IN \('view_messages','mark_messages_seen'\)/);
+ assert.doesNotMatch(ui,/'Notificações','Mensagens','Suporte'/);
 });
