@@ -25,6 +25,10 @@ DECLARE p public.profiles%rowtype;v_override boolean;
 BEGIN
  SELECT * INTO p FROM public.profiles WHERE id=auth.uid() AND approved;
  IF NOT FOUND THEN RETURN false; END IF;
+ -- A delegated servant may always access their OWN assignment to confirm or unassign.
+ IF (public.has_site_permission('confirm_assignment') OR public.has_site_permission('unassign_self'))
+ AND EXISTS(SELECT 1 FROM public.assignments a WHERE a.mass_id=p_mass AND a.server_id=p.id
+   AND a.status IN ('escalado','confirmado')) THEN RETURN true; END IF;
  -- Every independently delegated operation must be able to read the masses it acts on.
  IF public.has_site_permission('attendance') OR public.has_site_permission('approve_requests')
  OR public.has_site_permission('create_scales') OR public.has_site_permission('delete_scales')
@@ -62,6 +66,7 @@ BEGIN
  IF NOT public.can_read_mass_for_user(p_mass) THEN RETURN false; END IF;
  SELECT * INTO p FROM public.profiles WHERE id=auth.uid() AND approved;
  IF NOT FOUND THEN RETURN false; END IF;
+ IF p_server=p.id AND (public.has_site_permission('confirm_assignment') OR public.has_site_permission('unassign_self')) THEN RETURN true; END IF;
  IF public.has_site_permission('attendance') OR public.has_site_permission('approve_requests')
  OR public.has_site_permission('create_scales') OR public.has_site_permission('delete_scales')
  OR public.has_site_permission('edit_coroinha') OR public.has_site_permission('edit_cerimoniario')
