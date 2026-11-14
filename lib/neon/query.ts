@@ -12,7 +12,7 @@ for(const c of schema[0].inventory.constraints){
  set.add([...names].sort().join(','));
  conflictTargets.set(c.table_name,set);
 }
-for (const [table,names] of Object.entries({profiles:['coordination_group'],assignments:['service_group'],screen_announcements:['image_url'],requests:['service_group'],service_settings:['key','enabled','updated_at']})) {const set=columns.get(table)||new Set<string>();for(const name of names)set.add(name);columns.set(table,set);}
+for (const [table,names] of Object.entries({profiles:['coordination_group','theme_preference'],assignments:['service_group'],screen_announcements:['image_url'],requests:['service_group'],service_settings:['key','enabled','updated_at']})) {const set=columns.get(table)||new Set<string>();for(const name of names)set.add(name);columns.set(table,set);}
 for (const c of schema[0].inventory.columns) {
  const set = columns.get(c.table_name) || new Set<string>();
  set.add(c.column_name); columns.set(c.table_name, set);
@@ -33,6 +33,7 @@ const rpcs: Record<string, Record<string, string>> = {
  send_test_notification:{},
  archive_list:{},
  my_site_permissions:{},
+ set_my_theme:{p_theme:'text'},
  automation_enabled:{p_key:'text'},
  developer_permission_snapshot:{p_user:'uuid'},
  developer_apply_permissions:{p_user:'uuid',p_changes:'jsonb',p_until:'timestamptz',p_confirmation:'text'},

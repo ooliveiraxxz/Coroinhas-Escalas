@@ -27,7 +27,7 @@ test('personal preference only changes theme and cannot bypass permission',()=>{
  assert.match(migration,/UPDATE public\.profiles SET theme_preference=p_theme WHERE id=v_id AND approved/);
  assert.match(migration,/REVOKE ALL ON FUNCTION public\.developer_set_my_theme\(text\) FROM PUBLIC,coroinhas_app,coroinhas_gateway/);
 });
-test('permission exists but is disabled for all by default, developer may only delegate theme to developers',()=>{
+test('permission defaults to disabled and developer self-management stays available',()=>{
  assert.match(migration,/VALUES\('choose_theme','Desenvolvedor','Escolher tema visual do aplicativo',ARRAY\[\]::text\[\],false\)/);
  assert.match(migration,/IF p_key='choose_theme' THEN/);
  assert.match(migration,/IF p.role='desenvolvedor' THEN RETURN true; END IF/);
@@ -35,5 +35,5 @@ test('permission exists but is disabled for all by default, developer may only d
  assert.match(migration,/c\.key<>'choose_theme'/);
  assert.match(migration,/AND x->>'key'<>'choose_theme' THEN/);
  assert.match(center,/const eligible=\[\.\.\.users\]\.sort/);
- assert.match(center,/current\?\.role!=='desenvolvedor'\|\|r\.key==='choose_theme'/);
+ assert.match(center,/current\?\.role!=='desenvolvedor'\|\|current\.id===viewerId\|\|r\.key==='choose_theme'/);
 });
