@@ -2,7 +2,7 @@
 import {useEffect,useMemo,useState} from 'react';
 import type {SupabaseClient} from '@supabase/supabase-js';
 type Row=Record<string,any>;
-type Props={db:SupabaseClient|null;users:Row[];viewerId:string};
+type Props={db:SupabaseClient|null;users:Row[];viewerId:string;onPermissionsSaved?:()=>Promise<void>};
 type Section='automacoes'|'gerenciamento'|'temporarias';
 const groupOrder=['Coroinhas e cerimoniários','Pais e responsáveis','Coordenação','Desenvolvedor'];
 const localDate=(v:string)=>new Date(v).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'});
@@ -12,7 +12,7 @@ function Toggle({enabled,onChange,label}:{enabled:boolean;onChange:(v:boolean)=>
  <span style={{width:25,height:25,background:'#fff',borderRadius:'50%',boxShadow:'0 1px 4px #4445'}}/>
  </button>;
 }
-export default function PermissionCenter({db,users,viewerId}:Props){
+export default function PermissionCenter({db,users,viewerId,onPermissionsSaved}:Props){
  const [section,setSection]=useState<Section>('automacoes');
  const [userId,setUserId]=useState('');
  const [autoRows,setAutoRows]=useState<Row[]>([]);
@@ -66,6 +66,7 @@ export default function PermissionCenter({db,users,viewerId}:Props){
     :await db.rpc('developer_apply_permissions',{p_user:userId,p_changes:updates,p_until:section==='temporarias'?new Date(expires).toISOString():null,p_confirmation:confirmName});
    if(result.error)throw result.error;
    setChanges({});setConfirmName('');setExpires('');setSuccess('Alterações salvas e aplicadas no servidor.');
+   if(userId===viewerId)await onPermissionsSaved?.();
    await fetchAll();
    if(section!=='automacoes'){
     const snapshot=await db.rpc('developer_permission_snapshot',{p_user:userId});
