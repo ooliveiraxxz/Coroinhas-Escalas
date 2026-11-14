@@ -150,7 +150,7 @@ export default function System(){
  const parent=profile?.approved===true&&profile?.role==='pai';
  const can=(key:string)=>Object.hasOwn(runtimePermissions,key)?runtimePermissions[key]===true:developer;
   const coord=profile?.approved===true&&(profile?.role==='coordenadora'||developer);
- const notificationManager=coord||['send_notifications','send_popup','manage_polls','approve_requests'].some(key=>runtimePermissions[key]===true);
+ const notificationManager=(coord&&!developer)||['send_notifications','send_popup','manage_polls','approve_requests'].some(key=>can(key));
  const ceremony=profile?.approved===true&&profile?.role==='cerimoniario';
  const canChooseTheme=runtimePermissions.choose_theme===true;
  const nativeCeremonyTheme=ceremony||(profile?.approved===true&&profile?.role==='coordenadora'&&profile?.coordination_group==='cerimoniario');
