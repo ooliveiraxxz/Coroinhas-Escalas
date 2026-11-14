@@ -26,7 +26,7 @@ export default function PermissionCenter({db,users}:Props){
  const [error,setError]=useState('');
  const [success,setSuccess]=useState('');
  const [expanded,setExpanded]=useState('Coroinhas e cerimoniários');
- const eligible=users.filter(u=>u.role!=='desenvolvedor').sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
+ const eligible=[...users].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
  useEffect(()=>{if(!eligible.some(u=>u.id===userId))setUserId(eligible[0]?.id||'')},[users,userId]);
  const fetchAll=async()=>{
   if(!db)return;
@@ -103,7 +103,7 @@ export default function PermissionCenter({db,users}:Props){
   {section==='temporarias'&&<div className="card"><label className="field">Acesso permitido até<input className="permission-expiry-input" type="datetime-local" value={expires} onChange={e=>setExpires(e.target.value)}/></label><p className="muted">Após o prazo, cada função retorna automaticamente à permissão anterior. Você também pode revogar antes.</p></div>}
   {groupOrder.map(group=><div className="card" key={group}>
    <button type="button" className="btn alt full" aria-expanded={expanded===group} onClick={()=>setExpanded(expanded===group?'':group)}>{group} {expanded===group?'−':'+'}</button>
-   {expanded===group&&permRows.filter(r=>r.category===group).map(row=><div className="item" key={row.key} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><div style={{flex:1}}><strong>{row.label}</strong><p className="muted" style={{margin:'2px 0'}}>Padrão do perfil: {row.default?'permitido':'bloqueado'}</p></div><Toggle enabled={getState(row.key,Boolean(row.enabled))} onChange={()=>toggle(row.key,Boolean(row.enabled))} label={row.label}/></div>)}
+   {expanded===group&&permRows.filter(r=>r.category===group&&(current?.role!=='desenvolvedor'||r.key==='choose_theme')).map(row=><div className="item" key={row.key} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}><div style={{flex:1}}><strong>{row.label}</strong><p className="muted" style={{margin:'2px 0'}}>Padrão do perfil: {row.default?'permitido':'bloqueado'}</p></div><Toggle enabled={getState(row.key,Boolean(row.enabled))} onChange={()=>toggle(row.key,Boolean(row.enabled))} label={row.label}/></div>)}
   </div>)}
   {section==='temporarias'&&<div className="card"><h3>Permissões temporárias ativas</h3>
    {validRules.length===0?<p className="muted">Nenhuma concessão temporária ativa para este usuário.</p>:<>

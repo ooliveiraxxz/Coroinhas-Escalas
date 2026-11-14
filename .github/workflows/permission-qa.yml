@@ -7,6 +7,7 @@ on:
       - fix/delegated-developer-health-20261113
       - fix/ceremony-panel-metrics-theme-20261113
       - fix/developer-theme-preference-20261113
+      - fix/opt-in-theme-permission-all-roles-20261113
   workflow_dispatch:
 
 permissions:

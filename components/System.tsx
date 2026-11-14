@@ -152,7 +152,9 @@ export default function System(){
   const coord=profile?.approved===true&&(profile?.role==='coordenadora'||developer);
  const notificationManager=coord||['send_notifications','send_popup','manage_polls','approve_requests'].some(key=>runtimePermissions[key]===true);
  const ceremony=profile?.approved===true&&profile?.role==='cerimoniario';
- const ceremonyTheme=ceremony||(developer&&profile?.theme_preference==='cerimoniario')||(profile?.approved===true&&profile?.role==='coordenadora'&&profile?.coordination_group==='cerimoniario');
+ const canChooseTheme=runtimePermissions.choose_theme===true;
+ const nativeCeremonyTheme=ceremony||(profile?.approved===true&&profile?.role==='coordenadora'&&profile?.coordination_group==='cerimoniario');
+ const ceremonyTheme=canChooseTheme&&(['coroinha','cerimoniario'].includes(profile?.theme_preference))?profile?.theme_preference==='cerimoniario':nativeCeremonyTheme;
  const ceremonialLabels=ceremony||profile?.approved===true&&profile?.role==='coordenadora'&&profile?.coordination_group==='cerimoniario';
  const groupUserSingular=ceremonialLabels?'Cerimoniário':'Coroinha';
  const groupUserPlural=ceremonialLabels?'Cerimoniários':'Coroinhas';
@@ -535,11 +537,11 @@ export default function System(){
   }catch(e:any){setError(e?.message||'Não foi possível salvar o telefone.');}
   finally{setPhoneSaving(false)}
  };
- const saveDeveloperTheme=async(next:'coroinha'|'cerimoniario')=>{
-  if(!db||!user?.id||!developer||themeSaving||next===profile?.theme_preference)return;
+ const saveTheme=async(next:'coroinha'|'cerimoniario')=>{
+  if(!db||!user?.id||!canChooseTheme||themeSaving||next===profile?.theme_preference)return;
   setThemeSaving(true);setThemeNotice('');setError('');
   try{
-   const {data,error}=await db.rpc('developer_set_my_theme',{p_theme:next});
+   const {data,error}=await db.rpc('set_my_theme',{p_theme:next});
    if(error)throw error;
    if(data!==next)throw new Error('Confirmação de preferência inválida');
    setProfile(previous=>previous?{...previous,theme_preference:next}:previous);
@@ -863,7 +865,7 @@ export default function System(){
  {parentLinks.filter(link=>parent?link.parent_id===user.id:link.child_id===user.id).length===0&&<p className="muted">Nenhum vínculo ativo.</p>}
  </div>}
 <div className="card"><b>{profile.name}</b><p className="profile-role">{developer?'Desenvolvedor':coord?'Coordenador(a)':parent?'Pai/Responsável':groupUserSingular}</p><p>{profile.email}</p>{field('Nome',profileNameDraft??profile.name??'',setProfileNameDraft)}<button className="btn" disabled={busy} onClick={async()=>{const updatedName=(profileNameDraft??profile.name??'').trim();if(!updatedName){setError('Informe um nome antes de salvar.');return;}const saved=await execute(()=>db!.from('profiles').update({name:updatedName}).eq('id',user.id));if(saved)setProfileNameDraft(null)}}>Salvar nome</button>
- {developer&&<div className="developer-theme-preference"><h3>Tema do aplicativo</h3><p className="muted">Escolha a aparência da sua conta de Desenvolvedor. Isso não altera seu perfil, grupo nem permissões.</p><label className="field" htmlFor="developer-theme-select">Tema visual<select id="developer-theme-select" value={profile.theme_preference==='cerimoniario'?'cerimoniario':'coroinha'} disabled={themeSaving} onChange={e=>void saveDeveloperTheme(e.target.value as 'coroinha'|'cerimoniario')}><option value="coroinha">Coroinha — vinho</option><option value="cerimoniario">Cerimoniário — preto e cinza</option></select></label>{themeNotice&&<p role="status" className="muted">{themeNotice}</p>}</div>}
+ {canChooseTheme&&<div className="developer-theme-preference"><h3>Tema do aplicativo</h3><p className="muted">Você tem permissão para escolher a aparência do aplicativo. Isso não altera seu perfil, grupo nem permissões.</p><label className="field" htmlFor="developer-theme-select">Tema visual<select id="developer-theme-select" value={ceremonyTheme?'cerimoniario':'coroinha'} disabled={themeSaving} onChange={e=>void saveTheme(e.target.value as 'coroinha'|'cerimoniario')}><option value="coroinha">Coroinha — vinho</option><option value="cerimoniario">Cerimoniário — preto e cinza</option></select></label>{themeNotice&&<p role="status" className="muted">{themeNotice}</p>}</div>}
  <div className="profile-phone-field"><label className="field">Telefone para contato (opcional)<input type="tel" inputMode="tel" autoComplete="tel-national" placeholder="(12) 99999-9999" maxLength={20} value={phoneDraft??''} onChange={e=>{setPhoneDraft(e.target.value);setPhoneNotice('')}}/></label>
  <p className="muted">Somente contato. O login e a recuperação de senha continuam pelo e-mail. Seu número não aparece publicamente.</p>
  <button type="button" className="btn alt" disabled={phoneSaving||phoneDraft===null} onClick={()=>void savePhone()}>{phoneSaving?'Salvando…':'Salvar telefone'}</button>
