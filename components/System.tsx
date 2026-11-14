@@ -722,7 +722,8 @@ export default function System(){
     ['Usuários',usage.total_users],['Aprovados',usage.approved_users],['Pendentes',usage.pending_users],
     ['Coroinhas',usage.servers],['Cerimoniários',usage.ceremoniaries],['Responsáveis',usage.parents],['Coordenadores(as)',usage.coordinators],
     ['Desenvolvedores',usage.developers],['Ativos (24h)',usage.active_24h],['Logins registrados',usage.logins_recorded],
-    ['Missas',usage.masses],['Notificações',usage.notifications],['Banco em MB',((Number(usage.db_size_bytes)||0)/1048576).toFixed(2)]
+    ['Missas',usage.masses],['Notificações',usage.notifications],
+    ['Aparelhos com notificações ativadas',usage.push_devices??'—'],['Usuários com notificações ativadas',usage.push_users??'—'],['Aprovados sem notificações ativadas',usage.approved_without_push??'—'],['Banco em MB',((Number(usage.db_size_bytes)||0)/1048576).toFixed(2)]
    ] as [string,string|number][]).map(([label,value])=><div className="metric" key={label}><strong>{value??0}</strong><small>{label}</small></div>)}</div>
    :<p className="muted">Toque em Atualizar indicadores para carregar os dados.</p>}
    <div className="developer-report-action">{b('Atualizar indicadores',showDeveloper)}</div>
