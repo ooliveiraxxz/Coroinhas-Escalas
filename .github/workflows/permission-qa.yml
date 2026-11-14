@@ -8,6 +8,7 @@ on:
       - fix/ceremony-panel-metrics-theme-20261113
       - fix/developer-theme-preference-20261113
       - fix/opt-in-theme-permission-all-roles-20261113
+      - fix/developer-self-permissions-theme-rpc-20261114
   workflow_dispatch:
 
 permissions:
@@ -29,7 +30,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Permission regression tests
-        run: node --import tsx --test tests/permission-isolation.test.ts tests/ceremony-theme.test.ts tests/delegated-developer-health.test.ts tests/ceremony-panel-metrics.test.ts tests/developer-theme-preference.test.ts
+        run: node --import tsx --test tests/permission-isolation.test.ts tests/ceremony-theme.test.ts tests/delegated-developer-health.test.ts tests/ceremony-panel-metrics.test.ts tests/developer-theme-preference.test.ts tests/developer-self-permission-rpc.test.ts
       - name: TypeScript check
         run: npx tsc --noEmit
       - name: Build without production credentials
