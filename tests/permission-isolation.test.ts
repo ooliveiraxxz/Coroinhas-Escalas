@@ -41,7 +41,7 @@ test('create, edit, and send actions have separate explicit gates',()=>{
   "can('create_scales')?'Cadastrar escala'",
   "if(!editId&&!can('create_scales'))",
   "editId?(can('edit_coroinha')||can('edit_cerimoniario')):can('create_scales')",
-  "const notificationManager=coord||",
+  "const notificationManager=(coord&&!developer)||",
   "can('manage_polls')&&<button type=\"button\" className={notificationPanel==='poll'",
   "screenKind==='popup'&&can('send_popup')",
   "if(!db||!can('view_developer_panel'))return;setAccessLoading(true)"
