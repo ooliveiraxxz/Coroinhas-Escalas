@@ -1089,3 +1089,43 @@ body:has(.app.ceremony-theme) :is(
   .screen-popup-heading,
   .screen-popup-heading h2
 ){color:var(--role-accent,#252525)!important}
+
+/* Developer health chart: role-aware neutral colors without inline burgundy. */
+.health-progress-track{background:#f3e3e7}
+.health-progress-fill.normal,.health-history-bar{background:#87263d}
+.health-progress-fill.warning{background:#be7b18}
+.health-progress-fill.critical{background:#b42318}
+
+/* The developer dashboard is available to delegated profiles.
+   Only the active Cerimoniário identity determines its appearance. */
+.app.ceremony-theme .developer-metrics .metric strong,
+.app.ceremony-theme .developer-metrics .metric b,
+.app.ceremony-theme .developer-metrics .metric small{
+ color:var(--role-accent,#292929);
+}
+.app.ceremony-theme .developer-metrics .metric{
+ border-color:var(--role-accent-border,#d2d2d2);
+ background:#fff;
+}
+.app.ceremony-theme .developer-content-grid button.btn{
+ color:#fff;
+ background:linear-gradient(135deg,var(--role-accent-strong,#1d1d1d),#505050);
+ border-color:#454545;
+}
+.app.ceremony-theme .developer-content-grid button.btn:active{
+ background:linear-gradient(135deg,#111,#3b3b3b);
+}
+.app.ceremony-theme .health-progress-track{background:#e0e0e0}
+.app.ceremony-theme .health-progress-fill.normal,
+.app.ceremony-theme .health-history-bar{background:#363636}
+.app.ceremony-theme .health-progress-fill.warning{background:#9a6b19}
+.app.ceremony-theme .health-progress-fill.critical{background:#a32020}
+.app.ceremony-theme .developer-access-item{
+ background:#fafafa!important;
+ border-color:#d5d5d5!important;
+}
+.app.ceremony-theme .developer-access-item strong,
+.app.ceremony-theme .developer-access-item .developer-access-email,
+.app.ceremony-theme .developer-access-item .developer-access-last{
+ color:#303030!important;
+}
