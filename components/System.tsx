@@ -215,7 +215,29 @@ export default function System(){
   const queries=await Promise.all([client.from('masses').select('*').order('starts_at'),client.from('assignments').select('*'),client.from('profiles').select('*'),client.from('notifications').select('*').eq('user_id',usr.id).order('created_at',{ascending:false}).limit(80),client.from('requests').select('*'),client.from('guides').select('*'),client.from('messages').select('*'),client.from('fixed_rules').select('*'),p.data.role==='coordenadora'||p.data.role==='desenvolvedor'?client.from('notifications').select('*').not('group_id','is',null).order('created_at',{ascending:false}).limit(400):Promise.resolve({data:[],error:null}),client.from('site_updates').select('*').order('published_at',{ascending:false})]);
   const setters=[setMasses,setAssignments,setProfiles,setNotices,setRequests,setGuides,setMessages,setRules,setSentNotices,setUpdates];queries.forEach((r,i)=>{if(r.error)console.warn(r.error.message);else setters[i](r.data||[])});
  }catch(e:any){setError(e.message||String(e))}finally{setProfileLoading(false)}}
- useEffect(()=>{let live=true;try{const client=getSupabase();setDb(client);client.auth.getSession().then(({data})=>{if(live){setUser(data.session?.user||null);setAuthLoading(false)}}).catch(e=>{if(live){setError(friendlyAppError(e));setAuthLoading(false)}});const {data:{subscription}}=client.auth.onAuthStateChange((_e,s)=>{if(live){if(_e==='PASSWORD_RECOVERY')setRecovering(true);setUser(s?.user||null);setAuthLoading(false)}});return()=>{live=false;subscription.unsubscribe()}}catch(e:any){setError(friendlyAppError(e));setAuthLoading(false)}},[]);
+ useEffect(()=>{
+  let live=true;
+  // Older iOS standalone web apps can stall while restoring an auth cookie.
+  // Never leave the application showing an endless blank/loading screen.
+  const timeout=setTimeout(()=>{
+   if(!live)return;
+   setAuthLoading(false);
+   setProfileLoading(false);
+   setError('A conexão demorou mais que o esperado. Verifique a internet e tente entrar novamente.');
+  },12000);
+  try{
+   const client=getSupabase();setDb(client);
+   client.auth.getSession().then(({data})=>{
+    if(live){clearTimeout(timeout);setUser(data.session?.user||null);setAuthLoading(false);setError('');}
+   }).catch(e=>{
+    if(live){clearTimeout(timeout);setError(friendlyAppError(e));setAuthLoading(false);}
+   });
+   const {data:{subscription}}=client.auth.onAuthStateChange((_e,s)=>{
+    if(live){clearTimeout(timeout);if(_e==='PASSWORD_RECOVERY')setRecovering(true);setUser(s?.user||null);setAuthLoading(false);}
+   });
+   return()=>{live=false;clearTimeout(timeout);subscription.unsubscribe()};
+  }catch(e:any){clearTimeout(timeout);setError(friendlyAppError(e));setAuthLoading(false)}
+ },[]);
  useEffect(()=>{if(user&&db){refresh(db,user);db.rpc('record_site_access',{p_login:false}).then(()=>{});const tick=setInterval(()=>db.rpc('record_site_access',{p_login:false}).then(()=>{}),180000);return()=>clearInterval(tick)}else{setProfile(null);setProfileLoading(false)}},[user?.id,db]);
  useEffect(()=>{
   if(!db||!user?.id||!profile?.approved)return;
