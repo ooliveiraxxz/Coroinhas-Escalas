@@ -19,6 +19,18 @@
 - Função `auth.uid()` alinhada ao contexto `app.user_id`.
 - A função privada `resolve_neon_identity` recebeu o branch ID isolado.
 
+## Atualização — homologação publicada e login disponível
+- Deploy de homologação Vercel pronto: https://escala-sao-bento-homologacao.vercel.app
+- Projeto Neon QA: `falling-dawn-14662789`, banco `coroinhas`, branch `br-silent-firefly-be780j5s`.
+- Gateway QA `coroinhas_qa_gateway` provisionado com acesso restrito ao banco QA, associado ao papel `coroinhas_app`; sem superuser ou bypass RLS.
+- Variáveis de homologação configuradas, incluindo URL restrita do banco, Neon Auth independente, cookie secret, `NEON_MIGRATION_ENABLED=true`, `NEON_PRODUCTION_CUTOVER_ENABLED=true` apenas no projeto QA; envio de push externo desabilitado.
+- SQL `093-direct-self-service-claim.sql` aplicado somente ao Neon QA. RPC `claim_service_slot` liberada na lista explícita de chamadas do backend de QA.
+- Build do commit `24827e5` concluído em READY. Login/cadastro visualizado em navegador, API de perfis respondeu 401 sem sessão (controle esperado).
+- A Vercel mantém a proteção de autenticação nas prévias; endereço principal de homologação pode ser aberto normalmente.
+- Existem cinco perfis fictícios, 10 missas, 11 vagas no banco QA; **nenhuma conta Neon Auth criada** até a validação. Cadastro cria usuário pendente, sujeito a aprovação (igual ao original).
+- Pendências: realizar cadastro/login real de teste e fluxo completo de coordenação, corrigir diferenças de perfis QA, validar notificações e todos os papéis. Não afirmar paridade funcional completa ainda.
+- Banco oficial, produção Vercel e `main` não foram modificados.
+
 ## Pendências antes de liberar a homologação
 1. **Gateway restrito:** o código exige usuário Postgres `coroinhas_gateway` com senha. A tentativa de configurar a senha foi bloqueada pelo serviço, e a alternativa de reset retornou que a função não aceita reset para papel sem senha. A variável `NEON_MIGRATION_DATABASE_URL` da Vercel de homologação foi deixada deliberadamente em um valor inválido, sem credencial proprietária.
 2. **Cookie de autenticação:** `NEON_AUTH_COOKIE_SECRET` próprio da homologação já configurado na Vercel, armazenado como variável criptografada.
