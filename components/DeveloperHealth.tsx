@@ -76,8 +76,8 @@ export default function DeveloperHealth({db}: {db:SupabaseClient|null}) {
     <div style={{display:'flex',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}>
      <strong>Uso do espaço</strong><span>{pct.toFixed(2)}% · {status}</span>
     </div>
-    <div role="progressbar" aria-label="Consumo estimado em relação ao limite de armazenamento" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} style={{height:11,background:'#f3e3e7',borderRadius:20,overflow:'hidden',marginTop:7}}>
-     <div style={{height:'100%',width:pct+'%',background:pct>=85?'#b42318':pct>=65?'#be7b18':'#87263d'}}/>
+    <div role="progressbar" aria-label="Consumo estimado em relação ao limite de armazenamento" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} className="health-progress-track" style={{height:11,borderRadius:20,overflow:'hidden',marginTop:7}}>
+     <div className={'health-progress-fill '+(pct>=85?'critical':pct>=65?'warning':'normal')} style={{height:'100%',width:pct+'%'}}/>
     </div>
     
    </div>
@@ -93,13 +93,13 @@ export default function DeveloperHealth({db}: {db:SupabaseClient|null}) {
      <div style={{display:'flex',justifyContent:'space-between',gap:8,fontSize:12}}>
       <span style={{overflowWrap:'anywhere'}}>{t.name}</span><strong style={{whiteSpace:'nowrap'}}>{mb(t.bytes)}</strong>
      </div>
-     <div style={{background:'#f3e3e7',height:6,borderRadius:8,overflow:'hidden',marginTop:4}}><div style={{background:'#87263d',height:'100%',width:Math.min(100,100*t.bytes/Math.max(1,health.top_tables[0]?.bytes||1))+'%'}}/></div>
+     <div className="health-progress-track" style={{height:6,borderRadius:8,overflow:'hidden',marginTop:4}}><div className="health-progress-fill normal" style={{height:'100%',width:Math.min(100,100*t.bytes/Math.max(1,health.top_tables[0]?.bytes||1))+'%'}}/></div>
     </div>)}
    </div>
    
    <h4 style={{display:'flex',alignItems:'center',gap:8}}><History size={17}/> Histórico de armazenamento</h4>
    {last.length<=1?<p className="muted">Histórico em formação.</p>:<div style={{display:'flex',alignItems:'flex-end',gap:3,height:76}}>
-    {[...last].reverse().map((s,i)=><div key={i} title={dateTime(s.date)+' — '+mb(s.bytes)} style={{flex:1,background:'#87263d',borderRadius:'3px 3px 0 0',height:Math.max(3,100*s.bytes/Math.max(1,...last.map(x=>x.bytes)))+'%'}}/>)}
+    {[...last].reverse().map((s,i)=><div key={i} title={dateTime(s.date)+' — '+mb(s.bytes)} className="health-history-bar" style={{flex:1,borderRadius:'3px 3px 0 0',height:Math.max(3,100*s.bytes/Math.max(1,...last.map(x=>x.bytes)))+'%'}}/>)}
    </div>}
   </>}
   <h4 style={{display:'flex',gap:8,alignItems:'center',marginTop:18}}><AlertTriangle size={17}/> Problemas do sistema</h4>
