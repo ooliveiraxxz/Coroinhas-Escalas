@@ -5,6 +5,7 @@ on:
       - qa/permission-isolation-20261113
       - qa/cerimoniario-global-theme-20261113
       - fix/delegated-developer-health-20261113
+      - fix/ceremony-panel-metrics-theme-20261113
   workflow_dispatch:
 
 permissions:
@@ -26,7 +27,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Permission regression tests
-        run: node --import tsx --test tests/permission-isolation.test.ts tests/ceremony-theme.test.ts tests/delegated-developer-health.test.ts
+        run: node --import tsx --test tests/permission-isolation.test.ts tests/ceremony-theme.test.ts tests/delegated-developer-health.test.ts tests/ceremony-panel-metrics.test.ts
       - name: TypeScript check
         run: npx tsc --noEmit
       - name: Build without production credentials
