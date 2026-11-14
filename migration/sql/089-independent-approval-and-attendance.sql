@@ -119,8 +119,14 @@ BEGIN
   RAISE EXCEPTION 'A permissão de aprovar solicitações não autoriza alterar o pedido' USING ERRCODE='42501';
  END IF;
  IF NEW.status IS DISTINCT FROM OLD.status THEN
-  IF NOT public.has_site_permission('approve_requests') THEN
-   RAISE EXCEPTION 'Sem permissão para decidir solicitações' USING ERRCODE='42501';
+  IF NOT public.has_site_permission('approve_requests')
+   AND NOT (pg_trigger_depth()>1 AND OLD.status='pendente' AND NEW.status='aprovado'
+    AND EXISTS(SELECT 1 FROM public.service_settings WHERE key='auto_approval_3h' AND enabled)
+    AND EXISTS(SELECT 1 FROM public.assignments a JOIN public.masses m ON m.id=a.mass_id
+      WHERE a.mass_id=OLD.mass_id AND a.server_id=OLD.user_id
+       AND a.service_group=OLD.service_group AND a.status='escalado'
+       AND m.published AND m.starts_at>now() AND m.starts_at<=now()+interval '3 hours'))
+  THEN RAISE EXCEPTION 'Sem permissão para decidir solicitações' USING ERRCODE='42501';
   END IF;
   IF OLD.status<>'pendente' OR NEW.status NOT IN ('aprovado','recusado') THEN
    RAISE EXCEPTION 'Transição de solicitação inválida' USING ERRCODE='42501';
