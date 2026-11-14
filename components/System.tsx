@@ -148,7 +148,7 @@ export default function System(){
  useEffect(()=>{setError('');},[view]);
  const developer=profile?.approved===true&&profile?.role==='desenvolvedor';
  const parent=profile?.approved===true&&profile?.role==='pai';
- const can=(key:string)=>developer||runtimePermissions[key]===true;
+ const can=(key:string)=>Object.hasOwn(runtimePermissions,key)?runtimePermissions[key]===true:developer;
   const coord=profile?.approved===true&&(profile?.role==='coordenadora'||developer);
  const notificationManager=coord||['send_notifications','send_popup','manage_polls','approve_requests'].some(key=>runtimePermissions[key]===true);
  const ceremony=profile?.approved===true&&profile?.role==='cerimoniario';
@@ -546,7 +546,7 @@ export default function System(){
    if(data!==next)throw new Error('Confirmação de preferência inválida');
    setProfile(previous=>previous?{...previous,theme_preference:next}:previous);
    setThemeNotice('Tema salvo e aplicado ao aplicativo.');
-  }catch(e:any){setThemeNotice('Não foi possível alterar o tema. Tente novamente.');console.warn('Falha ao salvar tema do desenvolvedor:',e?.code||'request_failed');}
+  }catch(e:any){setThemeNotice('Não foi possível alterar o tema. Tente novamente.');console.warn('Falha ao salvar tema visual:',e?.code||'request_failed');}
   finally{setThemeSaving(false)}
  };
  const saveNotificationPreferences=async()=>{
@@ -708,7 +708,7 @@ export default function System(){
  </>}
  {view==='Atualizações'&&<><h2 className="title">Atualizações</h2>{can('publish_updates')&&<><div className="card"><h3>{updateId?'Editar atualização':'Publicar atualização'}</h3>{field('Versão (ex.: 1.1.0)',updateForm.version,v=>setUpdateForm({...updateForm,version:v}))}{field('Título',updateForm.title,v=>setUpdateForm({...updateForm,title:v}))}<label className="field">Novidades<textarea rows={5} value={updateForm.description} onChange={e=>setUpdateForm({...updateForm,description:e.target.value})}/></label><div className="btnrow">{b(updateId?'Salvar alterações':'Publicar',()=>{if(!updateForm.version.trim()||!updateForm.title.trim())return setError('Informe a versão e o título.');execute(()=>updateId?db!.from('site_updates').update(updateForm).eq('id',updateId):db!.from('site_updates').insert(updateForm)).then(ok=>{if(ok){setUpdateId('');setUpdateForm({version:'',title:'',description:''})}})})}{updateId&&b('Cancelar',()=>{setUpdateId('');setUpdateForm({version:'',title:'',description:''})},true)}</div></div></>}
 <h3>Histórico de atualizações</h3>{updates.length===0&&<div className="card">Nenhuma atualização publicada ainda.</div>}{updates.map(u=><div className="card update-card" key={u.id}><div className="line"><h3>{u.title}</h3><span className="chip">v{u.version}</span></div><p style={{whiteSpace:'pre-wrap'}}>{u.description}</p><small className="muted">{new Date(u.published_at).toLocaleDateString('pt-BR')}</small>{can('publish_updates')&&<div className="btnrow" style={{marginTop:12}}>{b('Editar',()=>{setUpdateId(u.id);setUpdateForm({version:u.version,title:u.title,description:u.description})},true)}{b('Apagar',()=>{if(confirm('Apagar esta atualização definitivamente?'))execute(()=>db!.from('site_updates').delete().eq('id',u.id))},true)}</div>}</div>)}</>}
- {view==='Permissões'&&developer&&<PermissionCenter db={db} users={profiles}/>}
+ {view==='Permissões'&&developer&&<PermissionCenter db={db} users={profiles} viewerId={user.id}/>}
  {view==='Arquivados'&&can('view_archives')&&<Archives db={db}/>}
   {view==='Auditoria'&&can('view_audit')&&<>
  <h2 className="title">Auditoria</h2>
