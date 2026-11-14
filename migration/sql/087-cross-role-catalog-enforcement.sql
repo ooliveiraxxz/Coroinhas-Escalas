@@ -68,6 +68,20 @@ GRANT EXECUTE ON FUNCTION public.is_eligible_service_member(uuid,text) TO coroin
 REVOKE ALL ON FUNCTION public.service_candidate_list(text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.service_candidate_list(text) TO coroinhas_app;
 
+-- Current user's allowed service groups. The UI never guesses them from the theme or role.
+CREATE OR REPLACE FUNCTION public.my_service_groups()
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO ''
+AS $function$
+BEGIN
+ IF auth.uid() IS NULL OR NOT public.is_approved() THEN RETURN '[]'::jsonb; END IF;
+ RETURN coalesce((SELECT jsonb_agg(g.name ORDER BY g.name) FROM
+ (VALUES ('coroinha'),('cerimoniario')) AS g(name)
+ WHERE public.is_eligible_service_member(auth.uid(),g.name)),'[]'::jsonb);
+END $function$;
+REVOKE ALL ON FUNCTION public.my_service_groups() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.my_service_groups() TO coroinhas_app;
+
+
 -- Existing guarded operations now recognize catalogued eligibility:
 CREATE OR REPLACE FUNCTION public.has_site_permission(p_key text)
  RETURNS boolean
