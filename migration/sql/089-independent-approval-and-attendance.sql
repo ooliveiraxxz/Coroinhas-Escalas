@@ -31,8 +31,7 @@ BEGIN
  SELECT name INTO v_name FROM public.profiles WHERE id=r.user_id;
  INSERT INTO public.notifications(user_id,title,body,event_key) VALUES
  (r.user_id,'Você foi escalado!', 'Você foi escalado para servir em '||to_char(v_time AT TIME ZONE 'America/Sao_Paulo','DD/MM/YYYY HH24:MI')||' na função '||a.function_name||'.','service_approved');
-END $function$
-
+END $function$;
 
 DROP POLICY IF EXISTS requests_read ON public.requests;
 CREATE POLICY requests_read ON public.requests FOR SELECT TO coroinhas_app USING (
