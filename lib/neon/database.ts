@@ -10,7 +10,7 @@ export function assertMigrationDatabaseUrl(connectionString:string):void {
  let url:URL;
  try{url=new URL(connectionString)}catch{throw new Error('Invalid migration database configuration')}
  if(!['postgres:','postgresql:'].includes(url.protocol)
-    ||decodeURIComponent(url.username)!=='coroinhas_gateway'
+    ||!(['coroinhas_gateway','coroinhas_qa_gateway'].includes(decodeURIComponent(url.username)))
     ||!url.password
     ||!url.hostname.endsWith('.neon.tech')
     ||!url.pathname.endsWith('/coroinhas')){
