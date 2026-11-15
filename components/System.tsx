@@ -7,6 +7,7 @@ import DeveloperHealth from './DeveloperHealth';
 import Polls from './Polls';
 import OpenQuestions from './OpenQuestions';
 import PermissionCenter from './PermissionCenter';
+import InstallAppGuide from './InstallAppGuide';
 import Archives from './Archives';
 import {groupAuditEntries,formatAuditEntry,type AuditEntry} from '@/lib/audit/format';
 import {getSupabase} from '@/lib/supabase';
@@ -889,6 +890,7 @@ export default function System(){
  </div>}
  </>}
  {view==='Ajustes'&&<><h2 className="title">Ajustes</h2>
+ <InstallAppGuide/>
  <div className="card notification-settings-card">
   <h3>Notificações no celular</h3>
   <p className="muted">Permita avisos mesmo com o aplicativo fechado. No iPhone, use o aplicativo adicionado à Tela de Início.</p>
