@@ -1,7 +1,9 @@
--- Testado somente na homologação. Não executar em produção sem autorização específica.
+-- Reversão autorizada para produção: aprovação manual normal + automação nas 3 horas anteriores à missa.
+-- Não altera usuários ou escalas existentes.
 BEGIN;
 
-UPDATE public.service_settings SET enabled=false WHERE key='auto_approval_3h';
+-- Manter a regra tradicional de aprovação automática nas 3 horas anteriores à missa.
+UPDATE public.service_settings SET enabled=true WHERE key='auto_approval_3h';
 
 CREATE OR REPLACE FUNCTION public.claim_service_slot(p_assignment_id uuid)
  RETURNS void
