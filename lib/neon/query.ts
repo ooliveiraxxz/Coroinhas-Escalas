@@ -68,6 +68,7 @@ const rpcs: Record<string, Record<string, string>> = {
  support_coord_send:{p_ticket:'uuid',p_message:'text'},
  support_coord_close:{p_ticket:'uuid'},
  approve_service_request:{p_request_id:'uuid',p_assignment_id:'uuid'},
+ claim_service_slot:{p_assignment_id:'uuid'},
  delete_notification:{p_group:'uuid'},
  end_notification_campaign:{p_group:'uuid'},
  archive_screen_announcement:{p_id:'uuid'}, developer_usage_summary:{},
