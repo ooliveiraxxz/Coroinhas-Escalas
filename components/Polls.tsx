@@ -4,7 +4,7 @@ import {BarChart3,Clock,CheckCircle2,Plus,Trash2} from 'lucide-react';
 import type {SupabaseClient} from '@supabase/supabase-js';
 
 type Option={id:string;label:string;position:number};
-type Result={id:string;label:string;votes:number;voters:{name:string;voted_at:string}[]};
+type Result={id:string;label:string;votes:number;voters:{name:string;role?:string;voted_at:string}[]};
 type Poll={id:string;created_by:string;question:string;starts_at:string;ends_at:string;multiple_answers:boolean;priority:boolean;state:'agendada'|'aberta'|'encerrada';voted:boolean;my_options:string[];options:Option[];results:Result[];respondents:number};
 type Props={db:SupabaseClient|null;coordinator:boolean;userRole:string;userId:string;isDeveloper:boolean;};
 const dateTime=(v:string)=>new Date(v).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'});
@@ -113,7 +113,7 @@ export default function Polls({db,coordinator,userRole,userId,isDeveloper}:Props
   {(display.length>0||coordinator)&&<h3 className="poll-list-heading">{coordinator?'Enquetes e resultados':'Enquetes'}</h3>}
   {display.map(p=><section className="card poll-card" key={p.id}>
    <div className="poll-heading"><strong>{p.question}</strong><span>{p.state==='aberta'?'Aberta':p.state==='agendada'?'Agendada':'Encerrada'}</span></div>
-   {coordinator&&(p.created_by===userId||isDeveloper)&&<div className="btnrow">
+   {coordinator&&(p.created_by===userId||isDeveloper)&&<div className="btnrow poll-management-actions">
     {p.state!=='encerrada'&&<button type="button" className="poll-edit-button" disabled={saving} onClick={()=>{editPoll(p);window.scrollTo({top:0,behavior:'smooth'})}}>Editar enquete</button>}
     {p.state!=='encerrada'&&<button type="button" className="btn alt" disabled={saving} onClick={()=>void manage(p,'close')}>Encerrar</button>}
     {p.state==='encerrada'&&<button type="button" className="btn danger" disabled={saving} onClick={()=>void manage(p,'archive')}><Trash2 size={17}/> Apagar</button>}
@@ -124,9 +124,9 @@ export default function Polls({db,coordinator,userRole,userId,isDeveloper}:Props
      <p className="muted">{p.respondents||0} pessoa(s) responderam</p>
      {p.results.map(o=><div key={o.id} className="poll-result-group">
       <div className="poll-result"><span>{o.label}</span><strong>{o.votes} voto(s)</strong></div>
-      {(o.voters?.length||0)>0?<ul className="poll-voter-list" aria-label={'Coroinhas que escolheram '+o.label}>
-       {o.voters.map((v,i)=><li key={i}>{v.name}</li>)}
-      </ul>:<p className="poll-voter-empty">Nenhum coroinha selecionou esta opção.</p>}
+      {(o.voters?.length||0)>0?<ul className="poll-voter-list" aria-label={'Integrantes que escolheram '+o.label}>
+       {o.voters.map((v,i)=><li key={i} className={v.role==='cerimoniario'?'poll-voter-cerimoniario':'poll-voter-coroinha'}>{v.name}</li>)}
+      </ul>:<p className="poll-voter-empty">Nenhum integrante selecionou esta opção.</p>}
      </div>)}
     </div>:p.voted&&editingVote!==p.id?<>
       <p className="poll-voted"><CheckCircle2 size={17}/> Sua resposta foi registrada.</p>
