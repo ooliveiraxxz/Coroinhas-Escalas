@@ -3,9 +3,9 @@ import {useCallback,useEffect,useState} from 'react';
 import type {SupabaseClient} from '@supabase/supabase-js';
 type Question={id:string;question:string;ends_at:string;created_at:string;target_role:string;created_by:string;creator_name:string;answer:string|null;answer_count:number|null};
 type Response={name:string;answer:string;created_at:string};
-type Props={db:SupabaseClient|null;canPublish:boolean;isDeveloper:boolean;group:string;showComposer:boolean;showHistory?:boolean;onlyReceived?:boolean;onlyManaged?:boolean;userId:string;onPublished?:()=>void};
+type Props={db:SupabaseClient|null;canPublish:boolean;isDeveloper:boolean;group:string;showComposer:boolean;showHistory?:boolean;onlyReceived?:boolean;onlyManaged?:boolean;recipientRole?:string;userId:string;onPublished?:()=>void};
 const dateLabel=(v:string)=>new Date(v).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'});
-export default function OpenQuestions({db,canPublish,isDeveloper,group,showComposer,showHistory=true,onlyReceived=false,onlyManaged=false,userId,onPublished}:Props){
+export default function OpenQuestions({db,canPublish,isDeveloper,group,showComposer,showHistory=true,onlyReceived=false,onlyManaged=false,recipientRole='',userId,onPublished}:Props){
  const [items,setItems]=useState<Question[]>([]);
  const [question,setQuestion]=useState('');
  const [target,setTarget]=useState<'coroinha'|'cerimoniario'|'todos'>(group==='cerimoniario'?'cerimoniario':'coroinha');
@@ -61,7 +61,7 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
    <button className="btn full" type="button" disabled={busy||question.trim().length<5||!expires} onClick={()=>void publish()}>{busy?'Publicando…':'Enviar pergunta'}</button>
   </div>}
   {error&&<div className="notice error" role="alert">{error}</div>}{success&&<p className="muted" role="status">{success}</p>}
-  {showHistory&&items.filter(q=>(!onlyReceived||q.created_by!==userId)&&(!onlyManaged||isDeveloper||q.created_by===userId)).map(q=>{
+  {showHistory&&items.filter(q=>(!onlyReceived||(q.created_by!==userId&&(recipientRole==='coroinha'||recipientRole==='cerimoniario')&&(q.target_role==='todos'||q.target_role===recipientRole)))&&(!onlyManaged||isDeveloper||q.created_by===userId)).map(q=>{
    const owner=q.created_by===userId;
    const canManage=canPublish&&(owner||isDeveloper);
    const ended=new Date(q.ends_at)<=new Date();
@@ -77,6 +77,6 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
    </div>;
   })}
   {showHistory&&selected&&<div className="card"><div className="line"><h3>Respostas recebidas</h3><button type="button" className="btn alt" onClick={()=>setSelected('')}>Fechar</button></div>{answers.length===0?<p className="muted">Ainda não há respostas.</p>:answers.map((a,i)=><div className="item" key={i}><strong>{a.name}</strong><p>{a.answer}</p><small className="muted">{dateLabel(a.created_at)}</small></div>)}</div>}
-  {showHistory&&items.filter(q=>(!onlyReceived||q.created_by!==userId)&&(!onlyManaged||isDeveloper||q.created_by===userId)).length===0&&<p className="muted">Nenhuma pergunta disponível no momento.</p>}
+  {showHistory&&items.filter(q=>(!onlyReceived||(q.created_by!==userId&&(recipientRole==='coroinha'||recipientRole==='cerimoniario')&&(q.target_role==='todos'||q.target_role===recipientRole)))&&(!onlyManaged||isDeveloper||q.created_by===userId)).length===0&&<p className="muted">Nenhuma pergunta disponível no momento.</p>}
  </div>;
 }
