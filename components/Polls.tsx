@@ -4,9 +4,9 @@ import {BarChart3,Clock,CheckCircle2,Plus,Trash2} from 'lucide-react';
 import type {SupabaseClient} from '@supabase/supabase-js';
 
 type Option={id:string;label:string;position:number};
-type Result={id:string;label:string;votes:number;voters:{name:string;voted_at:string}[]};
-type Poll={id:string;created_by:string;question:string;starts_at:string;ends_at:string;multiple_answers:boolean;priority:boolean;state:'agendada'|'aberta'|'encerrada';voted:boolean;my_options:string[];options:Option[];results:Result[];respondents:number};
-type Props={db:SupabaseClient|null;coordinator:boolean;userRole:string;userId:string;isDeveloper:boolean;};
+type Result={id:string;label:string;votes:number;voters:{name:string;role?:string;voted_at:string}[]};
+type Poll={id:string;created_by:string;question:string;target_role?:'coroinha'|'cerimoniario'|'todos';starts_at:string;ends_at:string;multiple_answers:boolean;priority:boolean;state:'agendada'|'aberta'|'encerrada';voted:boolean;my_options:string[];options:Option[];results:Result[];respondents:number};
+type Props={db:SupabaseClient|null;coordinator:boolean;userRole:string;userId:string;isDeveloper:boolean;showComposer?:boolean;showHistory?:boolean;onPublished?:()=>void;onEditRequested?:()=>void;};
 const dateTime=(v:string)=>new Date(v).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'});
 const toDatetimeLocal=(v:string)=>{
  const d=new Date(v);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);
@@ -14,19 +14,20 @@ const toDatetimeLocal=(v:string)=>{
 function localNow(){
  const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);
 }
-export default function Polls({db,coordinator,userRole,userId,isDeveloper}:Props){
+export default function Polls({db,coordinator,userRole,userId,isDeveloper,showComposer=true,showHistory=true,onPublished,onEditRequested}:Props){
  const [polls,setPolls]=useState<Poll[]>([]),[loading,setLoading]=useState(false),[saving,setSaving]=useState(false),[message,setMessage]=useState('');
+ const [target,setTarget]=useState<'coroinha'|'cerimoniario'|'todos'>('todos');
  const [question,setQuestion]=useState(''),[options,setOptions]=useState(['','']),[start,setStart]=useState(localNow),[end,setEnd]=useState(''),[multiple,setMultiple]=useState(false),[priority,setPriority]=useState(false);
  const [choices,setChoices]=useState<Record<string,string[]>>({});
  const [editingVote,setEditingVote]=useState<string|null>(null);
  const [editingId,setEditingId]=useState<string|null>(null);
  const [optionIds,setOptionIds]=useState<(string|null)[]>([null,null]);
  const resetForm=()=>{
-  setEditingId(null);setQuestion('');setOptions(['','']);setOptionIds([null,null]);
+  setEditingId(null);setTarget('todos');setQuestion('');setOptions(['','']);setOptionIds([null,null]);
   setMultiple(false);setPriority(false);setStart(localNow());setEnd('');
  };
  const editPoll=(poll:Poll)=>{
-  setMessage('');setEditingId(poll.id);setQuestion(poll.question);
+  setMessage('');setEditingId(poll.id);setTarget(poll.target_role||'todos');setQuestion(poll.question);
   setOptions(poll.options.map(o=>o.label));setOptionIds(poll.options.map(o=>o.id));
   setStart(toDatetimeLocal(poll.starts_at));setEnd(toDatetimeLocal(poll.ends_at));
   setMultiple(poll.multiple_answers);setPriority(poll.priority);
@@ -50,16 +51,16 @@ export default function Polls({db,coordinator,userRole,userId,isDeveloper}:Props
   setSaving(true);setMessage('');
   try{
    if(editingId){
-    await rpc('poll_update',{p_poll:editingId,p_question:question.trim(),
+    await rpc('poll_update_targeted',{p_poll:editingId,p_target:target,p_question:question.trim(),
      p_options:options.map((label,i)=>({id:optionIds[i],label:label.trim()})),
      p_starts_at:new Date(start).toISOString(),p_ends_at:new Date(end).toISOString(),
      p_multiple:multiple,p_priority:priority});
     setMessage('Enquete atualizada. Os votos já registrados foram preservados.');
    }else{
-    await rpc('poll_create',{p_question:question.trim(),p_options:options.map(o=>o.trim()),p_starts_at:new Date(start).toISOString(),p_ends_at:new Date(end).toISOString(),p_multiple:multiple,p_priority:priority});
+    await rpc('poll_create_targeted',{p_target:target,p_question:question.trim(),p_options:options.map(o=>o.trim()),p_starts_at:new Date(start).toISOString(),p_ends_at:new Date(end).toISOString(),p_multiple:multiple,p_priority:priority});
     setMessage('Enquete criada! A abertura e os avisos serão realizados no horário programado.');
    }
-   resetForm();await load();
+   resetForm();await load();onPublished?.();
   }catch(e:any){const detail=String(e?.message||'');setMessage(/^(A pergunta precisa|Verifique as datas|Informe de 2 a 10 opções|Sem permissão|Acesso negado)/i.test(detail)?detail:'Não foi possível salvar a enquete. Verifique os campos ou tente novamente.')}
   finally{setSaving(false)}
  };
@@ -92,9 +93,10 @@ export default function Polls({db,coordinator,userRole,userId,isDeveloper}:Props
  };
  const display=coordinator?polls:userRole==='coroinha'?polls:[];
  return <div className="polls-root">
-  {coordinator&&<section className="card poll-create">
+  {coordinator&&showComposer&&<section className="card poll-create">
    <h3><BarChart3 size={20}/> {editingId?'Editar enquete':'Criar enquete'}</h3>
    {editingId&&<p className="muted">Opções que já receberam votos não podem ser renomeadas ou excluídas. As respostas existentes serão preservadas.</p>}
+   <label className="field">Público-alvo<select value={target} onChange={e=>setTarget(e.target.value as 'coroinha'|'cerimoniario'|'todos')} disabled={saving}><option value="coroinha">Somente coroinhas</option><option value="cerimoniario">Somente cerimoniários</option><option value="todos">Todos (coroinhas e cerimoniários)</option></select></label>
    <label className="field">Pergunta<input maxLength={250} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="Qual sua pergunta?"/></label>
    <div className="poll-options"><strong>Opções de resposta</strong>{options.map((o,i)=><div className="poll-option-editor" key={i}>
      <input aria-label={'Opção '+(i+1)} maxLength={140} value={o} onChange={e=>setOptions(old=>old.map((v,j)=>j===i?e.target.value:v))} placeholder={'Opção '+(i+1)}/>
@@ -110,11 +112,12 @@ export default function Polls({db,coordinator,userRole,userId,isDeveloper}:Props
    {editingId&&<button type="button" className="btn alt full" disabled={saving} onClick={()=>{resetForm();setMessage('Edição cancelada.')}}>Cancelar edição</button>}
   </section>}
   {message&&<div className="poll-status" role="status">{message}</div>}
-  {(display.length>0||coordinator)&&<h3 className="poll-list-heading">{coordinator?'Enquetes e resultados':'Enquetes'}</h3>}
-  {display.map(p=><section className="card poll-card" key={p.id}>
+  {showHistory&&(display.length>0||coordinator)&&<h3 className="poll-list-heading">{coordinator?'Enquetes e resultados':'Enquetes'}</h3>}
+  {showHistory&&display.map(p=><section className="card poll-card" key={p.id}>
    <div className="poll-heading"><strong>{p.question}</strong><span>{p.state==='aberta'?'Aberta':p.state==='agendada'?'Agendada':'Encerrada'}</span></div>
-   {coordinator&&(p.created_by===userId||isDeveloper)&&<div className="btnrow">
-    {p.state!=='encerrada'&&<button type="button" className="poll-edit-button" disabled={saving} onClick={()=>{editPoll(p);window.scrollTo({top:0,behavior:'smooth'})}}>Editar enquete</button>}
+   {coordinator&&<p className="muted poll-target-description">Destinado a: {p.target_role==='coroinha'?'Coroinhas':p.target_role==='cerimoniario'?'Cerimoniários':'Coroinhas e cerimoniários'}</p>}
+   {coordinator&&(p.created_by===userId||isDeveloper)&&<div className="btnrow poll-management-actions">
+    {p.state!=='encerrada'&&<button type="button" className="poll-edit-button" disabled={saving} onClick={()=>{editPoll(p);onEditRequested?.();window.scrollTo({top:0,behavior:'smooth'})}}>Editar enquete</button>}
     {p.state!=='encerrada'&&<button type="button" className="btn alt" disabled={saving} onClick={()=>void manage(p,'close')}>Encerrar</button>}
     {p.state==='encerrada'&&<button type="button" className="btn danger" disabled={saving} onClick={()=>void manage(p,'archive')}><Trash2 size={17}/> Apagar</button>}
    </div>}
@@ -124,9 +127,9 @@ export default function Polls({db,coordinator,userRole,userId,isDeveloper}:Props
      <p className="muted">{p.respondents||0} pessoa(s) responderam</p>
      {p.results.map(o=><div key={o.id} className="poll-result-group">
       <div className="poll-result"><span>{o.label}</span><strong>{o.votes} voto(s)</strong></div>
-      {(o.voters?.length||0)>0?<ul className="poll-voter-list" aria-label={'Coroinhas que escolheram '+o.label}>
-       {o.voters.map((v,i)=><li key={i}>{v.name}</li>)}
-      </ul>:<p className="poll-voter-empty">Nenhum coroinha selecionou esta opção.</p>}
+      {(o.voters?.length||0)>0?<ul className="poll-voter-list" aria-label={'Integrantes que escolheram '+o.label}>
+       {o.voters.map((v,i)=><li key={i} className={v.role==='cerimoniario'?'poll-voter-cerimoniario':'poll-voter-coroinha'}>{v.name}</li>)}
+      </ul>:<p className="poll-voter-empty">Nenhum integrante selecionou esta opção.</p>}
      </div>)}
     </div>:p.voted&&editingVote!==p.id?<>
       <p className="poll-voted"><CheckCircle2 size={17}/> Sua resposta foi registrada.</p>
@@ -145,6 +148,6 @@ export default function Polls({db,coordinator,userRole,userId,isDeveloper}:Props
      </>:null}
    </>}
   </section>)}
-  {!coordinator&&display.length===0&&userRole==='coroinha'&&<p className="card muted">Nenhuma enquete disponível no momento.</p>}
+  {showHistory&&!coordinator&&display.length===0&&userRole==='coroinha'&&<p className="card muted">Nenhuma enquete disponível no momento.</p>}
  </div>;
 }
