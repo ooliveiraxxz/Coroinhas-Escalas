@@ -15,7 +15,7 @@ AS $function$
 DECLARE v_group uuid;
 BEGIN
  IF NOT public.has_site_permission('send_notifications') THEN RAISE EXCEPTION 'Acesso negado' USING ERRCODE='42501'; END IF;
- IF p_image IS NOT NULL AND (length(p_image)>260000 OR p_image !~ '^data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$') THEN
+ IF p_image IS NOT NULL AND (length(p_image)>250000 OR p_image !~ '^data:image/jpeg;base64,[A-Za-z0-9+/=]+$') THEN
    RAISE EXCEPTION 'Imagem inválida ou muito grande' USING ERRCODE='22023'; END IF;
  v_group:=public.send_notification_prioritized(p_title,p_body,p_target,p_recipient,p_priority,p_priority_until);
  IF p_image IS NOT NULL AND p_image<>'' THEN UPDATE public.notifications SET image_url=p_image WHERE group_id=v_group; END IF;
