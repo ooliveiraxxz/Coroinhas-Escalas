@@ -7,6 +7,9 @@ type InstallPromptEvent = Event & {
 };
 
 type Platform = 'ios' | 'android';
+declare global {
+ interface Window { __esbInstallPrompt?: InstallPromptEvent | null; __esbInstallListenerReady?: boolean; }
+}
 export default function InstallAppGuide(){
  const [platform,setPlatform]=useState<Platform>('ios');
  const [installed,setInstalled]=useState(false);
@@ -22,17 +25,22 @@ export default function InstallAppGuide(){
   const standalone=window.matchMedia('(display-mode: standalone)').matches ||
     ('standalone' in navigator && Boolean((navigator as Navigator & {standalone?:boolean}).standalone));
   setInstalled(standalone);
-  const capture=(event:Event)=>{event.preventDefault();setInstallPrompt(event as InstallPromptEvent);};
+  // O navegador pode disponibilizar a instalação antes de abrir Ajustes.
+  // O script inicial em app/layout.tsx guarda o evento para esta tela.
+  const syncPrompt=()=>setInstallPrompt(window.__esbInstallPrompt||null);
   const didInstall=()=>{setInstalled(true);setInstallPrompt(null);setMessage('Aplicativo instalado com sucesso neste dispositivo!');};
-  window.addEventListener('beforeinstallprompt',capture);
+  syncPrompt();
+  window.addEventListener('esb-install-prompt-ready',syncPrompt);
+  window.addEventListener('esb-app-installed',didInstall);
   window.addEventListener('appinstalled',didInstall);
-  return ()=>{window.removeEventListener('beforeinstallprompt',capture);window.removeEventListener('appinstalled',didInstall);};
+  return ()=>{window.removeEventListener('esb-install-prompt-ready',syncPrompt);window.removeEventListener('esb-app-installed',didInstall);window.removeEventListener('appinstalled',didInstall);};
  },[]);
 
  const install=async()=>{
-  if(!installPrompt){setPlatform('android');setMessage('Neste navegador, use o menu ⋮ e escolha "Instalar aplicativo" ou "Adicionar à tela inicial".');return;}
+  if(!installPrompt){setPlatform('android');setMessage('A instalação automática não está disponível neste navegador. Abra o site no Chrome e use o menu ⋮ → Instalar aplicativo ou Adicionar à tela inicial.');return;}
   const event=installPrompt;
   setInstallPrompt(null);
+  window.__esbInstallPrompt=null;
   try{
    await event.prompt();
    const choice=await event.userChoice;
@@ -66,13 +74,14 @@ export default function InstallAppGuide(){
        <p className="muted">Por segurança do iPhone, nenhum site consegue adicionar o ícone automaticamente: a confirmação é feita no Safari.</p>
      </>:<>
        <p><strong>Instalar no Android</strong></p>
-       <button type="button" className="btn full" onClick={()=>void install()}>{installPrompt?'Instalar aplicativo agora':'Como adicionar à tela inicial'}</button>
+       <button type="button" className="btn full" onClick={()=>void install()}>{installPrompt?'Instalar aplicativo agora':'Ver como instalar no Android'}</button>
        <ol style={{paddingLeft:22,lineHeight:1.8}}>
-         <li>Abra este site no <strong>Chrome</strong>.</li>
+         <li>Abra <strong>coroinhas-escalas.vercel.app</strong> no <strong>Google Chrome</strong>, fora de aplicativos como WhatsApp ou Instagram.</li>
          <li>{installPrompt?'Toque em “Instalar aplicativo agora” acima e confirme.':'Toque no menu ⋮ do navegador.'}</li>
          <li>{installPrompt?'O aplicativo aparecerá na tela inicial.':'Escolha “Instalar aplicativo” ou “Adicionar à tela inicial” e confirme.'}</li>
        </ol>
      </>}
+     {platform==='android'&&!installPrompt&&<p className="muted" role="status">Se o botão de instalação automática não aparecer, use o menu ⋮ do Chrome. O navegador precisa permitir a instalação; o site não consegue forçar essa janela.</p>}
      {message&&<p role="status" className="muted">{message}</p>}
      <p className="muted">Depois de adicionar o ícone, abra o aplicativo por ele para acessar as notificações e suas escalas.</p>
    </>}
