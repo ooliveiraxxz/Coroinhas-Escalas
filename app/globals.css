@@ -1185,3 +1185,16 @@ body:has(.app.ceremony-theme) :is(
  background:linear-gradient(125deg,#202020,#505050);
  color:#fff;
 }
+
+/* Enquetes QA: ações equilibradas no mesmo alinhamento no celular. */
+.poll-card > .poll-management-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:9px}
+.poll-card > .poll-management-actions > button{width:100%;height:100%;min-width:0;min-height:44px;margin:0;padding:10px 9px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;line-height:1.25;border-radius:11px;align-self:stretch}
+.poll-card > .poll-management-actions > button:only-child{grid-column:1/-1}
+/* A etiqueta usa o papel de quem votou, independentemente da conta que vê. */
+.app:not(.ceremony-theme) .polls-root .poll-voter-list li.poll-voter-cerimoniario{
+ color:#282828;background:#ededed;border-color:#bdbdbd;
+}
+.app.ceremony-theme .polls-root .poll-voter-list li.poll-voter-cerimoniario,
+.app.ceremony-theme .polls-root .poll-voter-list li.poll-voter-coroinha{
+ color:#292929;background:#f0f0f0;border-color:#c9c9c9;
+}
