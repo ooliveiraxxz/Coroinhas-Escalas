@@ -10,6 +10,7 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
  const [question,setQuestion]=useState('');
  const [target,setTarget]=useState<'coroinha'|'cerimoniario'|'todos'>(group==='cerimoniario'?'cerimoniario':'coroinha');
  const [expires,setExpires]=useState('');
+ const [priority,setPriority]=useState(false);
  const [drafts,setDrafts]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState('');
  const [answers,setAnswers]=useState<Response[]>([]);
@@ -23,7 +24,7 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
   if(!db||busy)return;
   if(!question.trim()||!expires){setError('Informe a pergunta e a data de encerramento.');return;}
   setBusy(true);setError('');setSuccess('');
-  try{const r=await db.rpc('open_question_create',{p_question:question.trim(),p_target:target,p_ends_at:new Date(expires).toISOString()});if(r.error)throw r.error;setQuestion('');setExpires('');setSuccess('Pergunta publicada. Os participantes receberão uma notificação.');await reload();onPublished?.()}
+  try{const r=await db.rpc('open_question_create_priority',{p_question:question.trim(),p_target:target,p_ends_at:new Date(expires).toISOString(),p_priority:priority});if(r.error)throw r.error;setQuestion('');setExpires('');setPriority(false);setSuccess('Pergunta publicada. Os participantes receberão uma notificação.');await reload();onPublished?.()}
   catch(e:any){setError(e?.message||'Não foi possível publicar.')}finally{setBusy(false)}
  };
  const send=async(id:string)=>{
@@ -55,6 +56,8 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
    <label className="field">Pergunta<textarea rows={3} maxLength={500} placeholder="Ex.: O que podemos melhorar nas escalas?" value={question} onChange={e=>setQuestion(e.target.value)}/></label>
    <label className="field">Público-alvo<select value={target} onChange={e=>setTarget(e.target.value as 'coroinha'|'cerimoniario'|'todos')}><option value="coroinha">Somente coroinhas</option><option value="cerimoniario">Somente cerimoniários</option><option value="todos">Todos (coroinhas e cerimoniários)</option></select></label>
    <label className="field open-question-date-field">Receber respostas até<input className="open-question-date-input" type="datetime-local" value={expires} onChange={e=>setExpires(e.target.value)}/></label>
+   <label className="poll-check"><span>Priorizar notificação</span><input type="checkbox" checked={priority} onChange={e=>setPriority(e.target.checked)}/></label>
+   <p className="muted">Se marcada, a notificação ficará destacada até ser vista ou até terminar o prazo da pergunta.</p>
    <button className="btn full" type="button" disabled={busy||question.trim().length<5||!expires} onClick={()=>void publish()}>{busy?'Publicando…':'Enviar pergunta'}</button>
   </div>}
   {error&&<div className="notice error" role="alert">{error}</div>}{success&&<p className="muted" role="status">{success}</p>}
