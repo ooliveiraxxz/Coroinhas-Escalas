@@ -17,14 +17,14 @@ AS $function$
 DECLARE v_group uuid;
 BEGIN
  IF NOT public.has_site_permission('send_notifications') THEN RAISE EXCEPTION 'Acesso negado' USING ERRCODE='42501'; END IF;
- IF p_image IS NOT NULL AND (length(p_image)>250000 OR p_image !~ '^data:image/jpeg;base64,[A-Za-z0-9+/=]+$') THEN
+ IF p_image IS NOT NULL AND (length(p_image)>260000 OR p_image !~ '^data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$') THEN
    RAISE EXCEPTION 'Imagem inválida ou muito grande' USING ERRCODE='22023'; END IF;
  v_group:=public.send_notification_prioritized(p_title,p_body,p_target,p_recipient,p_priority,p_priority_until);
  IF p_image IS NOT NULL AND p_image<>'' THEN UPDATE public.notifications SET image_url=p_image WHERE group_id=v_group; END IF;
  RETURN v_group;
 END $function$
-;
 
+;
 CREATE OR REPLACE FUNCTION public.open_question_create_priority(p_question text, p_target text, p_ends_at timestamp with time zone, p_priority boolean)
  RETURNS uuid
  LANGUAGE plpgsql
@@ -54,7 +54,7 @@ BEGIN
  IF NOT public.has_site_permission('send_popup') THEN RAISE EXCEPTION 'Acesso negado' USING ERRCODE='42501'; END IF;
  IF length(trim(coalesce(p_title,'')))=0 AND length(trim(coalesce(p_body,'')))=0 AND length(coalesce(p_image,''))=0 THEN
  RAISE EXCEPTION 'Adicione uma mensagem ou imagem' USING ERRCODE='22023'; END IF;
- IF p_image IS NOT NULL AND p_image<>'' AND (length(p_image)>260000 OR p_image !~ '^data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$') THEN
+ IF p_image IS NOT NULL AND p_image<>'' AND (length(p_image)>250000 OR p_image !~ '^data:image/jpeg;base64,[A-Za-z0-9+/=]+$') THEN
  RAISE EXCEPTION 'Imagem inválida ou muito grande' USING ERRCODE='22023'; END IF;
  IF p_target NOT IN ('all','coroinha','cerimoniario','pai','coordenadora','desenvolvedor','individual') OR p_target IS NULL THEN RAISE EXCEPTION 'Público inválido' USING ERRCODE='22023'; END IF;
  IF p_display_mode NOT IN ('optional','once','always') OR p_display_mode IS NULL THEN RAISE EXCEPTION 'Modo inválido' USING ERRCODE='22023'; END IF;
@@ -75,8 +75,8 @@ BEGIN
  END IF;
  RETURN v_id;
 END $function$
-;
 
+;
 REVOKE ALL ON FUNCTION public.send_notification_with_image(text,text,text,uuid,boolean,timestamptz,text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.open_question_create_priority(text,text,timestamptz,boolean) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.publish_screen_announcement(text,text,text,text,uuid,text,boolean,timestamptz) FROM PUBLIC;
