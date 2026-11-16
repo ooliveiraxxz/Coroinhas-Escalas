@@ -1198,3 +1198,27 @@ body:has(.app.ceremony-theme) :is(
 .app.ceremony-theme .polls-root .poll-voter-list li.poll-voter-coroinha{
  color:#292929;background:#f0f0f0;border-color:#c9c9c9;
 }
+
+/* Ajuste fino no iPhone: centralizar verticalmente a data nativa dentro do campo.
+   Afeta somente os seletores Início / Encerramento das enquetes. */
+.poll-create .poll-datetime input[type="datetime-local"]{
+ height:56px;
+ min-height:56px;
+ padding-block:0;
+ line-height:56px;
+}
+.poll-create .poll-datetime input[type="datetime-local"]::-webkit-date-and-time-value{
+ height:56px;
+ min-height:56px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+.poll-create .poll-datetime input[type="datetime-local"]::-webkit-datetime-edit{
+ height:56px;
+ min-height:56px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ line-height:normal;
+}
