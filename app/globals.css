@@ -1222,3 +1222,16 @@ body:has(.app.ceremony-theme) :is(
  justify-content:center;
  line-height:normal;
 }
+
+/* Central de notificações: histórico em grupos recolhíveis, como Gerenciar escala. */
+.sent-accordion{margin:12px 0;min-width:0;padding:0;overflow:hidden}
+.sent-accordion>summary{display:flex;gap:8px;align-items:center;justify-content:space-between;cursor:pointer;list-style:none;font-weight:750;padding:16px 17px;min-height:56px;color:var(--text,#702239)}
+.sent-accordion>summary::-webkit-details-marker{display:none}
+.sent-accordion>summary::before{content:'▸';font-size:16px;flex:none;display:inline-block;transition:transform .2s ease}
+.sent-accordion[open]>summary::before{transform:rotate(90deg)}
+.sent-accordion-hint{margin-left:auto;color:#86767b;font-weight:500;font-size:11px;text-align:right}
+.sent-accordion-content{padding:0 14px 16px;min-width:0}
+.sent-accordion-content .poll-list-heading{font-size:17px;margin:4px 0 10px}
+.sent-accordion-content .poll-card,.sent-accordion-content .open-question-card{margin:8px 0}
+.app.ceremony-theme .sent-accordion>summary{color:#2d2d2d}
+.app.ceremony-theme .sent-accordion-hint{color:#777}
