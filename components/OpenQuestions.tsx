@@ -3,9 +3,9 @@ import {useCallback,useEffect,useState} from 'react';
 import type {SupabaseClient} from '@supabase/supabase-js';
 type Question={id:string;question:string;ends_at:string;created_at:string;target_role:string;created_by:string;creator_name:string;answer:string|null;answer_count:number|null};
 type Response={name:string;answer:string;created_at:string};
-type Props={db:SupabaseClient|null;canPublish:boolean;isDeveloper:boolean;group:string;showComposer:boolean;userId:string};
+type Props={db:SupabaseClient|null;canPublish:boolean;isDeveloper:boolean;group:string;showComposer:boolean;showHistory?:boolean;onlyReceived?:boolean;onlyManaged?:boolean;userId:string;onPublished?:()=>void};
 const dateLabel=(v:string)=>new Date(v).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short',timeStyle:'short'});
-export default function OpenQuestions({db,canPublish,isDeveloper,group,showComposer,userId}:Props){
+export default function OpenQuestions({db,canPublish,isDeveloper,group,showComposer,showHistory=true,onlyReceived=false,onlyManaged=false,userId,onPublished}:Props){
  const [items,setItems]=useState<Question[]>([]);
  const [question,setQuestion]=useState('');
  const [target,setTarget]=useState<'coroinha'|'cerimoniario'|'todos'>(group==='cerimoniario'?'cerimoniario':'coroinha');
@@ -23,7 +23,7 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
   if(!db||busy)return;
   if(!question.trim()||!expires){setError('Informe a pergunta e a data de encerramento.');return;}
   setBusy(true);setError('');setSuccess('');
-  try{const r=await db.rpc('open_question_create',{p_question:question.trim(),p_target:target,p_ends_at:new Date(expires).toISOString()});if(r.error)throw r.error;setQuestion('');setExpires('');setSuccess('Pergunta publicada. Os participantes receberão uma notificação.');await reload()}
+  try{const r=await db.rpc('open_question_create',{p_question:question.trim(),p_target:target,p_ends_at:new Date(expires).toISOString()});if(r.error)throw r.error;setQuestion('');setExpires('');setSuccess('Pergunta publicada. Os participantes receberão uma notificação.');await reload();onPublished?.()}
   catch(e:any){setError(e?.message||'Não foi possível publicar.')}finally{setBusy(false)}
  };
  const send=async(id:string)=>{
@@ -58,7 +58,7 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
    <button className="btn full" type="button" disabled={busy||question.trim().length<5||!expires} onClick={()=>void publish()}>{busy?'Publicando…':'Enviar pergunta'}</button>
   </div>}
   {error&&<div className="notice error" role="alert">{error}</div>}{success&&<p className="muted" role="status">{success}</p>}
-  {items.map(q=>{
+  {showHistory&&items.filter(q=>(!onlyReceived||q.created_by!==userId)&&(!onlyManaged||isDeveloper||q.created_by===userId)).map(q=>{
    const owner=q.created_by===userId;
    const canManage=canPublish&&(owner||isDeveloper);
    const ended=new Date(q.ends_at)<=new Date();
@@ -73,7 +73,7 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
     </div>:q.answer?<p className="open-question-answer">Sua resposta: {q.answer}</p>:canAnswer?<><textarea rows={3} maxLength={2000} placeholder="Escreva sua resposta…" aria-label={'Responder: '+q.question} value={drafts[q.id]||''} onChange={e=>setDrafts(prev=>({...prev,[q.id]:e.target.value}))}/><button type="button" className="btn" disabled={busy||!(drafts[q.id]||'').trim()} onClick={()=>void send(q.id)}>Enviar resposta</button></>:<p className="muted">Esta pergunta está encerrada.</p>}
    </div>;
   })}
-  {selected&&<div className="card"><div className="line"><h3>Respostas recebidas</h3><button type="button" className="btn alt" onClick={()=>setSelected('')}>Fechar</button></div>{answers.length===0?<p className="muted">Ainda não há respostas.</p>:answers.map((a,i)=><div className="item" key={i}><strong>{a.name}</strong><p>{a.answer}</p><small className="muted">{dateLabel(a.created_at)}</small></div>)}</div>}
-  {items.length===0&&<p className="muted">Nenhuma pergunta disponível no momento.</p>}
+  {showHistory&&selected&&<div className="card"><div className="line"><h3>Respostas recebidas</h3><button type="button" className="btn alt" onClick={()=>setSelected('')}>Fechar</button></div>{answers.length===0?<p className="muted">Ainda não há respostas.</p>:answers.map((a,i)=><div className="item" key={i}><strong>{a.name}</strong><p>{a.answer}</p><small className="muted">{dateLabel(a.created_at)}</small></div>)}</div>}
+  {showHistory&&items.filter(q=>(!onlyReceived||q.created_by!==userId)&&(!onlyManaged||isDeveloper||q.created_by===userId)).length===0&&<p className="muted">Nenhuma pergunta disponível no momento.</p>}
  </div>;
 }
