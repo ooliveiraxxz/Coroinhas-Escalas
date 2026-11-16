@@ -8,7 +8,7 @@ const dateLabel=(v:string)=>new Date(v).toLocaleString('pt-BR',{timeZone:'Americ
 export default function OpenQuestions({db,canPublish,isDeveloper,group,showComposer,userId}:Props){
  const [items,setItems]=useState<Question[]>([]);
  const [question,setQuestion]=useState('');
- const [target,setTarget]=useState(group);
+ const [target,setTarget]=useState<'coroinha'|'cerimoniario'|'todos'>(group==='cerimoniario'?'cerimoniario':'coroinha');
  const [expires,setExpires]=useState('');
  const [drafts,setDrafts]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState('');
@@ -23,7 +23,7 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
   if(!db||busy)return;
   if(!question.trim()||!expires){setError('Informe a pergunta e a data de encerramento.');return;}
   setBusy(true);setError('');setSuccess('');
-  try{const r=await db.rpc('open_question_create',{p_question:question.trim(),p_target:isDeveloper?target:group,p_ends_at:new Date(expires).toISOString()});if(r.error)throw r.error;setQuestion('');setExpires('');setSuccess('Pergunta publicada. Os participantes receberão uma notificação.');await reload()}
+  try{const r=await db.rpc('open_question_create',{p_question:question.trim(),p_target:target,p_ends_at:new Date(expires).toISOString()});if(r.error)throw r.error;setQuestion('');setExpires('');setSuccess('Pergunta publicada. Os participantes receberão uma notificação.');await reload()}
   catch(e:any){setError(e?.message||'Não foi possível publicar.')}finally{setBusy(false)}
  };
  const send=async(id:string)=>{
@@ -53,7 +53,7 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
  return <div className="open-questions">
   {showComposer&&canPublish&&<div className="card"><h3>Caixinha de perguntas</h3><p className="muted">Como nos Stories: publique uma pergunta e receba respostas escritas individualmente.</p>
    <label className="field">Pergunta<textarea rows={3} maxLength={500} placeholder="Ex.: O que podemos melhorar nas escalas?" value={question} onChange={e=>setQuestion(e.target.value)}/></label>
-   {isDeveloper&&<label className="field">Público<select value={target} onChange={e=>setTarget(e.target.value)}><option value="todos">Todos os perfis</option><option value="coroinha">Coroinhas</option><option value="cerimoniario">Cerimoniários</option><option value="pai">Pais e responsáveis</option><option value="coordenadora">Coordenadores</option></select></label>}
+   <label className="field">Público-alvo<select value={target} onChange={e=>setTarget(e.target.value as 'coroinha'|'cerimoniario'|'todos')}><option value="coroinha">Somente coroinhas</option><option value="cerimoniario">Somente cerimoniários</option><option value="todos">Todos (coroinhas e cerimoniários)</option></select></label>
    <label className="field open-question-date-field">Receber respostas até<input className="open-question-date-input" type="datetime-local" value={expires} onChange={e=>setExpires(e.target.value)}/></label>
    <button className="btn full" type="button" disabled={busy||question.trim().length<5||!expires} onClick={()=>void publish()}>{busy?'Publicando…':'Enviar pergunta'}</button>
   </div>}
@@ -65,7 +65,7 @@ export default function OpenQuestions({db,canPublish,isDeveloper,group,showCompo
    const canAnswer=!owner&&!isDeveloper&&!ended;
    return <div className="card open-question-card" key={q.id}>
     <small className="muted">Pergunta de {q.creator_name} · {ended?'Encerrada':'Até '+dateLabel(q.ends_at)}</small>
-    <h3>{q.question}</h3>
+    <h3>{q.question}</h3>{canPublish&&<p className="muted">Público-alvo: {q.target_role==='coroinha'?'Coroinhas':q.target_role==='cerimoniario'?'Cerimoniários':'Todos'}</p>}
     {canManage?<div className="btnrow">
       <button type="button" className="btn alt" disabled={busy} onClick={()=>void read(q.id)}>Ver respostas ({q.answer_count??0})</button>
       {!ended&&<button type="button" className="btn alt" disabled={busy} onClick={()=>void manage(q.id,'close')}>Encerrar</button>}

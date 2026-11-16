@@ -81,6 +81,8 @@ const rpcs: Record<string, Record<string, string>> = {
  send_notification:{p_title:'text',p_body:'text',p_recipient:'uuid'},
  send_notification_targeted:{p_title:'text',p_body:'text',p_target:'text',p_recipient:'uuid'},
  send_notification_prioritized:{p_title:'text',p_body:'text',p_target:'text',p_recipient:'uuid',p_priority:'boolean',p_priority_until:'timestamptz'},
+ poll_create_targeted:{p_question:'text',p_options:'jsonb',p_starts_at:'timestamptz',p_ends_at:'timestamptz',p_multiple:'boolean',p_priority:'boolean',p_target:'text'},
+ poll_update_targeted:{p_poll:'uuid',p_question:'text',p_options:'jsonb',p_starts_at:'timestamptz',p_ends_at:'timestamptz',p_multiple:'boolean',p_priority:'boolean',p_target:'text'},
  poll_create:{p_question:'text',p_options:'jsonb',p_starts_at:'timestamptz',p_ends_at:'timestamptz',p_multiple:'boolean',p_priority:'boolean'},
  poll_list:{},
  poll_tick:{},

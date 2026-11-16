@@ -1134,3 +1134,91 @@ body:has(.app.ceremony-theme) :is(
 .mass-list-card > .mass-service-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
 .mass-service-actions > .btn{width:100%;min-width:0;min-height:38px;padding:8px 9px;font-size:13px;line-height:1.2;border-radius:10px;white-space:nowrap}
 @media(max-width:350px){.mass-service-actions > .btn{font-size:12px;padding:8px 6px}}
+
+/* Enquetes: visual definido pelo perfil, sem alterar o tema dos coroinhas.
+   A classe .ceremony-theme só é aplicada à identidade de cerimoniário. */
+.app.ceremony-theme .polls-root{
+ --poll-accent:#292929;
+ --poll-ink:#303030;
+ --poll-border:#c9c9c9;
+ --poll-soft:#f0f0f0;
+ --poll-surface:#fafafa;
+ --poll-muted:#6a6a6a;
+}
+.app.ceremony-theme .polls-root :is(.poll-card,.poll-create){
+ border-color:var(--poll-border);
+ background:#fff;
+ box-shadow:0 3px 12px #0000000b;
+}
+.app.ceremony-theme .polls-root :is(.poll-create h3,.poll-options>strong,.poll-list-heading,.poll-heading strong,.poll-result strong,.poll-voter-list li,.poll-edit-button,.poll-option-editor button){
+ color:var(--poll-accent);
+}
+.app.ceremony-theme .polls-root :is(.poll-heading span,.poll-voter-list li,.poll-status,.poll-edit-button,.poll-option-editor button,.poll-closed,.poll-voted){
+ color:var(--poll-ink);
+ background:var(--poll-soft);
+ border-color:var(--poll-border);
+}
+.app.ceremony-theme .polls-root :is(.poll-vote-option,.poll-create .field input,.poll-option-editor input,.poll-create .poll-datetime input[type="datetime-local"]){
+ border-color:var(--poll-border);
+ color:var(--poll-ink);
+ background:var(--poll-surface);
+}
+.app.ceremony-theme .polls-root :is(.poll-result,.poll-result-group){
+ border-bottom-color:var(--poll-border);
+}
+.app.ceremony-theme .polls-root :is(.poll-dates,.poll-voter-empty,.poll-answer-guidance){
+ color:var(--poll-muted);
+}
+.app.ceremony-theme .polls-root :is(.poll-check input,.poll-vote-option input){
+ accent-color:var(--poll-accent);
+}
+.app.ceremony-theme .polls-root :is(.poll-edit-button,.poll-option-editor button,.poll-vote-option,.poll-heading span):focus-visible{
+ outline:2px solid #777;
+ outline-offset:2px;
+}
+.app.ceremony-theme .polls-root :is(.btn.alt,.btn.danger){
+ background:var(--poll-soft);
+ color:var(--poll-ink);
+ border:1px solid var(--poll-border);
+}
+.app.ceremony-theme .polls-root .btn:not(.alt):not(.neutral):not(.danger){
+ background:linear-gradient(125deg,#202020,#505050);
+ color:#fff;
+}
+
+/* Enquetes QA: ações equilibradas no mesmo alinhamento no celular. */
+.poll-card > .poll-management-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:9px}
+.poll-card > .poll-management-actions > button{width:100%;height:100%;min-width:0;min-height:44px;margin:0;padding:10px 9px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;line-height:1.25;border-radius:11px;align-self:stretch}
+.poll-card > .poll-management-actions > button:only-child{grid-column:1/-1}
+/* A etiqueta usa o papel de quem votou, independentemente da conta que vê. */
+.app:not(.ceremony-theme) .polls-root .poll-voter-list li.poll-voter-cerimoniario{
+ color:#282828;background:#ededed;border-color:#bdbdbd;
+}
+.app.ceremony-theme .polls-root .poll-voter-list li.poll-voter-cerimoniario,
+.app.ceremony-theme .polls-root .poll-voter-list li.poll-voter-coroinha{
+ color:#292929;background:#f0f0f0;border-color:#c9c9c9;
+}
+
+/* Ajuste fino no iPhone: centralizar verticalmente a data nativa dentro do campo.
+   Afeta somente os seletores Início / Encerramento das enquetes. */
+.poll-create .poll-datetime input[type="datetime-local"]{
+ height:56px;
+ min-height:56px;
+ padding-block:0;
+ line-height:56px;
+}
+.poll-create .poll-datetime input[type="datetime-local"]::-webkit-date-and-time-value{
+ height:56px;
+ min-height:56px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+.poll-create .poll-datetime input[type="datetime-local"]::-webkit-datetime-edit{
+ height:56px;
+ min-height:56px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ line-height:normal;
+}
