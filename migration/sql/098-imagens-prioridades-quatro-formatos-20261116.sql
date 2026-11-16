@@ -3,6 +3,8 @@
 BEGIN;
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS image_url text;
 ALTER TABLE public.screen_announcements ADD COLUMN IF NOT EXISTS priority boolean NOT NULL DEFAULT false;
+ALTER TABLE public.screen_announcements DROP CONSTRAINT IF EXISTS screen_announcements_target_role_check;
+ALTER TABLE public.screen_announcements ADD CONSTRAINT screen_announcements_target_role_check CHECK (target_role IN ('all','coroinha','cerimoniario','pai','coordenadora','desenvolvedor','individual'));
 ALTER TABLE public.screen_announcements ADD COLUMN IF NOT EXISTS priority_until timestamptz;
 ALTER TABLE public.open_questions ADD COLUMN IF NOT EXISTS priority boolean NOT NULL DEFAULT false;
 
