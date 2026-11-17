@@ -51,7 +51,8 @@ export default function NeonLogin(){
     setMode('login');setPassword('');setOtp('');setNotice('Senha definida. Entre na sua conta.');return;
    }
    result=await neonAuth.signIn.email({email,password});if(result.error)throw new Error(result.error.message);
-   await refreshNeonSession(role);await recordLogin();
+   // Existing accounts retain their server-validated profile; never force the signup role at login.
+   await refreshNeonSession();await recordLogin();
   }catch(e){setError(e instanceof Error?e.message:'Não foi possível concluir.')}finally{setBusy(false)}
  }
  const title={login:'Entrar',signup:'Criar conta',reset:'Esqueci minha senha','reset-code':'Definir senha'}[mode];
