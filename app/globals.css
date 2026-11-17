@@ -1280,3 +1280,21 @@ body:has(.app.ceremony-theme) :is(
  .auth-splash .splash-brand p,.auth-splash .splash-divider,.auth-splash .splash-divider span,
  .auth-splash .splash-loading,.auth-splash .splash-loading-indicator{animation:none!important;opacity:1;transform:none}
 }
+
+/* Aviso de instalação contextual após entrar no aplicativo — QA */
+.install-welcome-overlay{position:fixed;z-index:1200;inset:0;display:flex;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));background:#160a12ac;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.install-welcome-card{position:relative;width:min(100%,420px);max-height:90dvh;overflow-y:auto;background:var(--cream);color:var(--ink);border:1px solid #ffffff55;border-radius:24px;padding:24px 22px 19px;box-shadow:0 22px 70px #0005;animation:install-welcome-appear .28s ease-out both}
+.install-welcome-x{position:absolute;top:15px;right:14px;width:34px;height:34px;display:grid;place-items:center;background:transparent;border:0;color:var(--ink);border-radius:50%}
+.install-welcome-icon{width:58px;height:58px;margin:0 auto 13px;border-radius:20px;display:grid;place-items:center;background:var(--wine);color:#fff}
+.install-welcome-card h2{font:700 clamp(21px,5.5vw,25px)/1.23 Georgia,serif;color:var(--wine);text-align:center;margin:0 22px 10px}
+.install-welcome-card>p{font-size:14px;line-height:1.55;text-align:center;margin:0 0 13px}
+.install-welcome-steps{padding:0 0 0 23px;margin:12px 0;line-height:1.6;font-size:14px}
+.install-welcome-steps li{padding-left:3px;margin:0 0 9px}
+.install-welcome-steps svg{vertical-align:middle;color:var(--wine)}
+.install-welcome-card .install-welcome-note{font-size:12px;color:var(--muted);margin:12px 0}
+.install-welcome-card .install-welcome-tip{font-size:13px;background:#a0a0a011;border-radius:9px;padding:9px 10px}
+.install-welcome-card .install-welcome-feedback{font-size:13px;color:var(--wine);font-weight:600;margin:11px 0}
+.install-welcome-card .install-welcome-action{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 0}
+.install-welcome-card .install-welcome-later{margin-top:11px}
+@keyframes install-welcome-appear{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.install-welcome-card{animation:none}}
