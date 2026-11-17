@@ -1298,3 +1298,6 @@ body:has(.app.ceremony-theme) :is(
 .install-welcome-card .install-welcome-later{margin-top:11px}
 @keyframes install-welcome-appear{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.install-welcome-card{animation:none}}
+
+/* Separa visualmente as funções da missa das ações de gerenciamento. */
+.mass-management-separator{border-top:1px solid var(--border,rgba(128,128,128,.26));margin:24px 0 18px;width:100%}
