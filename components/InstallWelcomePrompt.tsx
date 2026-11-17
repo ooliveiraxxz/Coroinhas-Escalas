@@ -68,7 +68,7 @@ export default function InstallWelcomePrompt({userId,db,pushEnabled,onOpenSettin
     <button type="button" className="btn alt full install-welcome-later" onClick={close}>Agora não</button>
    </>:<>
     <h2 id="install-welcome-title">Primeiro, adicione o aplicativo</h2>
-    <p id="install-welcome-description">{platform==='ios'?'No iPhone, abra o Escalas São Bento no Safari e adicione-o à Tela de Início antes de ativar as notificações.':'No Android, instale o aplicativo pelo Chrome para receber as notificações com mais facilidade.'}</p>
+    <p id="install-welcome-description">{platform==='ios'?'Para receber notificações, adicione o Escalas São Bento à Tela de Início pelo Safari e ative as notificações.':'Para receber notificações, instale o Escalas São Bento pelo Chrome e permita o envio de notificações.'}</p>
     <p className="install-welcome-tip">Em <strong>Ajustes</strong>, há um passo a passo para {platform==='ios'?'iPhone':'Android'}. Leia com calma e toque no botão abaixo quando estiver pronto.</p>
     <button type="button" className="btn full install-welcome-action" onClick={go}>Ir para Ajustes</button>
     <button type="button" className="btn alt full install-welcome-later" onClick={close}>Agora não</button>
